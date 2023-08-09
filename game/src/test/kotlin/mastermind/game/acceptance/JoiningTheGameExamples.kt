@@ -1,5 +1,6 @@
 package mastermind.game.acceptance
 
+import mastermind.game.GameId
 import mastermind.game.http.mastermindHttpApp
 import mastermind.game.testkit.shouldBe
 import org.http4k.client.ApacheClient
@@ -45,9 +46,6 @@ val client = ApacheClient()
 data class Code(val pegs: List<String>) : List<String> by pegs {
     constructor(vararg pegs: String) : this(pegs.asList())
 }
-
-@JvmInline
-value class GameId(val value: String)
 
 data class DecodingBoard(
     val id: String,
