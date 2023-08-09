@@ -1,6 +1,7 @@
 package mastermind.game.acceptance
 
 import mastermind.game.http.mastermindHttpApp
+import mastermind.game.testkit.shouldBe
 import org.http4k.client.ApacheClient
 import org.http4k.core.Body
 import org.http4k.core.Method.GET
@@ -74,6 +75,3 @@ private fun viewDecodingBoard(gameId: GameId): DecodingBoard {
     return Body.auto<DecodingBoard>().toLens()(response)
 }
 
-infix fun <T> T?.shouldBe(expected: T?) {
-    assertEquals(expected, this)
-}
