@@ -1,6 +1,14 @@
 package mastermind.game.acceptance
 
+import org.http4k.client.ApacheClient
+import org.http4k.core.Method.POST
+import org.http4k.core.Request
+import org.http4k.core.Response
+import org.http4k.core.Status.Companion.CREATED
+import org.http4k.server.Undertow
+import org.http4k.server.asServer
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 
 class JoiningTheGameExamples {
@@ -24,8 +32,15 @@ class JoiningTheGameExamples {
             )
         }
     }
-
 }
+
+val server =
+    { _: Request ->
+        Response(CREATED).header("Location", "/games/6e252c79-4d02-4b05-92ac-6040e8c7f057")
+    }
+        .asServer(Undertow(0))
+        .start()
+val client = ApacheClient()
 
 data class Code(val pegs: List<String>) : List<String> by pegs {
     constructor(vararg pegs: String) : this(pegs.asList())
@@ -48,6 +63,12 @@ private fun startApplication(totalAttempts: Int, secret: Code) {
 }
 
 private fun joinGame(block: (GameId) -> Unit) {
+    val response = client(Request(POST, "http://localhost:${server.port()}/games"))
+    assertEquals(CREATED, response.status)
+    response.header("Location")
+        ?.substringAfter("/games/", "")
+        ?.let(::GameId)
+        ?.also(block) ?: fail("Location header not found in the response.")
 }
 
 private fun viewDecodingBoard(gameId: GameId): DecodingBoard? = DecodingBoard(
