@@ -40,7 +40,7 @@ class JoiningTheGameExamples {
     }
 }
 
-val server = mastermindHttpApp().asServer(Undertow(0)).start()
+val server = mastermindHttpApp { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") }.asServer(Undertow(0)).start()
 val client = ApacheClient()
 
 data class Code(val pegs: List<String>) : List<String> by pegs {
