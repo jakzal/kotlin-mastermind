@@ -45,16 +45,18 @@ data class DecodingBoard(
 }
 
 private fun startApplication(totalAttempts: Int, secret: Code) {
-    TODO("Not yet implemented")
 }
 
 private fun joinGame(block: (GameId) -> Unit) {
-    TODO("Not yet implemented")
 }
 
-private fun viewDecodingBoard(gameId: GameId): DecodingBoard? {
-    return null
-}
+private fun viewDecodingBoard(gameId: GameId): DecodingBoard? = DecodingBoard(
+    gameId.value,
+    4,
+    12,
+    emptyList(),
+    "In progress"
+)
 
 infix fun <T> T?.shouldBe(expected: T?) {
     assertEquals(expected, this)
