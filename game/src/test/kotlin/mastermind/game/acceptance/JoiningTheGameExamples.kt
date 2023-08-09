@@ -42,7 +42,10 @@ class JoiningTheGameExamples {
     }
 }
 
-val server = routes(
+val server = mastermindHttpApp().asServer(Undertow(0)).start()
+val client = ApacheClient()
+
+private fun mastermindHttpApp() = routes(
     "/games" bind POST to { _: Request ->
         Response(CREATED).header("Location", "/games/6e252c79-4d02-4b05-92ac-6040e8c7f057")
     },
@@ -52,8 +55,7 @@ val server = routes(
             Body.auto<DecodingBoard>().toLens() of DecodingBoard(id, 4, 12, emptyList(), "In progress")
         )
     }
-).asServer(Undertow(0)).start()
-val client = ApacheClient()
+)
 
 data class Code(val pegs: List<String>) : List<String> by pegs {
     constructor(vararg pegs: String) : this(pegs.asList())
