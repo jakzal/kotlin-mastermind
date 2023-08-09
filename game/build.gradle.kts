@@ -15,6 +15,7 @@ dependencies {
     testImplementation("org.http4k:http4k-core")
     testImplementation("org.http4k:http4k-server-undertow")
     testImplementation("org.http4k:http4k-client-apache")
+    testImplementation("org.http4k:http4k-format-jackson")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
