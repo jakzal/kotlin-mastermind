@@ -33,6 +33,19 @@ class ViewDecodingBoardHandlerExamples {
             "In progress"
         )
     }
+
+    @Test
+    fun `it returns a 404 response if the decoding board is not found`() {
+        val app = mastermindHttpApp(
+            app = object : MastermindApp by fake() {
+                override fun viewDecodingBoard(id: String): DecodingBoard? = null
+            }
+        )
+
+        val response = app(Request(Method.GET, "/games/60693d0a-152c-4c4e-a11e-35fd8176df53"))
+
+        response.status shouldBe Status.NOT_FOUND
+    }
 }
 
 private fun Response.asDecodingBoard(): DecodingBoard = Body.auto<DecodingBoard>().toLens()(this)

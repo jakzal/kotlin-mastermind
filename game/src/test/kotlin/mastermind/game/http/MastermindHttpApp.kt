@@ -27,6 +27,6 @@ fun mastermindHttpApp(
             Response(Status.OK).with(
                 Body.auto<DecodingBoard>().toLens() of it
             )
-        }?: throw RuntimeException("TODO")
+        }?: Response(Status.NOT_FOUND)
     }
 )
