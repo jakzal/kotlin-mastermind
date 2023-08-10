@@ -15,7 +15,7 @@ class JoinGameHttpHandlerExamples {
         val gameId = generateGameId()
         val app = mastermindHttpApp(
             app = object : MastermindApp by fake() {
-                override fun joinGame(): GameId = gameId
+                override suspend fun joinGame(): GameId = gameId
             }
         )
 

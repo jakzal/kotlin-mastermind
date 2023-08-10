@@ -13,7 +13,7 @@ class ViewDecodingBoardHandlerExamples {
     fun `it returns the decoding board view if found`() {
         val app = mastermindHttpApp(
             app = object : MastermindApp by fake() {
-                override fun viewDecodingBoard(gameId: GameId): DecodingBoard? = DecodingBoard(
+                override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = DecodingBoard(
                     gameId.value,
                     4,
                     8,
@@ -39,7 +39,7 @@ class ViewDecodingBoardHandlerExamples {
     fun `it returns a 404 response if the decoding board is not found`() {
         val app = mastermindHttpApp(
             app = object : MastermindApp by fake() {
-                override fun viewDecodingBoard(gameId: GameId): DecodingBoard? = null
+                override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = null
             }
         )
 

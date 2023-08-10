@@ -1,5 +1,6 @@
 package mastermind.game.http
 
+import kotlinx.coroutines.runBlocking
 import mastermind.game.DecodingBoard
 import mastermind.game.GameId
 import org.http4k.core.*
@@ -10,20 +11,24 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 
 interface MastermindApp {
-    fun joinGame(): GameId
-    fun viewDecodingBoard(gameId: GameId): DecodingBoard?
+    suspend fun joinGame(): GameId
+    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard?
 }
 
 fun mastermindHttpApp(
     app: MastermindApp
 ) = routes(
     "/games" bind Method.POST to { _: Request ->
-        app.joinGame() thenRespond { gameId ->
-            Response(Status.CREATED).with(gameId.asLocationHeader())
+        runBlocking {
+            app.joinGame() thenRespond { gameId ->
+                Response(Status.CREATED).with(gameId.asLocationHeader())
+            }
         }
     },
     "/games/{id}" bind Method.GET to { request ->
-        app.viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
+        runBlocking {
+            app.viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
+        }
     }
 )
 

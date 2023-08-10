@@ -11,6 +11,8 @@ kotlin {
 }
 
 dependencies {
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation(platform("org.http4k:http4k-bom:5.6.1.0"))
     testImplementation("org.http4k:http4k-core")
     testImplementation("org.http4k:http4k-server-undertow")
