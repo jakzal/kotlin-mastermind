@@ -10,5 +10,5 @@ inline fun <reified T> fake(): T =
         T::class.java.classLoader,
         arrayOf(T::class.java)
     ) { _, _, _ ->
-        TODO("not implemented")
+        throw RuntimeException("not implemented")
     } as T
