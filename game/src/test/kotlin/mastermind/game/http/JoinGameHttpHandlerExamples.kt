@@ -1,9 +1,7 @@
 package mastermind.game.http
 
-import mastermind.game.GameId
 import mastermind.game.MastermindApp
 import mastermind.game.generateGameId
-import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe
 import org.http4k.core.Method.POST
 import org.http4k.core.Request
@@ -14,11 +12,9 @@ class JoinGameHttpHandlerExamples {
     @Test
     fun `it returns the location of the joined game`() {
         val gameId = generateGameId()
-        val app = mastermindHttpApp(
-            app = object : MastermindApp by fake() {
-                override suspend fun joinGame(): GameId = gameId
-            }
-        )
+        val app = mastermindHttpApp(MastermindApp(
+            joinGame = { gameId }
+        ))
 
         val response = app(Request(POST, "/games"))
 

@@ -1,10 +1,9 @@
 package mastermind.game.acceptance
 
+import mastermind.game.MastermindApp
 import mastermind.game.DecodingBoard
 import mastermind.game.GameId
-import mastermind.game.MastermindApp
 import mastermind.game.http.mastermindHttpApp
-import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe
 import org.http4k.client.ApacheClient
 import org.http4k.core.Body
@@ -43,10 +42,10 @@ class JoiningTheGameExamples {
     }
 }
 
-val server = mastermindHttpApp(object : MastermindApp by fake() {
-    override suspend fun joinGame(): GameId = GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057")
-    override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = DecodingBoard(gameId.value, 4, 12, emptyList(), "In progress")
-}).asServer(Undertow(0)).start()
+val server = mastermindHttpApp(MastermindApp(
+    joinGame = { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") },
+    viewDecodingBoard = { gameId: GameId -> DecodingBoard(gameId.value, 4, 12, emptyList(), "In progress") }
+)).asServer(Undertow(0)).start()
 val client = ApacheClient()
 
 data class Code(val pegs: List<String>) : List<String> by pegs {

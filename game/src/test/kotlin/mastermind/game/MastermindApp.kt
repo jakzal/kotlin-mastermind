@@ -1,6 +1,6 @@
 package mastermind.game
 
-interface MastermindApp {
-    suspend fun joinGame(): GameId
-    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard?
-}
+data class MastermindApp(
+    val joinGame: suspend () -> GameId = { TODO() },
+    val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { TODO() }
+)

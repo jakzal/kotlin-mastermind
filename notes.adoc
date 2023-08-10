@@ -2,4 +2,6 @@
 
 == Test list
 
-Done.
+=== MastermindApp
+
+* provide default implementations for use case functions (currently TODO())

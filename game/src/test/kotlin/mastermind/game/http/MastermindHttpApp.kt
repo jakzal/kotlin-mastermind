@@ -1,9 +1,9 @@
 package mastermind.game.http
 
 import kotlinx.coroutines.runBlocking
+import mastermind.game.MastermindApp
 import mastermind.game.DecodingBoard
 import mastermind.game.GameId
-import mastermind.game.MastermindApp
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
