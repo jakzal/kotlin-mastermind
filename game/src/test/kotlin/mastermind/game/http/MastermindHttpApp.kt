@@ -3,17 +3,13 @@ package mastermind.game.http
 import kotlinx.coroutines.runBlocking
 import mastermind.game.DecodingBoard
 import mastermind.game.GameId
+import mastermind.game.MastermindApp
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
 import org.http4k.lens.Path
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-
-interface MastermindApp {
-    suspend fun joinGame(): GameId
-    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard?
-}
 
 fun mastermindHttpApp(
     app: MastermindApp

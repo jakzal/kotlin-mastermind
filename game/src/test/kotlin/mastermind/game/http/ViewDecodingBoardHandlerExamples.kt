@@ -2,6 +2,7 @@ package mastermind.game.http
 
 import mastermind.game.DecodingBoard
 import mastermind.game.GameId
+import mastermind.game.MastermindApp
 import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe
 import org.http4k.core.*

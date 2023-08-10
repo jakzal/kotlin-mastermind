@@ -2,7 +2,7 @@ package mastermind.game.acceptance
 
 import mastermind.game.DecodingBoard
 import mastermind.game.GameId
-import mastermind.game.http.MastermindApp
+import mastermind.game.MastermindApp
 import mastermind.game.http.mastermindHttpApp
 import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe

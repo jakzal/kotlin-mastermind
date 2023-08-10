@@ -1,6 +1,7 @@
 package mastermind.game.http
 
 import mastermind.game.GameId
+import mastermind.game.MastermindApp
 import mastermind.game.generateGameId
 import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe
