@@ -1,6 +1,7 @@
 package mastermind.game.http
 
 import mastermind.game.DecodingBoard
+import mastermind.game.GameId
 import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe
 import org.http4k.core.*
@@ -12,8 +13,8 @@ class ViewDecodingBoardHandlerExamples {
     fun `it returns the decoding board view if found`() {
         val app = mastermindHttpApp(
             app = object : MastermindApp by fake() {
-                override fun viewDecodingBoard(id: String): DecodingBoard? = DecodingBoard(
-                    id,
+                override fun viewDecodingBoard(gameId: GameId): DecodingBoard? = DecodingBoard(
+                    gameId.value,
                     4,
                     8,
                     emptyList(),
@@ -38,7 +39,7 @@ class ViewDecodingBoardHandlerExamples {
     fun `it returns a 404 response if the decoding board is not found`() {
         val app = mastermindHttpApp(
             app = object : MastermindApp by fake() {
-                override fun viewDecodingBoard(id: String): DecodingBoard? = null
+                override fun viewDecodingBoard(gameId: GameId): DecodingBoard? = null
             }
         )
 

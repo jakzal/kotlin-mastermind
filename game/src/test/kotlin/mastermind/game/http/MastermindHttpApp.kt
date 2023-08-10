@@ -11,7 +11,7 @@ import org.http4k.routing.routes
 
 interface MastermindApp {
     fun joinGame(): GameId
-    fun viewDecodingBoard(id: String): DecodingBoard?
+    fun viewDecodingBoard(gameId: GameId): DecodingBoard?
 }
 
 fun mastermindHttpApp(
@@ -23,12 +23,14 @@ fun mastermindHttpApp(
         }
     },
     "/games/{id}" bind Method.GET to { request ->
-        app.viewDecodingBoard(request.id) thenRespond DecodingBoard?::asResponse
+        app.viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
     }
 )
 
 private val Request.id: String
     get() = Path.of("id")(this)
+
+private fun String.asGameId(): GameId = GameId(this)
 
 private fun GameId.asLocationHeader(): (Response) -> Response = Header.LOCATION of Uri.of("/games/${value}")
 
