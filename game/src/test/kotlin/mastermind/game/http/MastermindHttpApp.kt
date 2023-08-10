@@ -8,11 +8,15 @@ import org.http4k.lens.Path
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
+interface MastermindApp {
+    fun joinGame(): GameId
+}
+
 fun mastermindHttpApp(
-    generateGameId: () -> GameId
+    app: MastermindApp
 ) = routes(
     "/games" bind Method.POST to { _: Request ->
-        generateGameId().let { gameId ->
+        app.joinGame().let { gameId ->
             Response(Status.CREATED).header("Location", "/games/${gameId.value}")
         }
     },

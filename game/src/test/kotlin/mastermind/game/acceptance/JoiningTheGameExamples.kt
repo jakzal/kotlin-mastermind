@@ -1,6 +1,7 @@
 package mastermind.game.acceptance
 
 import mastermind.game.GameId
+import mastermind.game.http.MastermindApp
 import mastermind.game.http.mastermindHttpApp
 import mastermind.game.testkit.shouldBe
 import org.http4k.client.ApacheClient
@@ -40,7 +41,9 @@ class JoiningTheGameExamples {
     }
 }
 
-val server = mastermindHttpApp { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") }.asServer(Undertow(0)).start()
+val server = mastermindHttpApp(object : MastermindApp {
+    override fun joinGame(): GameId = GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057")
+}).asServer(Undertow(0)).start()
 val client = ApacheClient()
 
 data class Code(val pegs: List<String>) : List<String> by pegs {

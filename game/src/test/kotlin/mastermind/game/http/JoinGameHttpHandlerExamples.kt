@@ -12,7 +12,11 @@ class JoinGameHttpHandlerExamples {
     @Test
     fun `it returns the location of the joined game`() {
         val gameId = generateGameId()
-        val app = mastermindHttpApp(generateGameId = { gameId })
+        val app = mastermindHttpApp(
+            app = object : MastermindApp {
+                override fun joinGame(): GameId = gameId
+            }
+        )
 
         val response = app(Request(POST, "/games"))
 
