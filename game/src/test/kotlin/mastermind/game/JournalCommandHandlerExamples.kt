@@ -35,21 +35,19 @@ class JournalCommandHandlerExamples {
 }
 
 class JournalCommandHandler(
-    private val executor: CommandExecutor<GameCommand, GameEvent, GameFailure>
+    private val execute: Execute<GameCommand, GameEvent, GameFailure>
 ) {
     context(Journal<GameEvent>)
     suspend operator fun invoke(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
         return create("Mastermind:${command.gameId.value}") {
-            executor.execute(command).getOrNull()!!
+            execute(command).getOrNull()!!
         }
     }
 }
 
 typealias StreamName = String
 
-fun interface CommandExecutor<COMMAND : Any, EVENT : Any, FAILURE : Any> {
-    fun execute(command: COMMAND): Either<FAILURE, NonEmptyList<EVENT>>
-}
+typealias Execute<COMMAND, EVENT, FAILURE> = (COMMAND) -> Either<FAILURE, NonEmptyList<EVENT>>
 
 interface Journal<EVENT : Any> {
     suspend fun create(
