@@ -29,17 +29,19 @@ class JournalCommandHandlerExamples {
         }) {
             val command = JoinGame(gameId, secret, totalAttempts)
             val expectedEvent = GameStarted(gameId, secret, totalAttempts)
-            JournalCommandHandler(::execute)(command) shouldReturn listOf(expectedEvent).right()
+            val streamNameResolver = { command: JoinGame -> "Mastermind:${command.gameId.value}" }
+            JournalCommandHandler(::execute, streamNameResolver)(command) shouldReturn listOf(expectedEvent).right()
         }
     }
 }
 
 class JournalCommandHandler(
-    private val execute: Execute<GameCommand, GameEvent, GameFailure>
+    private val execute: Execute<GameCommand, GameEvent, GameFailure>,
+    private val streamNameResolver: (JoinGame) -> String
 ) {
     context(Journal<GameEvent>)
     suspend operator fun invoke(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
-        return create("Mastermind:${command.gameId.value}") {
+        return create(streamNameResolver(command)) {
             execute(command).getOrNull()!!
         }
     }
