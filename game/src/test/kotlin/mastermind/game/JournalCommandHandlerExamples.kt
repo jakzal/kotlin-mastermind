@@ -2,11 +2,10 @@ package mastermind.game
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
+import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.game.testkit.anyGameId
-import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import org.junit.jupiter.api.Test
@@ -14,25 +13,27 @@ import org.junit.jupiter.api.Test
 class JournalCommandHandlerExamples {
     @Test
     fun `it appends events created in reaction to the JoinGame command to the journal`() = runTest {
-        val gameId = anyGameId()
-        val secret = anySecret()
-        val totalAttempts = 8
-        with(object : Journal<GameEvent> {
+        with(object : Journal<TestEvent> {
             override suspend fun create(
                 streamName: StreamName,
-                action: () -> NonEmptyList<GameEvent>
-            ): Either<JournalFailure, NonEmptyList<GameEvent>> = either {
+                action: () -> NonEmptyList<TestEvent>
+            ): Either<JournalFailure, NonEmptyList<TestEvent>> = either {
                 action().also {
-                    streamName shouldBe "Mastermind:${gameId.value}"
+                    streamName shouldBe "Stream:ABC"
                 }
             }
         }) {
-            val command = JoinGame(gameId, secret, totalAttempts)
-            val expectedEvent = GameStarted(gameId, secret, totalAttempts)
-            val streamNameResolver = { c: GameCommand -> "Mastermind:${c.gameId.value}" }
-            JournalCommandHandler(::execute, streamNameResolver)(command) shouldReturn listOf(expectedEvent).right()
+            val command = TestCommand("ABC")
+            val expectedEvent = TestEvent("ABC")
+            val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
+            val execute: Execute<TestCommand, TestEvent, TestFailure> = { _: TestCommand -> nonEmptyListOf(expectedEvent).right() }
+            JournalCommandHandler(execute, streamNameResolver)(command) shouldReturn listOf(expectedEvent).right()
         }
     }
+
+    private data class TestCommand(val id: String)
+    private data class TestEvent(val id: String)
+    private data class TestFailure(val cause: String)
 }
 
 class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any>(
