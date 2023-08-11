@@ -10,9 +10,10 @@ typealias Execute<COMMAND, EVENT, FAILURE> = (COMMAND) -> Either<FAILURE, NonEmp
 interface Journal<EVENT : Any> {
     suspend fun <FAILURE : Any> create(
         streamName: StreamName,
-        action: () -> Either<FAILURE, NonEmptyList<EVENT>>
+        execute: () -> Either<FAILURE, NonEmptyList<EVENT>>
     ): Either<JournalFailure<FAILURE>, NonEmptyList<EVENT>>
 }
 
 sealed interface JournalFailure<FAILURE>
 data class EventStoreFailure(val cause: Throwable) : JournalFailure<Nothing>
+data class ExecutionFailure<FAILURE>(val cause: FAILURE) : JournalFailure<FAILURE>

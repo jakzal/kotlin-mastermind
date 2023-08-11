@@ -31,10 +31,10 @@ class JournalCommandHandlerExamples {
     private fun journalThatOnlyExpectsToCreateStream(expectedStream: String) = object : Journal<TestEvent> {
         override suspend fun <FAILURE : Any> create(
             streamName: StreamName,
-            action: () -> Either<FAILURE, NonEmptyList<TestEvent>>
+            execute: () -> Either<FAILURE, NonEmptyList<TestEvent>>
         ): Either<JournalFailure<FAILURE>, NonEmptyList<TestEvent>> =
             either {
-                action().getOrNull()!!.also { streamName shouldBe expectedStream }
+                execute().getOrNull()!!.also { streamName shouldBe expectedStream }
             }
     }
 
