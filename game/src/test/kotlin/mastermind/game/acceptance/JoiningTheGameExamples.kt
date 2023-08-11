@@ -43,9 +43,9 @@ class JoiningTheGameExamples {
 
 val server = mastermindHttpApp(MastermindApp(
     configuration = Configuration(
-        gameIdGenerator = GameIdGenerator { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") },
-        codeMaker = CodeMaker { makeCode() },
-        gameCommandHandler = GameCommandHandler { it.gameId }
+        gameIdGenerator = { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") },
+        codeMaker = { makeCode() },
+        gameCommandHandler = { it.gameId }
     ),
     viewDecodingBoard = { gameId: GameId ->
         DecodingBoard(
