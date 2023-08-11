@@ -1,5 +1,6 @@
 package mastermind.game.acceptance
 
+import mastermind.game.Code
 import mastermind.game.MastermindApp
 import mastermind.game.DecodingBoard
 import mastermind.game.GameId
@@ -47,10 +48,6 @@ val server = mastermindHttpApp(MastermindApp(
     viewDecodingBoard = { gameId: GameId -> DecodingBoard(gameId.value, 4, 12, emptyList(), "In progress") }
 )).asServer(Undertow(0)).start()
 val client = ApacheClient()
-
-data class Code(val pegs: List<String>) : List<String> by pegs {
-    constructor(vararg pegs: String) : this(pegs.asList())
-}
 
 private fun startApplication(totalAttempts: Int, secret: Code) {
 }
