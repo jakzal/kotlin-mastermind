@@ -40,29 +40,3 @@ class JournalCommandHandlerExamples {
     private data class TestEvent(val id: String)
     private data class TestFailure(val cause: String)
 }
-
-class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any>(
-    private val execute: Execute<COMMAND, EVENT, FAILURE>,
-    private val streamNameResolver: (COMMAND) -> String
-) {
-    context(Journal<EVENT>)
-    suspend operator fun invoke(command: COMMAND): Either<JournalFailure, NonEmptyList<EVENT>> {
-        return create(streamNameResolver(command)) {
-            execute(command).getOrNull()!!
-        }
-    }
-}
-
-typealias StreamName = String
-
-typealias Execute<COMMAND, EVENT, FAILURE> = (COMMAND) -> Either<FAILURE, NonEmptyList<EVENT>>
-
-interface Journal<EVENT : Any> {
-    suspend fun create(
-        streamName: StreamName,
-        action: () -> NonEmptyList<EVENT>
-    ): Either<JournalFailure, NonEmptyList<EVENT>>
-}
-
-sealed interface JournalFailure
-data class EventStoreFailure(val cause: Throwable) : JournalFailure
