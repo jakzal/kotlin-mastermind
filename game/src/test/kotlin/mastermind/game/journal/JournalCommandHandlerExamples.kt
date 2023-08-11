@@ -1,4 +1,4 @@
-package mastermind.game
+package mastermind.game.journal
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
