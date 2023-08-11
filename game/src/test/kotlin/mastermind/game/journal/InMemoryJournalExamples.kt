@@ -1,8 +1,8 @@
 package mastermind.game.journal
 
-import arrow.core.*
-import arrow.core.raise.either
-import arrow.core.raise.withError
+import arrow.core.left
+import arrow.core.nonEmptyListOf
+import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.journal.InMemoryJournalExamples.TestEvent.Event1
 import mastermind.game.journal.InMemoryJournalExamples.TestEvent.Event2
@@ -10,17 +10,7 @@ import mastermind.game.testkit.shouldBe
 import org.junit.jupiter.api.Test
 
 class InMemoryJournalExamples {
-    private val events = mutableMapOf<String, List<TestEvent>>()
-    private val journal = object : Journal<TestEvent> {
-        override suspend fun <FAILURE : Any> create(
-            streamName: StreamName,
-            execute: () -> Either<FAILURE, NonEmptyList<TestEvent>>
-        ): Either<JournalFailure<FAILURE>, NonEmptyList<TestEvent>> = either {
-            withError(::ExecutionFailure) {
-                execute().onRight { newEvents -> events[streamName] = newEvents }.bind()
-            }
-        }
-    }
+    private val journal = InMemoryJournal<TestEvent>()
 
     @Test
     fun `it persists created events to a new stream`() = runTest {
