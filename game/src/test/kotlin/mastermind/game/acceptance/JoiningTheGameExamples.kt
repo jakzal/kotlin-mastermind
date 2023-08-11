@@ -1,9 +1,6 @@
 package mastermind.game.acceptance
 
-import mastermind.game.Code
-import mastermind.game.MastermindApp
-import mastermind.game.DecodingBoard
-import mastermind.game.GameId
+import mastermind.game.*
 import mastermind.game.http.mastermindHttpApp
 import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
@@ -45,7 +42,15 @@ class JoiningTheGameExamples {
 }
 
 val server = mastermindHttpApp(MastermindApp(
-    joinGame = { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") },
+    joinGame = {
+        with(GameIdGenerator { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") }) {
+            with(CodeMaker { makeCode() }) {
+                with(GameCommandHandler { it.gameId }) {
+                    joinGame()
+                }
+            }
+        }
+    },
     viewDecodingBoard = { gameId: GameId -> DecodingBoard(gameId.value, 4, 12, emptyList(), "In progress") }
 )).asServer(Undertow(0)).start()
 val client = ApacheClient()
