@@ -6,6 +6,7 @@
 
 * provide default implementations for use case functions (currently TODO())
 
-=== Code
+=== GameCommandHandler
 
-* generate random secrets
+* revisit tests and make them more readable
+* revisit passing CommandExecutor as a context receiver

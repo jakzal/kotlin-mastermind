@@ -6,7 +6,6 @@ import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.game.Journal.JournalFailure
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
@@ -29,29 +28,40 @@ class GameCommandHandlerExamples {
                 }
             }
         }) {
-            execute(JoinGame(gameId, secret, totalAttempts)) shouldReturn listOf(
-                GameStarted(gameId, secret, totalAttempts)
-            ).right()
+            with(CommandExecutor<GameCommand, GameEvent, GameFailure> { command ->
+                when (command) {
+                    is JoinGame -> nonEmptyListOf(
+                        GameStarted(command.gameId, command.secret, command.totalAttempts)
+                    ).right()
+                }
+            }) {
+                executeAndCreate(JoinGame(gameId, secret, totalAttempts)) shouldReturn listOf(
+                    GameStarted(gameId, secret, totalAttempts)
+                ).right()
+            }
         }
     }
 }
 
-context(Journal<GameEvent>)
-private suspend fun execute(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
+context(Journal<GameEvent>, CommandExecutor<GameCommand, GameEvent, GameFailure>)
+private suspend fun executeAndCreate(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
     return create("Mastermind:${command.gameId.value}") {
-        nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts))
+        execute(command).getOrNull()!!
     }
 }
 
 typealias StreamName = String
+
+fun interface CommandExecutor<COMMAND : Any, EVENT : Any, FAILURE : Any> {
+    fun execute(command: COMMAND): Either<FAILURE, NonEmptyList<EVENT>>
+}
 
 interface Journal<EVENT : Any> {
     suspend fun create(
         streamName: StreamName,
         action: () -> NonEmptyList<EVENT>
     ): Either<JournalFailure, NonEmptyList<EVENT>>
-
-    sealed interface JournalFailure {
-        data class EventStoreFailure(val cause: Throwable) : JournalFailure
-    }
 }
+
+sealed interface JournalFailure
+data class EventStoreFailure(val cause: Throwable) : JournalFailure
