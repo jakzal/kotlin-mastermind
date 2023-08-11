@@ -5,3 +5,7 @@
 === MastermindApp
 
 * provide default implementations for use case functions (currently TODO())
+
+=== Code
+
+* generate random secrets
