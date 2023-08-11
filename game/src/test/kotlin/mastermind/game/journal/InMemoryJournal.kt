@@ -7,6 +7,7 @@ import arrow.core.raise.withError
 
 class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     private val events = mutableMapOf<String, List<EVENT>>()
+
     override suspend fun <FAILURE : Any> create(
         streamName: StreamName,
         execute: () -> Either<FAILURE, NonEmptyList<EVENT>>
@@ -15,4 +16,6 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
             execute().onRight { newEvents -> events[streamName] = newEvents }.bind()
         }
     }
+
+    fun eventsFor(streamName: StreamName) = events[streamName] ?: emptyList()
 }

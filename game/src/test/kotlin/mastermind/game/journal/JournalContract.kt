@@ -7,29 +7,32 @@ import kotlinx.coroutines.test.runTest
 import mastermind.game.journal.JournalContract.TestEvent.Event1
 import mastermind.game.journal.JournalContract.TestEvent.Event2
 import mastermind.game.testkit.shouldBe
+import mastermind.game.testkit.shouldReturn
 import org.junit.jupiter.api.Test
 
 abstract class JournalContract {
-    private val journal: Journal<TestEvent> get() = createJournal()
+    protected abstract fun journal(): Journal<TestEvent>
 
-    protected abstract fun createJournal(): Journal<TestEvent>
+    protected abstract fun loadEvents(streamName: StreamName): List<TestEvent>
 
     @Test
     fun `it persists created events to a new stream`() = runTest {
-        val result = journal.create("stream:1") {
+        val result = journal().create("stream:1") {
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
         }
 
         result shouldBe listOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
+        loadEvents("stream:1") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
     }
 
     @Test
     fun `it returns the execution error`() = runTest {
-        val result = journal.create("stream:2") {
+        val result = journal().create("stream:2") {
             TestFailure("Command failed.").left()
         }
 
         result shouldBe ExecutionFailure(TestFailure("Command failed.")).left()
+        loadEvents("stream:2") shouldReturn emptyList()
     }
 
     protected sealed interface TestEvent {
