@@ -35,12 +35,12 @@ class JournalCommandHandlerExamples {
     }
 }
 
-class JournalCommandHandler(
-    private val execute: Execute<GameCommand, GameEvent, GameFailure>,
-    private val streamNameResolver: (GameCommand) -> String
+class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any>(
+    private val execute: Execute<COMMAND, EVENT, FAILURE>,
+    private val streamNameResolver: (COMMAND) -> String
 ) {
-    context(Journal<GameEvent>)
-    suspend operator fun invoke(command: GameCommand): Either<JournalFailure, NonEmptyList<GameEvent>> {
+    context(Journal<EVENT>)
+    suspend operator fun invoke(command: COMMAND): Either<JournalFailure, NonEmptyList<EVENT>> {
         return create(streamNameResolver(command)) {
             execute(command).getOrNull()!!
         }
