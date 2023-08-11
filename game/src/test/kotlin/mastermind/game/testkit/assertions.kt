@@ -8,6 +8,8 @@ infix fun <T> T?.shouldBe(expected: T?) {
     assertEquals(expected, this)
 }
 
+infix fun <T> T?.shouldReturn(expected: T?) = shouldBe(expected)
+
 infix fun <T> T?.shouldNotBe(expected: T?) {
     assertNotEquals(expected, this)
 }

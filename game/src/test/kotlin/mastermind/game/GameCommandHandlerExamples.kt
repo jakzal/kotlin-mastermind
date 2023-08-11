@@ -10,6 +10,7 @@ import mastermind.game.Journal.JournalFailure
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
+import mastermind.game.testkit.shouldReturn
 import org.junit.jupiter.api.Test
 
 class GameCommandHandlerExamples {
@@ -28,7 +29,7 @@ class GameCommandHandlerExamples {
                 }
             }
         }) {
-            execute(JoinGame(gameId, secret, totalAttempts)) shouldBe listOf(
+            execute(JoinGame(gameId, secret, totalAttempts)) shouldReturn listOf(
                 GameStarted(gameId, secret, totalAttempts)
             ).right()
         }
