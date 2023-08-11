@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class JournalCommandHandlerExamples {
     @Test
-    fun `it appends events created in reaction to the JoinGame command to the journal`() = runTest {
+    fun `it appends events created in reaction to the command to the journal`() = runTest {
         val expectedEvent = TestEvent("ABC")
         val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
         val execute: Execute<TestCommand, TestEvent, TestFailure> = { _: TestCommand ->
