@@ -41,24 +41,22 @@ class JoiningTheGameExamples {
     }
 }
 
-val server = with(GameIdGenerator { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") }) {
-    with(CodeMaker { makeCode() }) {
-        with(GameCommandHandler { it.gameId }) {
-            mastermindHttpApp(MastermindApp(
-                joinGame = { joinGame() },
-                viewDecodingBoard = { gameId: GameId ->
-                    DecodingBoard(
-                        gameId.value,
-                        4,
-                        12,
-                        emptyList(),
-                        "In progress"
-                    )
-                }
-            ))
-        }
+val server = mastermindHttpApp(MastermindApp(
+    configuration = Configuration(
+        gameIdGenerator = GameIdGenerator { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") },
+        codeMaker = CodeMaker { makeCode() },
+        gameCommandHandler = GameCommandHandler { it.gameId }
+    ),
+    viewDecodingBoard = { gameId: GameId ->
+        DecodingBoard(
+            gameId.value,
+            4,
+            12,
+            emptyList(),
+            "In progress"
+        )
     }
-}.asServer(Undertow(0)).start()
+)).asServer(Undertow(0)).start()
 val client = ApacheClient()
 
 private fun startApplication(totalAttempts: Int, secret: Code) {
