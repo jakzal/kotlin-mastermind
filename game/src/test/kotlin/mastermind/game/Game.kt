@@ -5,3 +5,5 @@ data class JoinGame(val gameId: GameId, val secret: Code, val totalAttempts: Int
 
 sealed interface GameEvent
 data class GameStarted(val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameEvent
+
+sealed interface GameFailure
