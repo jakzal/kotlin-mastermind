@@ -9,4 +9,3 @@
 === GameCommandHandler
 
 * revisit tests and make them more readable
-* revisit passing CommandExecutor as a context receiver

@@ -2,7 +2,6 @@ package mastermind.game
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
-import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
@@ -28,25 +27,22 @@ class GameCommandHandlerExamples {
                 }
             }
         }) {
-            with(CommandExecutor<GameCommand, GameEvent, GameFailure> { command ->
-                when (command) {
-                    is JoinGame -> nonEmptyListOf(
-                        GameStarted(command.gameId, command.secret, command.totalAttempts)
-                    ).right()
-                }
-            }) {
-                executeAndCreate(JoinGame(gameId, secret, totalAttempts)) shouldReturn listOf(
-                    GameStarted(gameId, secret, totalAttempts)
-                ).right()
-            }
+            val handler = JournalCommandHandler(::execute)
+            handler.execute(JoinGame(gameId, secret, totalAttempts)) shouldReturn listOf(
+                GameStarted(gameId, secret, totalAttempts)
+            ).right()
         }
     }
 }
 
-context(Journal<GameEvent>, CommandExecutor<GameCommand, GameEvent, GameFailure>)
-private suspend fun executeAndCreate(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
-    return create("Mastermind:${command.gameId.value}") {
-        execute(command).getOrNull()!!
+class JournalCommandHandler(
+    private val executor: CommandExecutor<GameCommand, GameEvent, GameFailure>
+) {
+    context(Journal<GameEvent>)
+    suspend fun execute(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
+        return create("Mastermind:${command.gameId.value}") {
+            executor.execute(command).getOrNull()!!
+        }
     }
 }
 
