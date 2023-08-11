@@ -8,9 +8,6 @@ import org.junit.jupiter.api.Test
 
 class JoinGameExamples {
 
-    context(GameIdGenerator, CodeMaker, GameCommandHandler)
-    suspend fun joinGame(): GameId = handle(JoinGame(generateGameId(), makeCode(), 12))
-
     @Test
     fun `it sends the JoinGame command to the game command handler`() = runTest {
         val gameId = anyGameId()
@@ -32,19 +29,4 @@ class JoinGameExamples {
 
         result shouldBe gameId
     }
-
 }
-
-fun interface CodeMaker {
-    fun makeCode(): Code
-}
-
-fun interface GameIdGenerator {
-    fun generateGameId(): GameId
-}
-
-fun interface GameCommandHandler {
-    suspend fun handle(command: JoinGame): GameId
-}
-
-data class JoinGame(val gameId: GameId, val secret: Code, val totalAttempts: Int)
