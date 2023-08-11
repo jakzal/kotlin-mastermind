@@ -5,6 +5,7 @@ import mastermind.game.MastermindApp
 import mastermind.game.DecodingBoard
 import mastermind.game.GameId
 import mastermind.game.http.mastermindHttpApp
+import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
 import org.http4k.client.ApacheClient
 import org.http4k.core.Body
@@ -26,7 +27,7 @@ class JoiningTheGameExamples {
         // Given a decoding board of 12 attempts
         val totalAttempts = 12
         // And the code maker has placed a secret on the board
-        val secret = Code("Red", "Green", "Yellow", "Blue")
+        val secret = anySecret()
         startApplication(totalAttempts, secret)
         // When I join the game
         joinGame { gameId ->

@@ -1,6 +1,8 @@
 package mastermind.game
 
 import kotlinx.coroutines.test.runTest
+import mastermind.game.testkit.anyGameId
+import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
 import org.junit.jupiter.api.Test
 
@@ -44,9 +46,5 @@ fun interface GameIdGenerator {
 fun interface GameCommandHandler {
     suspend fun handle(command: JoinGame): GameId
 }
-
-private fun anySecret(): Code = Code("Red", "Blue", "Purple", "Red")
-
-private fun anyGameId(): GameId = generateGameId()
 
 data class JoinGame(val gameId: GameId, val secret: Code, val totalAttempts: Int)
