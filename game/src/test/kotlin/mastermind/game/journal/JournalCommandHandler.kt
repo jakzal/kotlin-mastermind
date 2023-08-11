@@ -8,9 +8,9 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any>(
     private val streamNameResolver: (COMMAND) -> String
 ) {
     context(Journal<EVENT>)
-    suspend operator fun invoke(command: COMMAND): Either<JournalFailure, NonEmptyList<EVENT>> {
+    suspend operator fun invoke(command: COMMAND): Either<JournalFailure<FAILURE>, NonEmptyList<EVENT>> {
         return create(streamNameResolver(command)) {
-            execute(command).getOrNull()!!
+            execute(command)
         }
     }
 }

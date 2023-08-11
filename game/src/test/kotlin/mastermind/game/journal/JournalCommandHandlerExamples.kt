@@ -29,10 +29,12 @@ class JournalCommandHandlerExamples {
 
     @Suppress("SameParameterValue")
     private fun journalThatOnlyExpectsToCreateStream(expectedStream: String) = object : Journal<TestEvent> {
-        override suspend fun create(streamName: StreamName, action: () -> NonEmptyList<TestEvent>)
-                : Either<JournalFailure, NonEmptyList<TestEvent>> =
+        override suspend fun <FAILURE : Any> create(
+            streamName: StreamName,
+            action: () -> Either<FAILURE, NonEmptyList<TestEvent>>
+        ): Either<JournalFailure<FAILURE>, NonEmptyList<TestEvent>> =
             either {
-                action().also { streamName shouldBe expectedStream }
+                action().getOrNull()!!.also { streamName shouldBe expectedStream }
             }
     }
 
