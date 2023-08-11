@@ -11,7 +11,7 @@ import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import org.junit.jupiter.api.Test
 
-class GameCommandHandlerExamples {
+class JournalCommandHandlerExamples {
     @Test
     fun `it appends events created in reaction to the JoinGame command to the journal`() = runTest {
         val gameId = anyGameId()
