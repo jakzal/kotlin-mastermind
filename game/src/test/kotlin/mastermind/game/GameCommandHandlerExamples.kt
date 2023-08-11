@@ -29,7 +29,7 @@ class GameCommandHandlerExamples {
             }
         }) {
             execute(JoinGame(gameId, secret, totalAttempts)) shouldBe listOf(
-                GameEvent.GameStarted(gameId, secret, totalAttempts)
+                GameStarted(gameId, secret, totalAttempts)
             ).right()
         }
     }
@@ -38,12 +38,8 @@ class GameCommandHandlerExamples {
 context(Journal<GameEvent>)
 private suspend fun execute(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
     return create("Mastermind:${command.gameId.value}") {
-        nonEmptyListOf(GameEvent.GameStarted(command.gameId, command.secret, command.totalAttempts))
+        nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts))
     }
-}
-
-sealed interface GameEvent {
-    data class GameStarted(val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameEvent
 }
 
 typealias StreamName = String

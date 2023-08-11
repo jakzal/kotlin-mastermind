@@ -14,5 +14,3 @@ fun interface GameIdGenerator {
 fun interface GameCommandHandler {
     suspend fun handle(command: JoinGame): GameId
 }
-
-data class JoinGame(val gameId: GameId, val secret: Code, val totalAttempts: Int)
