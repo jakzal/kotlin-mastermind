@@ -7,28 +7,21 @@ import org.junit.jupiter.api.Test
 class JoinGameExamples {
 
     context(GameIdGenerator, CodeMaker, GameCommandHandler)
-    suspend fun joinGame(): GameId =
-        this@GameCommandHandler(
-            JoinGame(
-                this@GameIdGenerator(),
-                this@CodeMaker(),
-                12
-            )
-        )
+    suspend fun joinGame(): GameId = handle(JoinGame(generateGameId(), makeCode(), 12))
 
     @Test
     fun `it sends the JoinGame command to the game command handler`() = runTest {
         val gameId = anyGameId()
         val secret = anySecret()
         val totalAttempts = 12
-        val gameCommandHandler: suspend (JoinGame) -> GameId = { command ->
+        val gameCommandHandler = GameCommandHandler { command ->
             command.gameId.also {
                 command shouldBe JoinGame(gameId, secret, totalAttempts)
             }
         }
 
-        val result = with({ gameId }) {
-            with({ secret }) {
+        val result = with(GameIdGenerator { gameId }) {
+            with(CodeMaker { secret }) {
                 with(gameCommandHandler) {
                     joinGame()
                 }
@@ -40,11 +33,17 @@ class JoinGameExamples {
 
 }
 
-typealias CodeMaker = () -> Code
+fun interface CodeMaker {
+    fun makeCode(): Code
+}
 
-typealias GameIdGenerator = () -> GameId
+fun interface GameIdGenerator {
+    fun generateGameId(): GameId
+}
 
-typealias GameCommandHandler = suspend (JoinGame) -> GameId
+fun interface GameCommandHandler {
+    suspend fun handle(command: JoinGame): GameId
+}
 
 private fun anySecret(): Code = Code("Red", "Blue", "Purple", "Red")
 
