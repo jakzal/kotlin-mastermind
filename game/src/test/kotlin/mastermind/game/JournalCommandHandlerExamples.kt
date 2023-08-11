@@ -27,10 +27,9 @@ class JournalCommandHandlerExamples {
                 }
             }
         }) {
-            val handler = JournalCommandHandler(::execute)
-            handler.execute(JoinGame(gameId, secret, totalAttempts)) shouldReturn listOf(
-                GameStarted(gameId, secret, totalAttempts)
-            ).right()
+            val command = JoinGame(gameId, secret, totalAttempts)
+            val expectedEvent = GameStarted(gameId, secret, totalAttempts)
+            JournalCommandHandler(::execute)(command) shouldReturn listOf(expectedEvent).right()
         }
     }
 }
@@ -39,7 +38,7 @@ class JournalCommandHandler(
     private val executor: CommandExecutor<GameCommand, GameEvent, GameFailure>
 ) {
     context(Journal<GameEvent>)
-    suspend fun execute(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
+    suspend operator fun invoke(command: JoinGame): Either<JournalFailure, NonEmptyList<GameEvent>> {
         return create("Mastermind:${command.gameId.value}") {
             executor.execute(command).getOrNull()!!
         }
