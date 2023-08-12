@@ -1,5 +1,6 @@
 package mastermind.game.http
 
+import arrow.core.right
 import mastermind.game.MastermindApp
 import mastermind.game.generateGameId
 import mastermind.game.testkit.shouldBe
@@ -13,7 +14,7 @@ class JoinGameHttpHandlerExamples {
     fun `it returns the location of the joined game`() {
         val gameId = generateGameId()
         val app = mastermindHttpApp(MastermindApp(
-            joinGame = { gameId }
+            joinGame = { gameId.right() }
         ))
 
         val response = app(Request(POST, "/games"))

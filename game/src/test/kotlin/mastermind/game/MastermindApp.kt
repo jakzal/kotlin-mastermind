@@ -1,8 +1,10 @@
 package mastermind.game
 
+import arrow.core.Either
 import mastermind.game.journal.InMemoryJournal
 import mastermind.game.journal.Journal
 import mastermind.game.journal.JournalCommandHandler
+import mastermind.game.journal.JournalFailure
 
 data class Configuration(
     val gameIdGenerator: GameIdGenerator = GameIdGenerator { generateGameId() },
@@ -13,10 +15,9 @@ data class Configuration(
         { events -> events.head.gameId }
     ),
     val journal: Journal<GameEvent> = InMemoryJournal(),
-    val gameCommandHandler: GameCommandHandler = GameCommandHandler {
+    val gameCommandHandler: GameCommandHandler = GameCommandHandler { command ->
         with(journal) {
-            // @TODO make GameCommandHandler play nice with failures
-            journalCommandHandler(it).getOrNull()!!
+            journalCommandHandler(command)
         }
     }
 ) : GameIdGenerator by gameIdGenerator,
@@ -25,7 +26,7 @@ data class Configuration(
 
 data class MastermindApp(
     val configuration: Configuration = Configuration(),
-    val joinGame: suspend () -> GameId = {
+    val joinGame: suspend () -> Either<JournalFailure<GameFailure>, GameId> = {
         with(configuration) {
             mastermind.game.joinGame()
         }

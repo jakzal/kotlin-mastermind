@@ -6,6 +6,6 @@
 
 * provide default implementations for use case functions (currently TODO())
 
-=== GameCommandHandler
+=== MastermindHttpApp
 
-* make it play nice with failures
+* error handling

@@ -1,5 +1,7 @@
 package mastermind.game
 
+import arrow.core.raise.either
+import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.anySecret
@@ -14,8 +16,10 @@ class JoinGameExamples {
         val secret = anySecret()
         val totalAttempts = 12
         val gameCommandHandler = GameCommandHandler { command ->
-            command.gameId.also {
-                command shouldBe JoinGame(gameId, secret, totalAttempts)
+            either {
+                command.gameId.also {
+                    command shouldBe JoinGame(gameId, secret, totalAttempts)
+                }
             }
         }
 
@@ -27,6 +31,6 @@ class JoinGameExamples {
             }
         }
 
-        result shouldBe gameId
+        result shouldBe gameId.right()
     }
 }
