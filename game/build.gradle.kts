@@ -13,14 +13,14 @@ kotlin {
 }
 
 dependencies {
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-    testImplementation(platform("org.http4k:http4k-bom:5.6.1.0"))
-    testImplementation("org.http4k:http4k-core")
-    testImplementation("org.http4k:http4k-server-undertow")
+    implementation(platform("org.http4k:http4k-bom:5.6.1.0"))
+    implementation("org.http4k:http4k-core")
+    implementation("org.http4k:http4k-server-undertow")
+    implementation("org.http4k:http4k-format-jackson")
     testImplementation("org.http4k:http4k-client-apache")
-    testImplementation("org.http4k:http4k-format-jackson")
-    testImplementation("io.arrow-kt:arrow-core:1.2.0")
+    implementation("io.arrow-kt:arrow-core:1.2.0")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }

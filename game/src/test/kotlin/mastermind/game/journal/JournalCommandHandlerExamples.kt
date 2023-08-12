@@ -6,6 +6,7 @@ import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
+import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import org.junit.jupiter.api.Test
@@ -28,7 +29,7 @@ class JournalCommandHandlerExamples {
     }
 
     @Suppress("SameParameterValue")
-    private fun journalThatOnlyExpectsToCreateStream(expectedStream: String) = object : Journal<TestEvent> {
+    private fun journalThatOnlyExpectsToCreateStream(expectedStream: String) = object : Journal<TestEvent> by fake() {
         override suspend fun <FAILURE : Any> create(
             streamName: StreamName,
             execute: () -> Either<FAILURE, NonEmptyList<TestEvent>>
