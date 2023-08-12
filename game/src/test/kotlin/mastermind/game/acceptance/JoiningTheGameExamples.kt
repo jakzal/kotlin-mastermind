@@ -44,7 +44,7 @@ class JoiningTheGameExamples {
 
 val server = mastermindHttpApp(MastermindApp(
     configuration = Configuration(
-        gameIdGenerator = { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") },
+        // @TODO secret made by makeCode() here is not the same as the one in the test. The test passes as the code is the same length.
         codeMaker = { makeCode() }
     )
 )).asServer(Undertow(0)).start()
