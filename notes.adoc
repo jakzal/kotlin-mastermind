@@ -8,4 +8,4 @@
 
 === GameCommandHandler
 
-* revisit tests and make them more readable
+* make it play nice with failures
