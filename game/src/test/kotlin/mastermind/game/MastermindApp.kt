@@ -6,6 +6,7 @@ import mastermind.game.journal.Journal
 import mastermind.game.journal.JournalCommandHandler
 import mastermind.game.journal.JournalFailure
 import mastermind.game.view.DecodingBoard
+import mastermind.game.view.viewDecodingBoard
 
 data class Configuration(
     val gameIdGenerator: GameIdGenerator = GameIdGenerator { generateGameId() },
@@ -28,14 +29,17 @@ data class Configuration(
 
 data class MastermindApp(
     val configuration: Configuration = Configuration(),
-    val joinGame: suspend () -> Either<JournalFailure<GameFailure>, GameId> = {
-        with(configuration) {
-            mastermind.game.joinGame()
-        }
-    },
-    val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(configuration) {
-            mastermind.game.view.viewDecodingBoard(gameId)
-        }
-    }
-)
+    private val joinGame: JoinGameUseCase = JoinGameUseCase(::joinGame),
+    private val viewDecodingBoard: DecodingBoardQuery = DecodingBoardQuery(::viewDecodingBoard)
+) : JoinGameUseCase by joinGame,
+    DecodingBoardQuery by viewDecodingBoard
+
+fun interface JoinGameUseCase {
+    context(GameIdGenerator, CodeMaker, GameCommandHandler)
+    suspend fun joinGame(): Either<JournalFailure<GameFailure>, GameId>
+}
+
+fun interface DecodingBoardQuery {
+    context(Journal<GameEvent>)
+    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard?
+}
