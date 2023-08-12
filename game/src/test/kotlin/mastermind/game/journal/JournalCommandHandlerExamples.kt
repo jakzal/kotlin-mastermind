@@ -20,11 +20,11 @@ class JournalCommandHandlerExamples {
                 nonEmptyListOf(expectedEvent)
             }
         }
-        val handler = JournalCommandHandler(execute, streamNameResolver)
+        val handler = JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
 
         with(journalThatOnlyExpectsToCreateStream("Stream:ABC")) {
             handler(TestCommand("ABC"))
-        } shouldReturn listOf(expectedEvent).right()
+        } shouldReturn "ABC".right()
     }
 
     @Suppress("SameParameterValue")
