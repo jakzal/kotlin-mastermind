@@ -23,7 +23,8 @@ data class Configuration(
     }
 ) : GameIdGenerator by gameIdGenerator,
     CodeMaker by codeMaker,
-    GameCommandHandler by gameCommandHandler
+    GameCommandHandler by gameCommandHandler,
+    Journal<GameEvent> by journal
 
 data class MastermindApp(
     val configuration: Configuration = Configuration(),
@@ -32,5 +33,9 @@ data class MastermindApp(
             mastermind.game.joinGame()
         }
     },
-    val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { TODO() }
+    val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
+        with(configuration) {
+            mastermind.game.view.viewDecodingBoard(gameId)
+        }
+    }
 )

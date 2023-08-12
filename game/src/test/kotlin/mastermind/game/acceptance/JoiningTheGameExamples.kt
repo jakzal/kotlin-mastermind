@@ -46,16 +46,7 @@ val server = mastermindHttpApp(MastermindApp(
     configuration = Configuration(
         gameIdGenerator = { GameId("6e252c79-4d02-4b05-92ac-6040e8c7f057") },
         codeMaker = { makeCode() }
-    ),
-    viewDecodingBoard = { gameId: GameId ->
-        DecodingBoard(
-            gameId.value,
-            4,
-            12,
-            emptyList(),
-            "In progress"
-        )
-    }
+    )
 )).asServer(Undertow(0)).start()
 val client = ApacheClient()
 
