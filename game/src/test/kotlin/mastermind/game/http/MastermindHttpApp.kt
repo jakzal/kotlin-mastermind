@@ -2,17 +2,25 @@ package mastermind.game.http
 
 import arrow.core.Either
 import kotlinx.coroutines.runBlocking
-import mastermind.game.view.DecodingBoard
 import mastermind.game.GameFailure
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
 import mastermind.game.journal.JournalFailure
+import mastermind.game.view.DecodingBoard
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
 import org.http4k.lens.Path
 import org.http4k.routing.bind
 import org.http4k.routing.routes
+import org.http4k.server.Undertow
+import org.http4k.server.asServer
+
+fun main() {
+    mastermindHttpApp(MastermindApp())
+        .asServer(Undertow(8080))
+        .start()
+}
 
 fun mastermindHttpApp(
     app: MastermindApp
