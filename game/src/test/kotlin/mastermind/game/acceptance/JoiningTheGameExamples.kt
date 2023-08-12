@@ -4,6 +4,7 @@ import mastermind.game.*
 import mastermind.game.http.mastermindHttpApp
 import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
+import mastermind.game.view.DecodingBoard
 import org.http4k.client.ApacheClient
 import org.http4k.core.Body
 import org.http4k.core.Method.GET

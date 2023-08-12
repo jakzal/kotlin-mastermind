@@ -5,6 +5,7 @@ import mastermind.game.journal.InMemoryJournal
 import mastermind.game.journal.Journal
 import mastermind.game.journal.JournalCommandHandler
 import mastermind.game.journal.JournalFailure
+import mastermind.game.view.DecodingBoard
 
 data class Configuration(
     val gameIdGenerator: GameIdGenerator = GameIdGenerator { generateGameId() },

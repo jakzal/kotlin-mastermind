@@ -2,7 +2,7 @@ package mastermind.game.http
 
 import arrow.core.Either
 import kotlinx.coroutines.runBlocking
-import mastermind.game.DecodingBoard
+import mastermind.game.view.DecodingBoard
 import mastermind.game.GameFailure
 import mastermind.game.GameId
 import mastermind.game.MastermindApp

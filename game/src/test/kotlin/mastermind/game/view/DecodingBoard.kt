@@ -1,4 +1,4 @@
-package mastermind.game
+package mastermind.game.view
 
 data class DecodingBoard(
     val id: String,
