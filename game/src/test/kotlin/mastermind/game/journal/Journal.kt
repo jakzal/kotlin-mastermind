@@ -13,9 +13,10 @@ interface Journal<EVENT : Any> {
         execute: () -> Either<FAILURE, NonEmptyList<EVENT>>
     ): Either<JournalFailure<FAILURE>, NonEmptyList<EVENT>>
 
-//    suspend fun <FAILURE : Any> load(streamName: StreamName): NonEmptyList<EVENT>
+    suspend fun load(streamName: StreamName): Either<EventStoreFailure, NonEmptyList<EVENT>>
 }
 
 sealed interface JournalFailure<FAILURE>
-data class EventStoreFailure(val cause: Throwable) : JournalFailure<Nothing>
+sealed interface EventStoreFailure : JournalFailure<Nothing>
+data class StreamNotFound(val streamName: StreamName) : EventStoreFailure
 data class ExecutionFailure<FAILURE>(val cause: FAILURE) : JournalFailure<FAILURE>

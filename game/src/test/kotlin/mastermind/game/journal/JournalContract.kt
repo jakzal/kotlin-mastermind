@@ -35,6 +35,20 @@ abstract class JournalContract {
         loadEvents("stream:2") shouldReturn emptyList()
     }
 
+    @Test
+    fun `it loads events from a stream`() = runTest {
+        journal().create("stream:3") {
+            nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
+        }
+
+        journal().load("stream:3") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
+    }
+
+    @Test
+    fun `it returns an error if the stream to load is not found`() = runTest {
+        journal().load("stream:4") shouldReturn StreamNotFound("stream:4").left()
+    }
+
     protected sealed interface TestEvent {
         val id: String
 
