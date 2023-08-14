@@ -15,7 +15,7 @@ class JoinGameExamples {
         val gameId = anyGameId()
         val secret = anySecret()
         val totalAttempts = 12
-        val gameCommandHandler = GameCommandHandler { command ->
+        val gameCommandHandler: GameCommandHandler = { command: GameCommand ->
             either {
                 command.gameId.also {
                     command shouldBe JoinGame(gameId, secret, totalAttempts)
