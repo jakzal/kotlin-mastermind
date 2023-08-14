@@ -23,6 +23,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:1.2.0")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
 }
 
 tasks.test {
