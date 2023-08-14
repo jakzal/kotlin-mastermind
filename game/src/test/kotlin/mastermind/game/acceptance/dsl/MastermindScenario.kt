@@ -13,20 +13,19 @@ class MastermindScenario(
     val totalAttempts: Int
 ) : PlayGameAbility by ability {
     companion object {
+        context(ScenarioContext)
         operator fun invoke(
-            context: ScenarioContext,
             secret: Code,
             totalAttempts: Int = 12,
             scenario: suspend MastermindScenario.() -> Unit
         ) {
-
             val app = MastermindApp(
                 configuration = Configuration(
                     codeMaker = { secret }
                 )
             )
             runBlocking {
-                val runner = context.applicationRunnerFor(app)
+                val runner = applicationRunnerFor(app)
                 runner.start()
                 runner.use {
                     MastermindScenario(runner.playGameAbility(), secret, totalAttempts)

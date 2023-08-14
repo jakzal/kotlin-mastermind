@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+context(ScenarioContext)
 @ExtendWith(ScenarioContextExtension::class)
 @Tag("http")
 class JoiningTheGameExamples {
     @Test
-    fun `code breaker joins the game`(context: ScenarioContext) = MastermindScenario(
-        context = context,
+    fun `code breaker joins the game`() = MastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
         // And the code maker has placed a secret on the board
