@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 
-class ScenarioContextExtension : ParameterResolver {
+class ScenarioContextResolver : ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext) =
         parameterContext.parameter.type.isAssignableFrom(ScenarioContext::class.java)
 

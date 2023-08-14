@@ -2,7 +2,7 @@ package mastermind.game.acceptance
 
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
-import mastermind.game.acceptance.dsl.junit.ScenarioContextExtension
+import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
 import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
 import mastermind.game.view.DecodingBoard
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 context(ScenarioContext)
-@ExtendWith(ScenarioContextExtension::class)
+@ExtendWith(ScenarioContextResolver::class)
 @Tag("http")
 class JoiningTheGameExamples {
     @Test
