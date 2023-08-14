@@ -28,6 +28,7 @@ class MastermindScenario(
             runBlocking {
                 MastermindScenario(HttpPlayGameAbility(server.port()), secret, totalAttempts).scenario()
             }
+            server.stop()
         }
     }
 }
