@@ -1,5 +1,6 @@
 package mastermind.game.acceptance.dsl.http
 
+import mastermind.game.Code
 import mastermind.game.GameId
 import mastermind.game.acceptance.dsl.PlayGameAbility
 import mastermind.game.view.DecodingBoard
@@ -26,5 +27,9 @@ class HttpPlayGameAbility(
         val response = client(Request(Method.GET, "http://localhost:$serverPort/games/${gameId.value}"))
         Assertions.assertEquals(Status.OK, response.status)
         return Body.auto<DecodingBoard>().toLens()(response)
+    }
+
+    override suspend fun makeGuess(code: Code) {
+        TODO("Not yet implemented")
     }
 }
