@@ -29,19 +29,17 @@ class MastermindScenario(
             )
             runBlocking {
                 val runner = HttpApplicationRunner(app)
-                try {
-                    runner.start()
+                runner.start()
+                runner.use {
                     MastermindScenario(runner.playGameAbility(), secret, totalAttempts)
                         .scenario()
-                } finally {
-                    runner.stop()
                 }
             }
         }
     }
 }
 
-interface ApplicationRunner {
+interface ApplicationRunner : AutoCloseable {
     suspend fun start()
 
     suspend fun stop()
@@ -61,5 +59,9 @@ class HttpApplicationRunner(app: MastermindApp) : ApplicationRunner {
 
     override fun playGameAbility(): PlayGameAbility {
         return HttpPlayGameAbility(server.port())
+    }
+
+    override fun close() {
+        server.stop()
     }
 }
