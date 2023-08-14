@@ -8,6 +8,7 @@ import mastermind.game.testkit.shouldBe
 import mastermind.game.view.DecodingBoard
 import org.http4k.client.ApacheClient
 import org.http4k.core.Body
+import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Request
@@ -28,7 +29,6 @@ class JoiningTheGameExamples {
         // And the code maker has placed a secret on the board
         secret = anySecret()
     ) {
-        startApplication(totalAttempts, secret)
         // When I join the game
         joinGame { gameId ->
             // Then the game should be started with an empty board
@@ -45,45 +45,50 @@ class JoiningTheGameExamples {
 }
 
 class MastermindScenario(
+    private val ability: PlayGameAbility,
     val secret: Code,
     val totalAttempts: Int
-) {
+) : PlayGameAbility by ability {
     companion object {
         operator fun invoke(
             secret: Code,
             totalAttempts: Int = 12,
             scenario: suspend MastermindScenario.() -> Unit
         ) {
+            val server = mastermindHttpApp(MastermindApp(
+                configuration = Configuration(
+                    codeMaker = { secret }
+                )
+            )).asServer(Undertow(0)).start()
             runBlocking {
-                MastermindScenario(secret, totalAttempts).scenario()
+                MastermindScenario(HttpPlayGameAbility(server.port()), secret, totalAttempts).scenario()
             }
         }
     }
 }
 
-val server = mastermindHttpApp(MastermindApp(
-    configuration = Configuration(
-        // @TODO secret made by makeCode() here is not the same as the one in the test. The test passes as the code is the same length.
-        codeMaker = { makeCode() }
-    )
-)).asServer(Undertow(0)).start()
-val client = ApacheClient()
-
-private fun startApplication(totalAttempts: Int, secret: Code) {
+interface PlayGameAbility {
+    suspend fun joinGame(block: suspend PlayGameAbility.(GameId) -> Unit)
+    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard
 }
 
-private fun joinGame(block: (GameId) -> Unit) {
-    val response = client(Request(POST, "http://localhost:${server.port()}/games"))
-    assertEquals(CREATED, response.status)
-    response.header("Location")
-        ?.substringAfter("/games/", "")
-        ?.let(::GameId)
-        ?.also(block) ?: fail("Location header not found in the response.")
-}
+class HttpPlayGameAbility(
+    private val serverPort: Int,
+    private val client: HttpHandler = ApacheClient()
+) : PlayGameAbility {
 
-private fun viewDecodingBoard(gameId: GameId): DecodingBoard {
-    val response = client(Request(GET, "http://localhost:${server.port()}/games/${gameId.value}"))
-    assertEquals(OK, response.status)
-    return Body.auto<DecodingBoard>().toLens()(response)
-}
+    override suspend fun joinGame(block: suspend PlayGameAbility.(GameId) -> Unit) {
+        val response = client(Request(POST, "http://localhost:$serverPort/games"))
+        assertEquals(CREATED, response.status)
+        response.header("Location")
+            ?.substringAfter("/games/", "")
+            ?.let(::GameId)
+            ?.also { this.block(it) } ?: fail("Location header not found in the response.")
+    }
 
+    override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard {
+        val response = client(Request(GET, "http://localhost:$serverPort/games/${gameId.value}"))
+        assertEquals(OK, response.status)
+        return Body.auto<DecodingBoard>().toLens()(response)
+    }
+}
