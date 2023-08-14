@@ -22,7 +22,7 @@ class HttpPlayGameAbility(
             ?.also { this.block(it) } ?: Assertions.fail("Location header not found in the response.")
     }
 
-    override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard {
+    override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? {
         val response = client(Request(Method.GET, "http://localhost:$serverPort/games/${gameId.value}"))
         Assertions.assertEquals(Status.OK, response.status)
         return Body.auto<DecodingBoard>().toLens()(response)
