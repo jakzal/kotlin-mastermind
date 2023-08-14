@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 abstract class JournalContract {
     protected abstract fun journal(): Journal<TestEvent>
 
-    protected abstract fun loadEvents(streamName: StreamName): List<TestEvent>
+    protected abstract suspend fun loadEvents(streamName: StreamName): List<TestEvent>
 
     @Test
     fun `it persists created events to a new stream`() = runTest {

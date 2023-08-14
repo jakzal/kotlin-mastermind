@@ -20,6 +20,4 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure, NonEmptyList<EVENT>> = either {
         events[streamName] ?: raise(StreamNotFound(streamName))
     }
-
-    fun eventsFor(streamName: StreamName) = events[streamName] ?: emptyList()
 }
