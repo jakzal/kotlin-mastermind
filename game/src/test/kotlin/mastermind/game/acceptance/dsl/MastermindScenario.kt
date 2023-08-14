@@ -6,6 +6,7 @@ import mastermind.game.Configuration
 import mastermind.game.MastermindApp
 import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
 import mastermind.game.http.mastermindHttpApp
+import org.http4k.server.Http4kServer
 import org.http4k.server.Undertow
 import org.http4k.server.asServer
 
@@ -20,16 +21,45 @@ class MastermindScenario(
             totalAttempts: Int = 12,
             scenario: suspend MastermindScenario.() -> Unit
         ) {
-            val server = mastermindHttpApp(MastermindApp(
+
+            val app = MastermindApp(
                 configuration = Configuration(
                     codeMaker = { secret }
                 )
-            )).asServer(Undertow(0)).start()
+            )
             runBlocking {
-                MastermindScenario(HttpPlayGameAbility(server.port()), secret, totalAttempts).scenario()
+                val runner = HttpApplicationRunner(app)
+                try {
+                    runner.start()
+                    MastermindScenario(runner.playGameAbility(), secret, totalAttempts)
+                        .scenario()
+                } finally {
+                    runner.stop()
+                }
             }
-            server.stop()
         }
     }
 }
 
+interface ApplicationRunner {
+    suspend fun start()
+
+    suspend fun stop()
+    fun playGameAbility(): PlayGameAbility
+}
+
+class HttpApplicationRunner(app: MastermindApp) : ApplicationRunner {
+    private val server: Http4kServer = mastermindHttpApp(app).asServer(Undertow(0))
+
+    override suspend fun start() {
+        server.start()
+    }
+
+    override suspend fun stop() {
+        server.stop()
+    }
+
+    override fun playGameAbility(): PlayGameAbility {
+        return HttpPlayGameAbility(server.port())
+    }
+}
