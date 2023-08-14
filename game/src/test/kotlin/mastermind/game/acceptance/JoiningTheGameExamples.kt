@@ -1,5 +1,6 @@
 package mastermind.game.acceptance
 
+import kotlinx.coroutines.runBlocking
 import mastermind.game.*
 import mastermind.game.http.mastermindHttpApp
 import mastermind.game.testkit.anySecret
@@ -21,11 +22,12 @@ import org.junit.jupiter.api.Test
 
 class JoiningTheGameExamples {
     @Test
-    fun `code breaker joins the game`() {
+    fun `code breaker joins the game`() = MastermindScenario(
         // Given a decoding board of 12 attempts
-        val totalAttempts = 12
+        totalAttempts = 12,
         // And the code maker has placed a secret on the board
-        val secret = anySecret()
+        secret = anySecret()
+    ) {
         startApplication(totalAttempts, secret)
         // When I join the game
         joinGame { gameId ->
@@ -38,6 +40,23 @@ class JoiningTheGameExamples {
                 emptyList(),
                 "In progress"
             )
+        }
+    }
+}
+
+class MastermindScenario(
+    val secret: Code,
+    val totalAttempts: Int
+) {
+    companion object {
+        operator fun invoke(
+            secret: Code,
+            totalAttempts: Int = 12,
+            scenario: suspend MastermindScenario.() -> Unit
+        ) {
+            runBlocking {
+                MastermindScenario(secret, totalAttempts).scenario()
+            }
         }
     }
 }
