@@ -14,9 +14,9 @@ class MastermindScenario(
 ) : PlayGameAbility by ability {
     companion object {
         operator fun invoke(
+            context: ScenarioContext,
             secret: Code,
             totalAttempts: Int = 12,
-            context: ScenarioContext = ScenarioContext(ScenarioContext.ExecutionMode.DIRECT),
             scenario: suspend MastermindScenario.() -> Unit
         ) {
 
