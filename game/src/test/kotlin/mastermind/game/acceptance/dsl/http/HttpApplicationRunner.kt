@@ -15,10 +15,6 @@ class HttpApplicationRunner(app: MastermindApp) : ApplicationRunner {
         server.start()
     }
 
-    override suspend fun stop() {
-        server.stop()
-    }
-
     override fun playGameAbility(): PlayGameAbility {
         return HttpPlayGameAbility(server.port())
     }
