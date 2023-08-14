@@ -27,6 +27,7 @@ data class Configuration(
 data class MastermindApp(
     private val configuration: Configuration = Configuration(),
     private val joinGameUseCase: suspend context(GameIdGenerator, CodeMaker, GameCommandHandler) () -> Either<JournalFailure<GameFailure>, GameId> = ::joinGame,
+    private val makeGuessUseCase: suspend (MakeGuess) -> Either<JournalFailure<GameFailure>, GameId> = configuration.gameCommandHandler,
     private val decodingBoardQuery: suspend context(Journal<GameEvent>) (GameId) -> DecodingBoard? = ::viewDecodingBoard
 ) {
     suspend fun joinGame(): Either<JournalFailure<GameFailure>, GameId> = with(configuration) {
@@ -37,7 +38,6 @@ data class MastermindApp(
         decodingBoardQuery(this, gameId)
     }
 
-    fun makeGuess(code: Code) {
-        TODO("Not yet implemented")
-    }
+    suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameFailure>, GameId> =
+        makeGuessUseCase(MakeGuess(gameId, code))
 }

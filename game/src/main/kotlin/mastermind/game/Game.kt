@@ -9,6 +9,7 @@ sealed interface GameCommand {
     val gameId: GameId
 }
 data class JoinGame(override val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameCommand
+data class MakeGuess(override val gameId: GameId, val guess: Code) : GameCommand
 
 sealed interface GameEvent {
     val gameId: GameId
@@ -20,5 +21,6 @@ sealed interface GameFailure
 fun execute(command: GameCommand): Either<GameFailure, NonEmptyList<GameEvent>> = either {
     when (command) {
         is JoinGame -> nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts))
+        is MakeGuess -> TODO()
     }
 }

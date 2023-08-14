@@ -28,7 +28,7 @@ class PlayingTheGameExamples {
         ) {
             joinGame { gameId ->
                 // When I try to break the code with "Red Purple Purple Purple"
-                makeGuess(guess)
+                makeGuess(gameId, guess)
                 // Then the code maker should give me "Black" feedback on my guess
                 viewDecodingBoard(gameId) shouldReturnGuess feedback
             }

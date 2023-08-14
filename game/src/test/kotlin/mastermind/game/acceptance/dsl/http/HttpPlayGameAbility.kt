@@ -1,8 +1,11 @@
 package mastermind.game.acceptance.dsl.http
 
+import arrow.core.Either
 import mastermind.game.Code
+import mastermind.game.GameFailure
 import mastermind.game.GameId
 import mastermind.game.acceptance.dsl.PlayGameAbility
+import mastermind.game.journal.JournalFailure
 import mastermind.game.view.DecodingBoard
 import org.http4k.client.ApacheClient
 import org.http4k.core.*
@@ -29,7 +32,7 @@ class HttpPlayGameAbility(
         return Body.auto<DecodingBoard>().toLens()(response)
     }
 
-    override suspend fun makeGuess(code: Code) {
+    override suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameFailure>, GameId> {
         TODO("Not yet implemented")
     }
 }
