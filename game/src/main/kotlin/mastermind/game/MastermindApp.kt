@@ -9,8 +9,8 @@ import mastermind.game.view.DecodingBoard
 import mastermind.game.view.viewDecodingBoard
 
 data class Configuration(
-    val gameIdGenerator: GameIdGenerator = GameIdGenerator { generateGameId() },
-    val codeMaker: CodeMaker = CodeMaker { makeCode() },
+    val gameIdGenerator: GameIdGenerator = GameIdGenerator(::generateGameId),
+    val codeMaker: CodeMaker = CodeMaker(::makeCode),
     val journal: Journal<GameEvent> = InMemoryJournal(),
     val gameCommandHandler: GameCommandHandler = with(journal) {
         JournalCommandHandler(
