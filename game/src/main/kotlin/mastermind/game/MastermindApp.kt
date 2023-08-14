@@ -36,4 +36,8 @@ data class MastermindApp(
     suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = with(configuration) {
         decodingBoardQuery(this, gameId)
     }
+
+    fun makeGuess(code: Code) {
+        TODO("Not yet implemented")
+    }
 }

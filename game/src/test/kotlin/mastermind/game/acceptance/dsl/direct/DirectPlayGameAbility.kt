@@ -21,6 +21,6 @@ class DirectPlayGameAbility(private val app: MastermindApp) : PlayGameAbility {
     override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = app.viewDecodingBoard(gameId)
 
     override suspend fun makeGuess(code: Code) {
-        TODO("Not yet implemented")
+        app.makeGuess(code)
     }
 }
