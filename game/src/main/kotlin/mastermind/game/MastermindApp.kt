@@ -25,7 +25,7 @@ data class Configuration(
     Journal<GameEvent> by journal
 
 data class MastermindApp(
-    val configuration: Configuration = Configuration(),
+    private val configuration: Configuration = Configuration(),
     private val joinGameUseCase: suspend context(GameIdGenerator, CodeMaker, GameCommandHandler) () -> Either<JournalFailure<GameFailure>, GameId> = ::joinGame,
     private val decodingBoardQuery: suspend context(Journal<GameEvent>) (GameId) -> DecodingBoard? = ::viewDecodingBoard
 ) {
