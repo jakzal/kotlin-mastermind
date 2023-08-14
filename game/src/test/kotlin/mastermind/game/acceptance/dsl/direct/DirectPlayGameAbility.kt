@@ -8,18 +8,14 @@ import mastermind.game.view.DecodingBoard
 
 class DirectPlayGameAbility(private val app: MastermindApp) : PlayGameAbility {
     override suspend fun joinGame(onceJoined: suspend PlayGameAbility.(GameId) -> Unit) {
-        with(app.configuration) {
-            app.joinGame()
-                .getOrElse {
-                    throw RuntimeException("JoinGame command completed with no error.")
-                }
-                .let {
-                    onceJoined(it)
-                }
-        }
+        app.joinGame()
+            .getOrElse {
+                throw RuntimeException("JoinGame command completed with no error.")
+            }
+            .let {
+                onceJoined(it)
+            }
     }
 
-    override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = with(app.configuration) {
-        app.viewDecodingBoard(gameId)
-    }
+    override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = app.viewDecodingBoard(gameId)
 }

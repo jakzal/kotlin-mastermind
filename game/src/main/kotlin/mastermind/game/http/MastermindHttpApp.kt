@@ -27,18 +27,14 @@ fun mastermindHttpApp(
 ) = routes(
     "/games" bind Method.POST to { _: Request ->
         runBlocking {
-            with(app.configuration) {
-                app.joinGame() thenRespond { gameId ->
-                    Response(Status.CREATED).with(gameId.asLocationHeader())
-                }
+            app.joinGame() thenRespond { gameId ->
+                Response(Status.CREATED).with(gameId.asLocationHeader())
             }
         }
     },
     "/games/{id}" bind Method.GET to { request ->
         runBlocking {
-            with(app.configuration) {
-                app.viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
-            }
+            app.viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
         }
     }
 )
