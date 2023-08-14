@@ -13,13 +13,13 @@ class HttpPlayGameAbility(
     private val client: HttpHandler = ApacheClient()
 ) : PlayGameAbility {
 
-    override suspend fun joinGame(block: suspend PlayGameAbility.(GameId) -> Unit) {
+    override suspend fun joinGame(onceJoined: suspend PlayGameAbility.(GameId) -> Unit) {
         val response = client(Request(Method.POST, "http://localhost:$serverPort/games"))
         Assertions.assertEquals(Status.CREATED, response.status)
         response.header("Location")
             ?.substringAfter("/games/", "")
             ?.let(::GameId)
-            ?.also { this.block(it) } ?: Assertions.fail("Location header not found in the response.")
+            ?.also { this.onceJoined(it) } ?: Assertions.fail("Location header not found in the response.")
     }
 
     override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? {
