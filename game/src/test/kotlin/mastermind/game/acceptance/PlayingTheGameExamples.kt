@@ -5,8 +5,9 @@ import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
 import mastermind.game.view.DecodingBoard
+import mastermind.game.view.Guess
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -30,7 +31,7 @@ class PlayingTheGameExamples {
                 // When I try to break the code with "Red Purple Purple Purple"
                 makeGuess(gameId, guess)
                 // Then the code maker should give me "Black" feedback on my guess
-                viewDecodingBoard(gameId) shouldReturnGuess feedback
+                viewDecodingBoard(gameId) shouldReturnGuess Guess(guess, feedback)
             }
         }
 
@@ -121,10 +122,11 @@ class PlayingTheGameExamples {
     }
 }
 
-private infix fun DecodingBoard?.shouldReturnGuess(guess: List<String>) {
+private infix fun DecodingBoard?.shouldReturnGuess(guess: Guess) {
     assertNotNull(this, "Decoding board was found.")
-    assertTrue(
-        this?.guesses?.contains(guess) ?: false,
-        "Guess `$guess` is found in recent guesses: `${this?.guesses?.joinToString(",") ?: ""}`."
+    assertEquals(
+        guess,
+        this?.guesses?.last(),
+        "`$guess` is the last found guess: `${this?.guesses?.joinToString(",") ?: ""}`."
     )
 }

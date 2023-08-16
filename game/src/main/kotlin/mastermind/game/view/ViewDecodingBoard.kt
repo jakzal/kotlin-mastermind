@@ -13,8 +13,7 @@ suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = load("Mastermind
         { events -> events.fold(null, ::applyEventToDecodingBoard) }
     )
 
-@Suppress("UNUSED_PARAMETER")
-private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: GameEvent): DecodingBoard = when (event) {
+private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: GameEvent): DecodingBoard? = when (event) {
     is GameStarted -> DecodingBoard(
         event.gameId.value,
         event.secret.size,
@@ -22,6 +21,7 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
         emptyList(),
         "In progress"
     )
-
-    is GuessMade -> TODO()
+    is GuessMade -> decodingBoard?.copy(
+        guesses = decodingBoard.guesses + Guess(event.guess.code.pegs, event.guess.feedback.pegs)
+    )
 }

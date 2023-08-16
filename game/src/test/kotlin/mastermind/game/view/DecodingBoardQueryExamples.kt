@@ -2,8 +2,8 @@ package mastermind.game.view
 
 import arrow.core.*
 import kotlinx.coroutines.test.runTest
-import mastermind.game.GameEvent
-import mastermind.game.GameStarted
+import mastermind.game.*
+import mastermind.game.Guess
 import mastermind.game.journal.Journal
 import mastermind.game.journal.StreamName
 import mastermind.game.journal.StreamNotFound
@@ -41,4 +41,38 @@ class DecodingBoardQueryExamples {
             )
         }
     }
+
+    @Test
+    fun `it builds the board from the history of events`() = runTest {
+        val gameId = anyGameId()
+        val secret = anySecret()
+        val totalAttempts = 12
+
+        with(object : Journal<GameEvent> by fake() {
+            override suspend fun load(streamName: StreamName): Either<Nothing, NonEmptyList<GameEvent>> {
+                streamName shouldBe "Mastermind:${gameId.value}"
+                return nonEmptyListOf(
+                    GameStarted(gameId, secret, totalAttempts),
+                    GuessMade(
+                        gameId,
+                        Guess(
+                            Code("Red", "Green", "Blue", "Yellow"),
+                            Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                        )
+                    )
+                ).right()
+            }
+        }) {
+            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
+                gameId.value,
+                secret.size,
+                totalAttempts,
+                listOf(
+                    Guess(listOf("Red", "Green", "Blue", "Yellow"), listOf("Black", "White"))
+                ),
+                "In progress"
+            )
+        }
+    }
+
 }
