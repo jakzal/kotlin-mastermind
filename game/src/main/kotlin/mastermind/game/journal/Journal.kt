@@ -1,7 +1,6 @@
 package mastermind.game.journal
 
-import arrow.core.Either
-import arrow.core.NonEmptyList
+import arrow.core.*
 import mastermind.game.journal.Stream.LoadedStream
 import mastermind.game.journal.Stream.UpdatedStream
 
@@ -49,3 +48,16 @@ sealed interface JournalFailure<FAILURE>
 sealed interface EventStoreFailure : JournalFailure<Nothing>
 data class StreamNotFound(val streamName: StreamName) : EventStoreFailure
 data class ExecutionFailure<FAILURE>(val cause: FAILURE) : JournalFailure<FAILURE>
+
+fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>): Either<ERROR, UpdatedStream<EVENT>> =
+    generateEvents().flatMap { append(it) }
+
+fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
+    event: EVENT,
+    vararg events: EVENT
+): Either<ERROR, UpdatedStream<EVENT>> =
+    append(nonEmptyListOf(event, *events))
+
+fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): Either<ERROR, UpdatedStream<EVENT>> =
+    UpdatedStream(streamName, streamVersion, events, eventsToAppend).right()
+

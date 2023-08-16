@@ -18,18 +18,31 @@ abstract class JournalContract {
     protected abstract suspend fun loadEvents(streamName: StreamName): List<TestEvent>
 
     @Test
-    fun `it persists created events to a new stream`() = runTest {
-        val result = journal().stream("stream:1") {
-            UpdatedStream(
-                "stream:1",
-                0L,
-                emptyList(),
-                nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
-            ).right()
+    fun `it persists events to a new stream`() = runTest {
+        val result = journal().stream("stream:1a") {
+            append(
+                Event1("ABC"),
+                Event2("ABC", "Event 2")
+            )
         }
 
-        result shouldBe LoadedStream("stream:1", 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
-        loadEvents("stream:1") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
+        result shouldBe LoadedStream("stream:1a", 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
+        loadEvents("stream:1a") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
+    }
+
+    @Test
+    fun `it persists generated events to a new stream`() = runTest {
+        val result = journal().stream("stream:1b") {
+            append {
+                nonEmptyListOf(
+                    Event1("ABC"),
+                    Event2("ABC", "Event 2")
+                ).right()
+            }
+        }
+
+        result shouldBe LoadedStream("stream:1b", 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
+        loadEvents("stream:1b") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
     }
 
     @Test
@@ -45,12 +58,10 @@ abstract class JournalContract {
     @Test
     fun `it loads events from a stream`() = runTest {
         journal().stream("stream:3") {
-            UpdatedStream(
-                "stream:3",
-                0L,
-                emptyList(),
-                nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
-            ).right()
+            append(
+                Event1("ABC"),
+                Event2("ABC", "Event 2")
+            )
         }
 
         journal().load("stream:3") shouldReturn LoadedStream(
@@ -68,12 +79,9 @@ abstract class JournalContract {
     @Test
     fun `it appends events to an existing stream`() = runTest {
         journal().stream("stream:5") {
-            UpdatedStream(
-                "stream:5",
-                0L,
-                emptyList(),
-                nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
-            ).right()
+            append(
+                Event1("ABC"), Event2("ABC", "Event 2")
+            )
         }
         val result = journal().stream("stream:5") {
             UpdatedStream(
