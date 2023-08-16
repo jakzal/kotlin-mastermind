@@ -65,6 +65,41 @@ abstract class JournalContract {
         journal().load("stream:4") shouldReturn StreamNotFound("stream:4").left()
     }
 
+    @Test
+    fun `it appends events to an existing stream`() = runTest {
+        journal().stream("stream:5") {
+            UpdatedStream(
+                "stream:5",
+                0L,
+                emptyList(),
+                nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
+            ).right()
+        }
+        val result = journal().stream("stream:5") {
+            UpdatedStream(
+                this.streamName,
+                this.streamVersion,
+                this.events,
+                nonEmptyListOf(Event1("XYZ"), Event2("XYZ", "Event XYZ"))
+            ).right()
+        }
+
+        result shouldBe LoadedStream(
+            "stream:5", 4, nonEmptyListOf(
+                Event1("ABC"),
+                Event2("ABC", "Event 2"),
+                Event1("XYZ"),
+                Event2("XYZ", "Event XYZ")
+            )
+        ).right()
+        loadEvents("stream:5") shouldReturn listOf(
+            Event1("ABC"),
+            Event2("ABC", "Event 2"),
+            Event1("XYZ"),
+            Event2("XYZ", "Event XYZ")
+        )
+    }
+
     protected sealed interface TestEvent {
         val id: String
 

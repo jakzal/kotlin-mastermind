@@ -34,10 +34,11 @@ class JournalCommandHandlerExamples {
     private fun journalThatOnlyExpectsToCreateStream(expectedStream: String) = object : Journal<TestEvent> by fake() {
         override suspend fun <FAILURE : Any> stream(
             streamName: StreamName,
-            execute: () -> Either<FAILURE, UpdatedStream<TestEvent>>
+            execute: Stream<TestEvent>.() -> Either<FAILURE, UpdatedStream<TestEvent>>
         ): Either<JournalFailure<FAILURE>, LoadedStream<TestEvent>> =
             either {
-                execute()
+                Stream.EmptyStream<TestEvent>(streamName)
+                    .execute()
                     .getOrNull()!!
                     .let { LoadedStream(streamName, it.streamVersion, it.eventsToAppend) }
                     .also { streamName shouldBe expectedStream }

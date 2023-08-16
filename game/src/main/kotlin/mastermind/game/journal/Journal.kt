@@ -15,6 +15,13 @@ sealed interface Stream<EVENT : Any> {
     val streamVersion: StreamVersion
     val events: List<EVENT>
 
+    data class EmptyStream<EVENT : Any>(override val streamName: StreamName) : Stream<EVENT> {
+        override val streamVersion: StreamVersion
+            get() = 0
+        override val events: List<EVENT>
+            get() = emptyList()
+    }
+
     data class LoadedStream<EVENT : Any>(
         override val streamName: StreamName,
         override val streamVersion: StreamVersion,
@@ -32,7 +39,7 @@ sealed interface Stream<EVENT : Any> {
 interface Journal<EVENT : Any> {
     suspend fun <FAILURE : Any> stream(
         streamName: StreamName,
-        execute: () -> Either<FAILURE, UpdatedStream<EVENT>>
+        execute: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
 
     suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>
