@@ -7,11 +7,12 @@ import mastermind.game.testkit.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 class GameExamples {
+    private val gameId = anyGameId()
+    private val secret = Code("Red", "Green", "Blue", "Yellow")
+    private val totalAttempts = 12
+
     @Test
     fun `it executes the JoinGame command`() {
-        val gameId = anyGameId()
-        val secret = anySecret()
-        val totalAttempts = 12
         execute(JoinGame(gameId, secret, totalAttempts)) shouldSucceedWith listOf(
             GameStarted(
                 gameId,
@@ -23,10 +24,6 @@ class GameExamples {
 
     @Test
     fun `it executes the MakeGuess command`() {
-        val gameId = anyGameId()
-        val secret = Code("Red", "Green", "Blue", "Yellow")
-        val totalAttempts = 12
-
         val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
 
         execute(MakeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple")), game) shouldSucceedWith listOf(
