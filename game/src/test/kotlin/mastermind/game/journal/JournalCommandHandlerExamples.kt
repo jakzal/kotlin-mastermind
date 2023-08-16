@@ -1,12 +1,12 @@
 package mastermind.game.journal
 
 import arrow.core.Either
-import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.journal.Stream.LoadedStream
+import mastermind.game.journal.Stream.UpdatedStream
 import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
@@ -34,12 +34,12 @@ class JournalCommandHandlerExamples {
     private fun journalThatOnlyExpectsToCreateStream(expectedStream: String) = object : Journal<TestEvent> by fake() {
         override suspend fun <FAILURE : Any> stream(
             streamName: StreamName,
-            execute: () -> Either<FAILURE, NonEmptyList<TestEvent>>
+            execute: () -> Either<FAILURE, UpdatedStream<TestEvent>>
         ): Either<JournalFailure<FAILURE>, LoadedStream<TestEvent>> =
             either {
                 execute()
                     .getOrNull()!!
-                    .let { LoadedStream(streamName, it.size.toLong(), it) }
+                    .let { LoadedStream(streamName, it.streamVersion, it.eventsToAppend) }
                     .also { streamName shouldBe expectedStream }
             }
     }

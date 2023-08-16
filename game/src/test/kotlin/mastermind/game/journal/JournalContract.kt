@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.runTest
 import mastermind.game.journal.JournalContract.TestEvent.Event1
 import mastermind.game.journal.JournalContract.TestEvent.Event2
 import mastermind.game.journal.Stream.LoadedStream
+import mastermind.game.journal.Stream.UpdatedStream
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import org.junit.jupiter.api.Test
@@ -19,7 +20,12 @@ abstract class JournalContract {
     @Test
     fun `it persists created events to a new stream`() = runTest {
         val result = journal().stream("stream:1") {
-            nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
+            UpdatedStream(
+                "stream:1",
+                0L,
+                emptyList(),
+                nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
+            ).right()
         }
 
         result shouldBe LoadedStream("stream:1", 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
@@ -39,7 +45,12 @@ abstract class JournalContract {
     @Test
     fun `it loads events from a stream`() = runTest {
         journal().stream("stream:3") {
-            nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
+            UpdatedStream(
+                "stream:3",
+                0L,
+                emptyList(),
+                nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
+            ).right()
         }
 
         journal().load("stream:3") shouldReturn LoadedStream(
