@@ -3,6 +3,7 @@ package mastermind.game.view
 import mastermind.game.GameEvent
 import mastermind.game.GameId
 import mastermind.game.GameStarted
+import mastermind.game.GuessMade
 import mastermind.game.journal.Journal
 
 context(Journal<GameEvent>)
@@ -21,4 +22,6 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
         emptyList(),
         "In progress"
     )
+
+    is GuessMade -> TODO()
 }
