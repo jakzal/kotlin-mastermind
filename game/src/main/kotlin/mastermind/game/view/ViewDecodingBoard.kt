@@ -10,7 +10,7 @@ context(Journal<GameEvent>)
 suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = load("Mastermind:${gameId.value}")
     .fold(
         { null },
-        { events -> events.fold(null, ::applyEventToDecodingBoard) }
+        { stream -> stream.events.fold(null, ::applyEventToDecodingBoard) }
     )
 
 private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: GameEvent): DecodingBoard? = when (event) {

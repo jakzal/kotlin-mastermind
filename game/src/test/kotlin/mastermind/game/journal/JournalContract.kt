@@ -41,7 +41,11 @@ abstract class JournalContract {
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
         }
 
-        journal().load("stream:3") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
+        journal().load("stream:3") shouldReturn Stream.LoadedStream(
+            "stream:3",
+            2L,
+            nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
+        ).right()
     }
 
     @Test

@@ -1,10 +1,15 @@
 package mastermind.game.view
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.nonEmptyListOf
+import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.*
 import mastermind.game.Guess
+import mastermind.game.journal.EventStoreFailure
 import mastermind.game.journal.Journal
+import mastermind.game.journal.Stream.LoadedStream
 import mastermind.game.journal.StreamName
 import mastermind.game.journal.StreamNotFound
 import mastermind.game.testkit.*
@@ -27,9 +32,13 @@ class DecodingBoardQueryExamples {
         val totalAttempts = 12
 
         with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName): Either<Nothing, NonEmptyList<GameStarted>> {
+            override suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<GameEvent>> {
                 streamName shouldBe "Mastermind:${gameId.value}"
-                return nonEmptyListOf(GameStarted(gameId, secret, totalAttempts)).right()
+                return LoadedStream(
+                    streamName,
+                    1L,
+                    nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, totalAttempts))
+                ).right()
             }
         }) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
@@ -49,15 +58,19 @@ class DecodingBoardQueryExamples {
         val totalAttempts = 12
 
         with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName): Either<Nothing, NonEmptyList<GameEvent>> {
+            override suspend fun load(streamName: StreamName): Either<Nothing, LoadedStream<GameEvent>> {
                 streamName shouldBe "Mastermind:${gameId.value}"
-                return nonEmptyListOf(
-                    GameStarted(gameId, secret, totalAttempts),
-                    GuessMade(
-                        gameId,
-                        Guess(
-                            Code("Red", "Green", "Blue", "Yellow"),
-                            Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                return LoadedStream(
+                    streamName,
+                    2L,
+                    nonEmptyListOf(
+                        GameStarted(gameId, secret, totalAttempts),
+                        GuessMade(
+                            gameId,
+                            Guess(
+                                Code("Red", "Green", "Blue", "Yellow"),
+                                Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                            )
                         )
                     )
                 ).right()
@@ -74,5 +87,4 @@ class DecodingBoardQueryExamples {
             )
         }
     }
-
 }

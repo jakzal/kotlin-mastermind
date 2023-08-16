@@ -2,10 +2,20 @@ package mastermind.game.journal
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
+import mastermind.game.journal.Stream.LoadedStream
 
 typealias StreamName = String
+typealias StreamVersion = Long
 
 typealias Execute<COMMAND, EVENT, FAILURE> = (COMMAND) -> Either<FAILURE, NonEmptyList<EVENT>>
+
+sealed interface Stream<EVENT : Any> {
+    data class LoadedStream<EVENT : Any>(
+        val streamName: StreamName,
+        val streamVersion: StreamVersion,
+        val events: NonEmptyList<EVENT>
+    ) : Stream<EVENT>
+}
 
 interface Journal<EVENT : Any> {
     suspend fun <FAILURE : Any> create(
@@ -13,7 +23,7 @@ interface Journal<EVENT : Any> {
         execute: () -> Either<FAILURE, NonEmptyList<EVENT>>
     ): Either<JournalFailure<FAILURE>, NonEmptyList<EVENT>>
 
-    suspend fun load(streamName: StreamName): Either<EventStoreFailure, NonEmptyList<EVENT>>
+    suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>
 }
 
 sealed interface JournalFailure<FAILURE>
