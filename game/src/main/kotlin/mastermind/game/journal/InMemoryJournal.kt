@@ -9,7 +9,7 @@ import mastermind.game.journal.Stream.LoadedStream
 class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     private val events = mutableMapOf<String, NonEmptyList<EVENT>>()
 
-    override suspend fun <FAILURE : Any> create(
+    override suspend fun <FAILURE : Any> stream(
         streamName: StreamName,
         execute: () -> Either<FAILURE, NonEmptyList<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> = either {

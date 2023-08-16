@@ -18,7 +18,7 @@ abstract class JournalContract {
 
     @Test
     fun `it persists created events to a new stream`() = runTest {
-        val result = journal().create("stream:1") {
+        val result = journal().stream("stream:1") {
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
         }
 
@@ -28,7 +28,7 @@ abstract class JournalContract {
 
     @Test
     fun `it returns the execution error`() = runTest {
-        val result = journal().create("stream:2") {
+        val result = journal().stream("stream:2") {
             TestFailure("Command failed.").left()
         }
 
@@ -38,7 +38,7 @@ abstract class JournalContract {
 
     @Test
     fun `it loads events from a stream`() = runTest {
-        journal().create("stream:3") {
+        journal().stream("stream:3") {
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
         }
 

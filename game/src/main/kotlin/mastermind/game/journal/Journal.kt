@@ -18,7 +18,7 @@ sealed interface Stream<EVENT : Any> {
 }
 
 interface Journal<EVENT : Any> {
-    suspend fun <FAILURE : Any> create(
+    suspend fun <FAILURE : Any> stream(
         streamName: StreamName,
         execute: () -> Either<FAILURE, NonEmptyList<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
