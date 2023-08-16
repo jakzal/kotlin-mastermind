@@ -31,7 +31,7 @@ class PlayingTheGameExamples {
                 // When I try to break the code with "Red Purple Purple Purple"
                 makeGuess(gameId, guess)
                 // Then the code maker should give me "Black" feedback on my guess
-                viewDecodingBoard(gameId) shouldReturnGuess Guess(guess, feedback)
+                viewDecodingBoard(gameId) shouldReturnGuess Guess(guess.pegs, feedback)
             }
         }
 
