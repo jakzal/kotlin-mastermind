@@ -18,12 +18,7 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
         withError(::ExecutionFailure) {
             (events[streamName] ?: Stream.EmptyStream(streamName))
                 .execute()
-                .map { stream ->
-                    val mergedEvents =
-                        if (stream.events.isEmpty()) stream.eventsToAppend
-                        else nonEmptyListOf(stream.events.first()) + stream.events.tail() + stream.eventsToAppend
-                    LoadedStream(streamName, stream.streamVersion + stream.eventsToAppend.size, mergedEvents)
-                }
+                .map { stream -> stream.toLoadedStream() }
                 .onRight { stream ->
                     events[streamName] = stream
                 }

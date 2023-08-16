@@ -22,16 +22,15 @@ class JournalCommandHandlerExamples {
                 nonEmptyListOf(expectedEvent)
             }
         }
-        val handler = with(journalThatOnlyExpectsToCreateStream("Stream:ABC")) {
+        val handler = with(journalThatOnlyExpectsToAppendToStream("Stream:ABC")) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
         }
-
 
         handler(TestCommand("ABC")) shouldReturn "ABC".right()
     }
 
     @Suppress("SameParameterValue")
-    private fun journalThatOnlyExpectsToCreateStream(expectedStream: String) = object : Journal<TestEvent> by fake() {
+    private fun journalThatOnlyExpectsToAppendToStream(expectedStream: String) = object : Journal<TestEvent> by fake() {
         override suspend fun <FAILURE : Any> stream(
             streamName: StreamName,
             execute: Stream<TestEvent>.() -> Either<FAILURE, UpdatedStream<TestEvent>>
@@ -40,7 +39,7 @@ class JournalCommandHandlerExamples {
                 Stream.EmptyStream<TestEvent>(streamName)
                     .execute()
                     .getOrNull()!!
-                    .let { LoadedStream(streamName, it.streamVersion, it.eventsToAppend) }
+                    .toLoadedStream()
                     .also { streamName shouldBe expectedStream }
             }
     }

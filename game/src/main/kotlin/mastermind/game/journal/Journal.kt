@@ -61,3 +61,9 @@ fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
 fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): Either<ERROR, UpdatedStream<EVENT>> =
     UpdatedStream(streamName, streamVersion, events, eventsToAppend).right()
 
+fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> {
+    val mergedEvents =
+        if (this.events.isEmpty()) this.eventsToAppend
+        else nonEmptyListOf(this.events.first()) + this.events.tail() + this.eventsToAppend
+    return LoadedStream(streamName, this.streamVersion + this.eventsToAppend.size, mergedEvents)
+}
