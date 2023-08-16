@@ -6,6 +6,7 @@ import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.journal.JournalContract.TestEvent.Event1
 import mastermind.game.journal.JournalContract.TestEvent.Event2
+import mastermind.game.journal.Stream.LoadedStream
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import org.junit.jupiter.api.Test
@@ -21,7 +22,7 @@ abstract class JournalContract {
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
         }
 
-        result shouldBe listOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
+        result shouldBe LoadedStream("stream:1", 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
         loadEvents("stream:1") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
     }
 
@@ -41,7 +42,7 @@ abstract class JournalContract {
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")).right()
         }
 
-        journal().load("stream:3") shouldReturn Stream.LoadedStream(
+        journal().load("stream:3") shouldReturn LoadedStream(
             "stream:3",
             2L,
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))

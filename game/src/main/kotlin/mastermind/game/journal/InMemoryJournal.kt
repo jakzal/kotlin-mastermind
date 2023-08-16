@@ -12,15 +12,15 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     override suspend fun <FAILURE : Any> create(
         streamName: StreamName,
         execute: () -> Either<FAILURE, NonEmptyList<EVENT>>
-    ): Either<JournalFailure<FAILURE>, NonEmptyList<EVENT>> = either {
+    ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> = either {
         withError(::ExecutionFailure) {
-            execute().onRight { newEvents -> events[streamName] = newEvents }.bind()
+            execute().onRight { newEvents -> events[streamName] = newEvents }.bind().loadedStream(streamName)
         }
     }
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>> = either {
-        events[streamName]?.let {
-            LoadedStream(streamName, it.size.toLong(), it)
-        } ?: raise(StreamNotFound(streamName))
+        events[streamName]?.loadedStream(streamName) ?: raise(StreamNotFound(streamName))
     }
+
+    private fun NonEmptyList<EVENT>.loadedStream(streamName: StreamName) = LoadedStream(streamName, size.toLong(), this)
 }

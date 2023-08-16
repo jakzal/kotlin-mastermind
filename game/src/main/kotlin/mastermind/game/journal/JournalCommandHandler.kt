@@ -13,6 +13,8 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, RESULT>(
     override suspend operator fun invoke(command: COMMAND): Either<JournalFailure<FAILURE>, RESULT> {
         return create(streamNameResolver(command)) {
             execute(command)
-        }.map(calculateResult)
+        }.map {
+            calculateResult(it.events)
+        }
     }
 }

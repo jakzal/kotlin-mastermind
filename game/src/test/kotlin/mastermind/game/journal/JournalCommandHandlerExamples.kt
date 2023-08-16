@@ -6,6 +6,7 @@ import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
+import mastermind.game.journal.Stream.LoadedStream
 import mastermind.game.testkit.fake
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
@@ -34,9 +35,12 @@ class JournalCommandHandlerExamples {
         override suspend fun <FAILURE : Any> create(
             streamName: StreamName,
             execute: () -> Either<FAILURE, NonEmptyList<TestEvent>>
-        ): Either<JournalFailure<FAILURE>, NonEmptyList<TestEvent>> =
+        ): Either<JournalFailure<FAILURE>, LoadedStream<TestEvent>> =
             either {
-                execute().getOrNull()!!.also { streamName shouldBe expectedStream }
+                execute()
+                    .getOrNull()!!
+                    .let { LoadedStream(streamName, it.size.toLong(), it) }
+                    .also { streamName shouldBe expectedStream }
             }
     }
 
