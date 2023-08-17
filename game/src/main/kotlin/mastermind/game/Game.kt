@@ -30,9 +30,25 @@ sealed interface GameFailure
 
 typealias Game = NonEmptyList<GameEvent>
 
+private val NonEmptyList<GameEvent>.secret: Code?
+    get() = filterIsInstance<GameStarted>().first().secret
+
 fun execute(command: GameCommand, game: Game? = null): Either<GameFailure, NonEmptyList<GameEvent>> = either {
     when (command) {
         is JoinGame -> nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts))
-        is MakeGuess -> nonEmptyListOf(GuessMade(command.gameId, Guess(command.guess, Feedback(emptyList(), Feedback.Outcome.IN_PROGRESS))))
+        is MakeGuess -> nonEmptyListOf(
+            GuessMade(
+                command.gameId, Guess(
+                    command.guess,
+                    Feedback(
+                        (game?.secret?.pegs ?: emptyList())
+                            .zip(command.guess.pegs)
+                            .filter { it.first == it.second }
+                            .map { "Black" },
+                        Feedback.Outcome.IN_PROGRESS
+                    )
+                )
+            )
+        )
     }
 }

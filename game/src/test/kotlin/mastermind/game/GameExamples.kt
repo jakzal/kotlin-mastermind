@@ -2,7 +2,6 @@ package mastermind.game
 
 import arrow.core.nonEmptyListOf
 import mastermind.game.testkit.anyGameId
-import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
@@ -32,6 +31,22 @@ class GameExamples {
                 Guess(
                     Code("Purple", "Purple", "Purple", "Purple"),
                     Feedback(emptyList(), Feedback.Outcome.IN_PROGRESS)
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `it gives black peg for each code peg on the correct position`() {
+        val secret = Code("Red", "Green", "Blue", "Yellow")
+        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
+
+        execute(MakeGuess(gameId, Code("Red", "Purple", "Blue", "Purple")), game) shouldSucceedWith listOf(
+            GuessMade(
+                gameId,
+                Guess(
+                    Code("Red", "Purple", "Blue", "Purple"),
+                    Feedback(listOf("Black", "Black"), Feedback.Outcome.IN_PROGRESS)
                 )
             )
         )
