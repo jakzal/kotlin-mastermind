@@ -2,10 +2,10 @@
 
 == Test list
 
-=== MastermindApp
-
-* provide default implementations for use case functions (currently TODO())
-
 === MastermindHttpApp
 
 * error handling
+
+=== JournalCommandHandler
+
+* make state generic (currently it's always NonEmptyList<EVENT>)
