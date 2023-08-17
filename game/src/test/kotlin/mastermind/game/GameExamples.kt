@@ -52,11 +52,23 @@ class GameExamples {
         @JvmStatic
         fun guessExamples(): List<Arguments> = listOf(
             Arguments.of(
-                "it gives black peg for each code peg on the correct position",
+                "it gives a black peg for each code peg on the correct position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Red", "Purple", "Blue", "Purple"),
                 Feedback(listOf("Black", "Black"), Feedback.Outcome.IN_PROGRESS)
-            )
+            ),
+            Arguments.of(
+                "it gives no black peg for code peg duplicated on a wrong position",
+                Code("Red", "Green", "Blue", "Yellow"),
+                Code("Red", "Red", "Purple", "Purple"),
+                Feedback(listOf("Black"), Feedback.Outcome.IN_PROGRESS)
+            ),
+            Arguments.of(
+                "it gives a white peg for code peg that is part of the code but is placed on a wrong position",
+                Code("Red", "Green", "Blue", "Yellow"),
+                Code("Purple", "Red", "Purple", "Purple"),
+                Feedback(listOf("White"), Feedback.Outcome.IN_PROGRESS)
+            ),
         )
     }
 }
