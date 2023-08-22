@@ -42,7 +42,6 @@ class GameExamples {
     @ParameterizedTest(name = "{0}")
     @MethodSource("guessExamples")
     fun `it gives feedback on the guess`(message: String, secret: Code, guess: Code, feedback: Feedback) {
-        val secret = secret
         val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
 
         execute(MakeGuess(gameId, guess), game) shouldSucceedWith listOf(GuessMade(gameId, Guess(guess, feedback)))
@@ -69,6 +68,18 @@ class GameExamples {
                 Code("Purple", "Red", "Purple", "Purple"),
                 Feedback(listOf("White"), Feedback.Outcome.IN_PROGRESS)
             ),
+            Arguments.of(
+                "it gives no white peg for code peg duplicated on a wrong position",
+                Code("Red", "Green", "Blue", "Yellow"),
+                Code("Purple", "Red", "Red", "Purple"),
+                Feedback(listOf("White"), Feedback.Outcome.IN_PROGRESS)
+            ),
+            Arguments.of(
+                "it gives a white peg for each code peg on a wrong position",
+                Code("Red", "Green", "Blue", "Red"),
+                Code("Purple", "Red", "Red", "Purple"),
+                Feedback(listOf("White", "White"), Feedback.Outcome.IN_PROGRESS)
+            )
         )
     }
 }

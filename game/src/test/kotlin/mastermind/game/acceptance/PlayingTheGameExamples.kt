@@ -8,7 +8,6 @@ import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -19,7 +18,6 @@ context(ScenarioContext)
 class PlayingTheGameExamples {
     @ParameterizedTest(name = "secret={0} guess={1} feedback={2}")
     @MethodSource("guessExamples")
-    @Disabled
     fun `code breaker gets feedback on their guess`(secret: Code, guess: Code, feedback: List<String>) =
         MastermindScenario(
             // Given a decoding board of 12 attempts

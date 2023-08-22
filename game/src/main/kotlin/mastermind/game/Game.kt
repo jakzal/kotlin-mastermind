@@ -1,9 +1,9 @@
 package mastermind.game
 
-import arrow.core.Either
-import arrow.core.NonEmptyList
-import arrow.core.nonEmptyListOf
+import arrow.core.*
 import arrow.core.raise.either
+import kotlin.collections.unzip
+import kotlin.math.min
 
 sealed interface GameCommand {
     val gameId: GameId
@@ -43,10 +43,15 @@ private fun NonEmptyList<GameEvent>?.exactHits(guess: Code): List<String> = (thi
 
 private fun NonEmptyList<GameEvent>?.colourHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
-    .filter { it.first != it.second }
+    .filter { (secretColour, guessColour) -> secretColour != guessColour }
     .unzip()
-    .let {
-        it.second.filter(it.first::contains)
+    .let { (secret, guess) ->
+        val secretGrouped = secret.groupBy { colour -> colour }.mapValues { colours -> colours.value.size }
+        val guessGrouped = guess.groupBy { colour -> colour }.mapValues { colours -> colours.value.size }
+        secretGrouped
+            .zip(guessGrouped)
+            .map { (colour, occurrences) -> (1..min(occurrences.first, occurrences.second)).map { colour } }
+            .flatten()
     }
 
 fun execute(command: GameCommand, game: Game? = null): Either<GameFailure, NonEmptyList<GameEvent>> = either {
