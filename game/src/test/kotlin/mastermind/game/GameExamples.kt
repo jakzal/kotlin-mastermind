@@ -82,4 +82,19 @@ class GameExamples {
             )
         )
     }
+
+    @Test
+    fun `the game is won if the secret is guessed`() {
+        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
+
+        execute(MakeGuess(gameId, secret), game) shouldSucceedWith listOf(
+            GuessMade(
+                gameId, Guess(
+                    secret, Feedback(
+                        listOf("Black", "Black", "Black", "Black"), Feedback.Outcome.WON
+                    )
+                )
+            )
+        )
+    }
 }

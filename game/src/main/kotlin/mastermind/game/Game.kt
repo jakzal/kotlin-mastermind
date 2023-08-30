@@ -67,7 +67,8 @@ fun execute(command: GameCommand, game: Game? = null): Either<GameFailure, NonEm
                     command.guess,
                     Feedback(
                         game.exactHits(command.guess).map { "Black" } + game.colourHits(command.guess).map { "White" },
-                        Feedback.Outcome.IN_PROGRESS
+                        if (game.exactHits(command.guess).size == game?.secret?.size) Feedback.Outcome.WON
+                        else Feedback.Outcome.IN_PROGRESS
                     )
                 )
             )
