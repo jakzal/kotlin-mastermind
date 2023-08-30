@@ -30,6 +30,10 @@ data class Feedback(val pegs: List<String>, val outcome: Outcome) {
 
 sealed interface GameFailure
 
+sealed interface GameFinishedFailure : GameFailure {
+    data class GameWonFailure(val gameId: GameId) : GameFinishedFailure
+}
+
 typealias Game = NonEmptyList<GameEvent>
 
 private val NonEmptyList<GameEvent>.secret: Code?
