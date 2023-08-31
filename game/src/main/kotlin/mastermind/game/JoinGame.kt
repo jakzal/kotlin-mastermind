@@ -1,6 +1,7 @@
 package mastermind.game
 
 import arrow.core.Either
+import mastermind.game.GameCommand.JoinGame
 import mastermind.game.journal.JournalFailure
 
 context(GameIdGenerator, CodeMaker, GameCommandHandler)

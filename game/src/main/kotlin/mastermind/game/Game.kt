@@ -4,15 +4,16 @@ import arrow.core.*
 import arrow.core.raise.Raise
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import mastermind.game.GameCommand.JoinGame
+import mastermind.game.GameCommand.MakeGuess
 import kotlin.collections.unzip
 import kotlin.math.min
 
 sealed interface GameCommand {
     val gameId: GameId
+    data class JoinGame(override val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameCommand
+    data class MakeGuess(override val gameId: GameId, val guess: Code) : GameCommand
 }
-
-data class JoinGame(override val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameCommand
-data class MakeGuess(override val gameId: GameId, val guess: Code) : GameCommand
 
 sealed interface GameEvent {
     val gameId: GameId

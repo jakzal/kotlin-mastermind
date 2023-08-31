@@ -1,6 +1,7 @@
 package mastermind.game
 
 import arrow.core.nonEmptyListOf
+import mastermind.game.GameCommand.*
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldFailWith
 import mastermind.game.testkit.shouldSucceedWith

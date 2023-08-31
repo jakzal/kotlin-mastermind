@@ -1,6 +1,7 @@
 package mastermind.game
 
 import arrow.core.Either
+import mastermind.game.GameCommand.*
 import mastermind.game.journal.InMemoryJournal
 import mastermind.game.journal.Journal
 import mastermind.game.journal.JournalCommandHandler
