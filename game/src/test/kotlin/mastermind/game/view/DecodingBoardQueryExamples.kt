@@ -87,4 +87,49 @@ class DecodingBoardQueryExamples {
             )
         }
     }
+
+    @Test
+    fun `it builds the board for a won game`() = runTest {
+        val gameId = anyGameId()
+        val secret = anySecret()
+        val totalAttempts = 12
+
+        with(object : Journal<GameEvent> by fake() {
+            override suspend fun load(streamName: StreamName): Either<Nothing, LoadedStream<GameEvent>> {
+                return LoadedStream(
+                    streamName,
+                    4L,
+                    nonEmptyListOf(
+                        GameStarted(gameId, secret, totalAttempts),
+                        GuessMade(
+                            gameId,
+                            Guess(
+                                Code("Red", "Green", "Blue", "Yellow"),
+                                Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                            )
+                        ),
+                        GuessMade(
+                            gameId,
+                            Guess(
+                                secret,
+                                Feedback(listOf("Black", "Black", "Black", "Black"), Feedback.Outcome.WON)
+                            )
+                        ),
+                        GameWon(gameId)
+                    )
+                ).right()
+            }
+        }) {
+            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
+                gameId.value,
+                secret.size,
+                totalAttempts,
+                listOf(
+                    Guess(listOf("Red", "Green", "Blue", "Yellow"), listOf("Black", "White")),
+                    Guess(secret.pegs, listOf("Black", "Black", "Black", "Black"))
+                ),
+                "Won"
+            )
+        }
+    }
 }

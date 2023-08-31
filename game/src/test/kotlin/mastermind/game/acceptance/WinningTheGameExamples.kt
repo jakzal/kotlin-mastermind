@@ -6,11 +6,11 @@ import mastermind.game.GameFinishedFailure.GameWonFailure
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
+import mastermind.game.journal.ExecutionFailure
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -18,7 +18,6 @@ context(ScenarioContext)
 @ExtendWith(ScenarioContextResolver::class)
 class WinningTheGameExamples {
     @Test
-    @Disabled
     fun `code breaker wins the game`() = MastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
@@ -48,7 +47,9 @@ class WinningTheGameExamples {
                 "Won"
             )
             // And I should no longer be able to make guesses
-            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn GameWonFailure(gameId).left()
+            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn ExecutionFailure(
+                GameWonFailure(gameId)
+            ).left()
         }
     }
 }

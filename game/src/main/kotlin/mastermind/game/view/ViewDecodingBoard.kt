@@ -18,9 +18,10 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
         emptyList(),
         "In progress"
     )
+
     is GuessMade -> decodingBoard?.copy(
         guesses = decodingBoard.guesses + Guess(event.guess.code.pegs, event.guess.feedback.pegs)
     )
 
-    is GameWon -> TODO()
+    is GameWon -> decodingBoard?.copy(outcome = "Won")
 }
