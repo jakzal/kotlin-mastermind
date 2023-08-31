@@ -21,7 +21,7 @@ class WinningTheGameExamples {
     fun `code breaker wins the game`() = MastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
-        // And the code maker placed the "Red Green Yellow Blue" code pattern on the board
+        // And the code maker placed the "Red Green Yellow Blue" secret on the board
         secret = Code("Red", "Green", "Yellow", "Blue")
     ) {
         joinGame { gameId ->
