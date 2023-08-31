@@ -1,6 +1,8 @@
 package mastermind.game.view
 
-import mastermind.game.*
+import mastermind.game.GameEvent
+import mastermind.game.GameEvent.*
+import mastermind.game.GameId
 import mastermind.game.journal.Journal
 
 context(Journal<GameEvent>)

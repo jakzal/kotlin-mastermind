@@ -6,25 +6,27 @@ import arrow.core.raise.either
 import arrow.core.raise.ensure
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
+import mastermind.game.GameEvent.*
 import kotlin.collections.unzip
 import kotlin.math.min
 
 sealed interface GameCommand {
     val gameId: GameId
+
     data class JoinGame(override val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameCommand
     data class MakeGuess(override val gameId: GameId, val guess: Code) : GameCommand
 }
 
 sealed interface GameEvent {
     val gameId: GameId
+
+    data class GameStarted(override val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameEvent
+
+    data class GuessMade(override val gameId: GameId, val guess: Guess) : GameEvent
+
+    data class GameWon(override val gameId: GameId) : GameEvent
+    data class GameLost(override val gameId: GameId) : GameEvent
 }
-
-data class GameStarted(override val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameEvent
-
-data class GuessMade(override val gameId: GameId, val guess: Guess) : GameEvent
-
-data class GameWon(override val gameId: GameId) : GameEvent
-data class GameLost(override val gameId: GameId) : GameEvent
 
 data class Guess(val code: Code, val feedback: Feedback)
 

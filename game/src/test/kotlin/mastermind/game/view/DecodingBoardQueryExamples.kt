@@ -5,7 +5,10 @@ import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.game.*
+import mastermind.game.Code
+import mastermind.game.Feedback
+import mastermind.game.GameEvent
+import mastermind.game.GameEvent.*
 import mastermind.game.Guess
 import mastermind.game.journal.EventStoreFailure
 import mastermind.game.journal.Journal

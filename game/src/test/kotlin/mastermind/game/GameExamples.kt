@@ -1,7 +1,9 @@
 package mastermind.game
 
 import arrow.core.nonEmptyListOf
-import mastermind.game.GameCommand.*
+import mastermind.game.GameCommand.JoinGame
+import mastermind.game.GameCommand.MakeGuess
+import mastermind.game.GameEvent.*
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldFailWith
 import mastermind.game.testkit.shouldSucceedWith
