@@ -23,6 +23,7 @@ data class GameStarted(override val gameId: GameId, val secret: Code, val totalA
 data class GuessMade(override val gameId: GameId, val guess: Guess) : GameEvent
 
 data class GameWon(override val gameId: GameId) : GameEvent
+data class GameLost(override val gameId: GameId) : GameEvent
 
 data class Guess(val code: Code, val feedback: Feedback)
 
@@ -43,6 +44,12 @@ typealias Game = NonEmptyList<GameEvent>
 
 private val NonEmptyList<GameEvent>.secret: Code?
     get() = filterIsInstance<GameStarted>().first().secret
+
+private val NonEmptyList<GameEvent>.attempts: Int
+    get() = filterIsInstance<GuessMade>().size
+
+private val NonEmptyList<GameEvent>.totalAttempts: Int
+    get() = filterIsInstance<GameStarted>().first().totalAttempts
 
 private fun NonEmptyList<GameEvent>?.isWon(): Boolean =
     this?.filterIsInstance<GameWon>()?.isNotEmpty() ?: false
@@ -83,9 +90,12 @@ private fun Raise<GameFailure>.makeGuess(
     return Feedback(
         game.exactHits(command.guess).map { "Black" } + game.colourHits(command.guess).map { "White" },
         if (game.exactHits(command.guess).size == game?.secret?.size) Feedback.Outcome.WON
+        else if ((game?.attempts ?: 0) + 1 == game?.totalAttempts) Feedback.Outcome.LOST
         else Feedback.Outcome.IN_PROGRESS
     ).let { feedback ->
         nonEmptyListOf<GameEvent>(GuessMade(command.gameId, Guess(command.guess, feedback))) +
-                (if (feedback.outcome == Feedback.Outcome.WON) listOf(GameWon(command.gameId)) else emptyList())
+                (if (feedback.outcome == Feedback.Outcome.WON) listOf(GameWon(command.gameId))
+                else if (feedback.outcome == Feedback.Outcome.LOST) listOf(GameLost(command.gameId))
+                else emptyList())
     }
 }

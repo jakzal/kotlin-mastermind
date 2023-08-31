@@ -109,4 +109,18 @@ class GameExamples {
         execute(MakeGuess(gameId, secret), updatedGame.getOrNull()) shouldFailWith
                 GameFinishedFailure.GameWonFailure(gameId)
     }
+
+    @Test
+    fun `the game is lost if the secret is not guessed within the number of attempts`() {
+        val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
+        val game = nonEmptyListOf(
+            GameStarted(gameId, secret, 3),
+            GuessMade(gameId, Guess(wrongCode, Feedback(listOf(), Feedback.Outcome.IN_PROGRESS))),
+            GuessMade(gameId, Guess(wrongCode, Feedback(listOf(), Feedback.Outcome.IN_PROGRESS))),
+        )
+        execute(MakeGuess(gameId, wrongCode), game) shouldSucceedWith listOf(
+            GuessMade(gameId, Guess(wrongCode, Feedback(listOf(), Feedback.Outcome.LOST))),
+            GameLost(gameId)
+        )
+    }
 }
