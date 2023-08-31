@@ -7,6 +7,8 @@ import arrow.core.raise.ensure
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameEvent.*
+import mastermind.game.GameFailure.GameFinishedFailure.GameLostFailure
+import mastermind.game.GameFailure.GameFinishedFailure.GameWonFailure
 import kotlin.collections.unzip
 import kotlin.math.min
 
@@ -36,11 +38,11 @@ data class Feedback(val pegs: List<String>, val outcome: Outcome) {
     }
 }
 
-sealed interface GameFailure
-
-sealed interface GameFinishedFailure : GameFailure {
-    data class GameWonFailure(val gameId: GameId) : GameFinishedFailure
-    data class GameLostFailure(val gameId: GameId) : GameFinishedFailure
+sealed interface GameFailure {
+    sealed interface GameFinishedFailure : GameFailure {
+        data class GameWonFailure(val gameId: GameId) : GameFinishedFailure
+        data class GameLostFailure(val gameId: GameId) : GameFinishedFailure
+    }
 }
 
 typealias Game = NonEmptyList<GameEvent>
@@ -91,10 +93,10 @@ private fun Raise<GameFailure>.makeGuess(
     game: Game?
 ): NonEmptyList<GameEvent> {
     ensure(!game.isWon()) {
-        GameFinishedFailure.GameWonFailure(command.gameId)
+        GameWonFailure(command.gameId)
     }
     ensure(!game.isLost()) {
-        GameFinishedFailure.GameLostFailure(command.gameId)
+        GameLostFailure(command.gameId)
     }
     return game.guessFeedback(command).let { feedback ->
         nonEmptyListOf<GameEvent>(GuessMade(command.gameId, Guess(command.guess, feedback))) +

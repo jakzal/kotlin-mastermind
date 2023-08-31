@@ -2,7 +2,7 @@ package mastermind.game.acceptance
 
 import arrow.core.left
 import mastermind.game.Code
-import mastermind.game.GameFinishedFailure.GameLostFailure
+import mastermind.game.GameFailure.GameFinishedFailure.GameLostFailure
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver

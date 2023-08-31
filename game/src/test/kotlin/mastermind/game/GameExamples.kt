@@ -4,6 +4,8 @@ import arrow.core.nonEmptyListOf
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameEvent.*
+import mastermind.game.GameFailure.GameFinishedFailure.GameLostFailure
+import mastermind.game.GameFailure.GameFinishedFailure.GameWonFailure
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldFailWith
 import mastermind.game.testkit.shouldSucceedWith
@@ -110,7 +112,7 @@ class GameExamples {
         val updatedGame = execute(MakeGuess(gameId, secret), game)
 
         execute(MakeGuess(gameId, secret), updatedGame.getOrNull()) shouldFailWith
-                GameFinishedFailure.GameWonFailure(gameId)
+                GameWonFailure(gameId)
     }
 
     @Test
@@ -135,6 +137,6 @@ class GameExamples {
         val updatedGame = execute(MakeGuess(gameId, wrongCode), game)
 
         execute(MakeGuess(gameId, secret), updatedGame.getOrNull()) shouldFailWith
-                GameFinishedFailure.GameLostFailure(gameId)
+                GameLostFailure(gameId)
     }
 }
