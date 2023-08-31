@@ -1,9 +1,6 @@
 package mastermind.game.view
 
-import mastermind.game.GameEvent
-import mastermind.game.GameId
-import mastermind.game.GameStarted
-import mastermind.game.GuessMade
+import mastermind.game.*
 import mastermind.game.journal.Journal
 
 context(Journal<GameEvent>)
@@ -24,4 +21,6 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
     is GuessMade -> decodingBoard?.copy(
         guesses = decodingBoard.guesses + Guess(event.guess.code.pegs, event.guess.feedback.pegs)
     )
+
+    is GameWon -> TODO()
 }

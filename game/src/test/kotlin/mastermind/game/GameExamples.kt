@@ -2,6 +2,7 @@ package mastermind.game
 
 import arrow.core.nonEmptyListOf
 import mastermind.game.testkit.anyGameId
+import mastermind.game.testkit.shouldFailWith
 import mastermind.game.testkit.shouldSucceedWith
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -94,7 +95,18 @@ class GameExamples {
                         listOf("Black", "Black", "Black", "Black"), Feedback.Outcome.WON
                     )
                 )
-            )
+            ),
+            GameWon(gameId)
         )
+    }
+
+    @Test
+    fun `the game can no longer be played once it's won`() {
+        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
+
+        val updatedGame = execute(MakeGuess(gameId, secret), game)
+
+        execute(MakeGuess(gameId, secret), updatedGame.getOrNull()) shouldFailWith
+                GameFinishedFailure.GameWonFailure(gameId)
     }
 }
