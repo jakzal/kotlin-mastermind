@@ -87,15 +87,17 @@ private fun Raise<GameFailure>.makeGuess(
     ensure(!game.isWon()) {
         GameFinishedFailure.GameWonFailure(command.gameId)
     }
-    return Feedback(
-        game.exactHits(command.guess).map { "Black" } + game.colourHits(command.guess).map { "White" },
-        if (game.exactHits(command.guess).size == game?.secret?.size) Feedback.Outcome.WON
-        else if ((game?.attempts ?: 0) + 1 == game?.totalAttempts) Feedback.Outcome.LOST
-        else Feedback.Outcome.IN_PROGRESS
-    ).let { feedback ->
+    return game.guessFeedback(command).let { feedback ->
         nonEmptyListOf<GameEvent>(GuessMade(command.gameId, Guess(command.guess, feedback))) +
                 (if (feedback.outcome == Feedback.Outcome.WON) listOf(GameWon(command.gameId))
                 else if (feedback.outcome == Feedback.Outcome.LOST) listOf(GameLost(command.gameId))
                 else emptyList())
     }
 }
+
+private fun Game?.guessFeedback(command: MakeGuess) = Feedback(
+    exactHits(command.guess).map { "Black" } + colourHits(command.guess).map { "White" },
+    if (exactHits(command.guess).size == this?.secret?.size) Feedback.Outcome.WON
+    else if ((this?.attempts ?: 0) + 1 == this?.totalAttempts) Feedback.Outcome.LOST
+    else Feedback.Outcome.IN_PROGRESS
+)
