@@ -43,13 +43,13 @@ sealed interface GameFinishedFailure : GameFailure {
 typealias Game = NonEmptyList<GameEvent>
 
 private val NonEmptyList<GameEvent>.secret: Code?
-    get() = filterIsInstance<GameStarted>().first().secret
+    get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
 
 private val NonEmptyList<GameEvent>.attempts: Int
     get() = filterIsInstance<GuessMade>().size
 
 private val NonEmptyList<GameEvent>.totalAttempts: Int
-    get() = filterIsInstance<GameStarted>().first().totalAttempts
+    get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
 
 private fun NonEmptyList<GameEvent>?.isWon(): Boolean =
     this?.filterIsInstance<GameWon>()?.isNotEmpty() ?: false
