@@ -79,22 +79,12 @@ private fun Raise<GameFailure>.makeGuess(
     ensure(!game.isWon()) {
         GameFinishedFailure.GameWonFailure(command.gameId)
     }
-    return nonEmptyListOf<GameEvent>(
-        GuessMade(
-            command.gameId, Guess(
-                command.guess,
-                Feedback(
-                    game.exactHits(command.guess).map { "Black" } + game.colourHits(command.guess).map { "White" },
-                    if (game.exactHits(command.guess).size == game?.secret?.size) Feedback.Outcome.WON
-                    else Feedback.Outcome.IN_PROGRESS
-                )
-            )
-        )
-    ).let { updatedGame ->
-        val lastEvent = updatedGame.last()
-        if (lastEvent is GuessMade && lastEvent.guess.feedback.outcome == Feedback.Outcome.WON) updatedGame + GameWon(
-            command.gameId
-        )
-        else updatedGame
+    return Feedback(
+        game.exactHits(command.guess).map { "Black" } + game.colourHits(command.guess).map { "White" },
+        if (game.exactHits(command.guess).size == game?.secret?.size) Feedback.Outcome.WON
+        else Feedback.Outcome.IN_PROGRESS
+    ).let { feedback ->
+        nonEmptyListOf<GameEvent>(GuessMade(command.gameId, Guess(command.guess, feedback))) +
+                (if (feedback.outcome == Feedback.Outcome.WON) listOf(GameWon(command.gameId)) else emptyList())
     }
 }
