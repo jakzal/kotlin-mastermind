@@ -2,7 +2,7 @@ package mastermind.game.acceptance.dsl.http
 
 import arrow.core.Either
 import mastermind.game.Code
-import mastermind.game.GameFailure
+import mastermind.game.GameError
 import mastermind.game.GameId
 import mastermind.game.acceptance.dsl.PlayGameAbility
 import mastermind.game.journal.JournalFailure
@@ -32,7 +32,7 @@ class HttpPlayGameAbility(
         return Body.auto<DecodingBoard>().toLens()(response)
     }
 
-    override suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameFailure>, GameId> {
+    override suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameError>, GameId> {
         TODO("Not yet implemented")
     }
 }

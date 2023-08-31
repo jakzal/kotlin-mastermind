@@ -3,7 +3,7 @@ package mastermind.game.acceptance.dsl.direct
 import arrow.core.Either
 import arrow.core.getOrElse
 import mastermind.game.Code
-import mastermind.game.GameFailure
+import mastermind.game.GameError
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
 import mastermind.game.acceptance.dsl.PlayGameAbility
@@ -23,6 +23,6 @@ class DirectPlayGameAbility(private val app: MastermindApp) : PlayGameAbility {
 
     override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = app.viewDecodingBoard(gameId)
 
-    override suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameFailure>, GameId> =
+    override suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameError>, GameId> =
         app.makeGuess(gameId, code)
 }

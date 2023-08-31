@@ -2,7 +2,7 @@ package mastermind.game.acceptance
 
 import arrow.core.left
 import mastermind.game.Code
-import mastermind.game.GameFailure.GameFinishedFailure.GameWonFailure
+import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
@@ -48,7 +48,7 @@ class WinningTheGameExamples {
             )
             // And I should no longer be able to make guesses
             makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn ExecutionFailure(
-                GameWonFailure(gameId)
+                GameAlreadyWon(gameId)
             ).left()
         }
     }

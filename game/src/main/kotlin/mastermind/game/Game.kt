@@ -7,8 +7,8 @@ import arrow.core.raise.ensure
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameEvent.*
-import mastermind.game.GameFailure.GameFinishedFailure.GameLostFailure
-import mastermind.game.GameFailure.GameFinishedFailure.GameWonFailure
+import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
+import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import kotlin.collections.unzip
 import kotlin.math.min
 
@@ -38,10 +38,10 @@ data class Feedback(val pegs: List<String>, val outcome: Outcome) {
     }
 }
 
-sealed interface GameFailure {
-    sealed interface GameFinishedFailure : GameFailure {
-        data class GameWonFailure(val gameId: GameId) : GameFinishedFailure
-        data class GameLostFailure(val gameId: GameId) : GameFinishedFailure
+sealed interface GameError {
+    sealed interface GameFinishedError : GameError {
+        data class GameAlreadyWon(val gameId: GameId) : GameFinishedError
+        data class GameAlreadyLost(val gameId: GameId) : GameFinishedError
     }
 }
 
@@ -81,22 +81,22 @@ private fun NonEmptyList<GameEvent>?.colourHits(guess: Code): List<String> = (th
             .flatten()
     }
 
-fun execute(command: GameCommand, game: Game? = null): Either<GameFailure, NonEmptyList<GameEvent>> = either {
+fun execute(command: GameCommand, game: Game? = null): Either<GameError, NonEmptyList<GameEvent>> = either {
     when (command) {
         is JoinGame -> nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts))
         is MakeGuess -> makeGuess(command, game)
     }
 }
 
-private fun Raise<GameFailure>.makeGuess(
+private fun Raise<GameError>.makeGuess(
     command: MakeGuess,
     game: Game?
 ): NonEmptyList<GameEvent> {
     ensure(!game.isWon()) {
-        GameWonFailure(command.gameId)
+        GameAlreadyWon(command.gameId)
     }
     ensure(!game.isLost()) {
-        GameLostFailure(command.gameId)
+        GameAlreadyLost(command.gameId)
     }
     return game.guessFeedback(command).let { feedback ->
         nonEmptyListOf<GameEvent>(GuessMade(command.gameId, Guess(command.guess, feedback))) +

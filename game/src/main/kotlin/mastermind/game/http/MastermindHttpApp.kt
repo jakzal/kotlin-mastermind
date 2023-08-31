@@ -2,7 +2,7 @@ package mastermind.game.http
 
 import arrow.core.Either
 import kotlinx.coroutines.runBlocking
-import mastermind.game.GameFailure
+import mastermind.game.GameError
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
 import mastermind.game.journal.JournalFailure
@@ -56,7 +56,7 @@ private fun DecodingBoard.asResponseBody(): (Response) -> Response =
 private infix fun <T> T.thenRespond(responder: (T) -> Response): Response =
     this.let(responder)
 
-private infix fun Either<JournalFailure<GameFailure>, GameId>.thenRespond(responder: (GameId) -> Response): Response =
-    fold(JournalFailure<GameFailure>::response, responder)
+private infix fun Either<JournalFailure<GameError>, GameId>.thenRespond(responder: (GameId) -> Response): Response =
+    fold(JournalFailure<GameError>::response, responder)
 
-private fun JournalFailure<GameFailure>.response(): Response = TODO("Error handling")
+private fun JournalFailure<GameError>.response(): Response = TODO("Error handling")
