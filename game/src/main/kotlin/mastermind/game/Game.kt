@@ -54,6 +54,9 @@ private val NonEmptyList<GameEvent>.totalAttempts: Int
 private fun NonEmptyList<GameEvent>?.isWon(): Boolean =
     this?.filterIsInstance<GameWon>()?.isNotEmpty() ?: false
 
+private fun NonEmptyList<GameEvent>?.isLost(): Boolean =
+    this?.filterIsInstance<GameLost>()?.isNotEmpty() ?: false
+
 private fun NonEmptyList<GameEvent>?.exactHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
     .filter { it.first == it.second }
@@ -86,6 +89,9 @@ private fun Raise<GameFailure>.makeGuess(
 ): NonEmptyList<GameEvent> {
     ensure(!game.isWon()) {
         GameFinishedFailure.GameWonFailure(command.gameId)
+    }
+    ensure(!game.isLost()) {
+        GameFinishedFailure.GameLostFailure(command.gameId)
     }
     return game.guessFeedback(command).let { feedback ->
         nonEmptyListOf<GameEvent>(GuessMade(command.gameId, Guess(command.guess, feedback))) +

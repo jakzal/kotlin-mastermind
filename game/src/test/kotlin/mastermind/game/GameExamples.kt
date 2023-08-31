@@ -123,4 +123,15 @@ class GameExamples {
             GameLost(gameId)
         )
     }
+
+    @Test
+    fun `the game can no longer be played once it's lost`() {
+        val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
+        val game = nonEmptyListOf(GameStarted(gameId, secret, 1))
+
+        val updatedGame = execute(MakeGuess(gameId, wrongCode), game)
+
+        execute(MakeGuess(gameId, secret), updatedGame.getOrNull()) shouldFailWith
+                GameFinishedFailure.GameLostFailure(gameId)
+    }
 }
