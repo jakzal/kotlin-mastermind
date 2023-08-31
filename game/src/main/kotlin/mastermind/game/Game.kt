@@ -47,28 +47,28 @@ sealed interface GameError {
 
 typealias Game = NonEmptyList<GameEvent>
 
-private val NonEmptyList<GameEvent>.secret: Code?
+private val Game.secret: Code?
     get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
 
-private val NonEmptyList<GameEvent>.attempts: Int
+private val Game.attempts: Int
     get() = filterIsInstance<GuessMade>().size
 
-private val NonEmptyList<GameEvent>.totalAttempts: Int
+private val Game.totalAttempts: Int
     get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
 
-private fun NonEmptyList<GameEvent>?.isWon(): Boolean =
+private fun Game?.isWon(): Boolean =
     this?.filterIsInstance<GameWon>()?.isNotEmpty() ?: false
 
-private fun NonEmptyList<GameEvent>?.isLost(): Boolean =
+private fun Game?.isLost(): Boolean =
     this?.filterIsInstance<GameLost>()?.isNotEmpty() ?: false
 
-private fun NonEmptyList<GameEvent>?.exactHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
+private fun Game?.exactHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
     .filter { it.first == it.second }
     .unzip()
     .second
 
-private fun NonEmptyList<GameEvent>?.colourHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
+private fun Game?.colourHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
     .filter { (secretColour, guessColour) -> secretColour != guessColour }
     .unzip()
