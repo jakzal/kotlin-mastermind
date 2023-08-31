@@ -36,6 +36,7 @@ sealed interface GameFailure
 
 sealed interface GameFinishedFailure : GameFailure {
     data class GameWonFailure(val gameId: GameId) : GameFinishedFailure
+    data class GameLostFailure(val gameId: GameId) : GameFinishedFailure
 }
 
 typealias Game = NonEmptyList<GameEvent>
