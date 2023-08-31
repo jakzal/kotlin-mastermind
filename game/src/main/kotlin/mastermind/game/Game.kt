@@ -6,9 +6,9 @@ import arrow.core.raise.either
 import arrow.core.raise.ensure
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
-import mastermind.game.GameEvent.*
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
+import mastermind.game.GameEvent.*
 import kotlin.collections.unzip
 import kotlin.math.min
 
@@ -108,11 +108,15 @@ private fun Raise<GameError>.makeGuess(
     }
 }
 
-private fun Game?.guessFeedback(command: MakeGuess) = Feedback(
-    exactHits(command.guess).map { "Black" } + colourHits(command.guess).map { "White" },
-    when {
-        exactHits(command.guess).size == this?.secret?.size -> Feedback.Outcome.WON
-        (this?.attempts ?: 0) + 1 == this?.totalAttempts -> Feedback.Outcome.LOST
-        else -> Feedback.Outcome.IN_PROGRESS
-    }
-)
+private fun Game?.guessFeedback(command: MakeGuess) =
+    (exactHits(command.guess).map { "Black" } to colourHits(command.guess).map { "White" })
+        .let { (exactHits, colourHits) ->
+            Feedback(
+                exactHits + colourHits,
+                when {
+                    exactHits.size == this?.secret?.size -> Feedback.Outcome.WON
+                    (this?.attempts ?: 0) + 1 == this?.totalAttempts -> Feedback.Outcome.LOST
+                    else -> Feedback.Outcome.IN_PROGRESS
+                }
+            )
+        }
