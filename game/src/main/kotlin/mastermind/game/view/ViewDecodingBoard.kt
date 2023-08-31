@@ -24,5 +24,5 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
     )
 
     is GameWon -> decodingBoard?.copy(outcome = "Won")
-    is GameLost -> TODO()
+    is GameLost -> decodingBoard?.copy(outcome = "Lost")
 }

@@ -11,7 +11,6 @@ import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,7 +18,6 @@ context(ScenarioContext)
 @ExtendWith(ScenarioContextResolver::class)
 class LosingTheGameExamples {
     @Test
-    @Disabled
     fun `code breaker loses the game`() = MastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
