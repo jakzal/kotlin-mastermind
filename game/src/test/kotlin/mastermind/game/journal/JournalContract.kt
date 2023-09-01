@@ -8,6 +8,7 @@ import mastermind.game.journal.JournalContract.TestEvent.Event1
 import mastermind.game.journal.JournalContract.TestEvent.Event2
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
+import mastermind.journal.Journal
 import mastermind.journal.JournalFailure.EventStoreFailure.ExecutionFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream

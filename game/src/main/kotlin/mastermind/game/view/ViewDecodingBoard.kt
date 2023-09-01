@@ -3,7 +3,7 @@ package mastermind.game.view
 import mastermind.game.GameEvent
 import mastermind.game.GameEvent.*
 import mastermind.game.GameId
-import mastermind.game.journal.Journal
+import mastermind.journal.Journal
 
 context(Journal<GameEvent>)
 suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = load("Mastermind:${gameId.value}")

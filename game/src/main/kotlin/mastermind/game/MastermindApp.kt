@@ -1,13 +1,13 @@
 package mastermind.game
 
 import arrow.core.Either
-import mastermind.game.GameCommand.*
+import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.journal.InMemoryJournal
-import mastermind.game.journal.Journal
 import mastermind.game.journal.JournalCommandHandler
-import mastermind.journal.JournalFailure
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.viewDecodingBoard
+import mastermind.journal.Journal
+import mastermind.journal.JournalFailure
 
 data class Configuration(
     val gameIdGenerator: GameIdGenerator = GameIdGenerator(::generateGameId),

@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import mastermind.game.CommandHandler
+import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
 import mastermind.journal.append
 

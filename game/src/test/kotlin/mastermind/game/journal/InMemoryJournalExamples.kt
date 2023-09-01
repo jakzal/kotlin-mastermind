@@ -1,5 +1,6 @@
 package mastermind.game.journal
 
+import mastermind.journal.Journal
 import mastermind.journal.StreamName
 
 class InMemoryJournalExamples : JournalContract() {

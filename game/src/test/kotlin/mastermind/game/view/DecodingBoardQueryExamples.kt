@@ -10,8 +10,8 @@ import mastermind.game.Feedback
 import mastermind.game.GameEvent
 import mastermind.game.GameEvent.*
 import mastermind.game.Guess
-import mastermind.game.journal.Journal
 import mastermind.game.testkit.*
+import mastermind.journal.Journal
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
