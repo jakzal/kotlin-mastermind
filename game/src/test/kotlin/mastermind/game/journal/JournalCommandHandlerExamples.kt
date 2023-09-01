@@ -5,7 +5,7 @@ import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.game.journal.Stream.LoadedStream
+import mastermind.journal.Stream.LoadedStream
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import mastermind.game.testkit.shouldSucceedWith

@@ -12,7 +12,7 @@ import mastermind.game.GameEvent.*
 import mastermind.game.Guess
 import mastermind.game.journal.EventStoreFailure
 import mastermind.game.journal.Journal
-import mastermind.game.journal.Stream.LoadedStream
+import mastermind.journal.Stream.LoadedStream
 import mastermind.game.journal.StreamName
 import mastermind.game.journal.StreamNotFound
 import mastermind.game.testkit.*

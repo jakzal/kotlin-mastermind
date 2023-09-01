@@ -6,8 +6,8 @@ import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.journal.JournalContract.TestEvent.Event1
 import mastermind.game.journal.JournalContract.TestEvent.Event2
-import mastermind.game.journal.Stream.LoadedStream
-import mastermind.game.journal.Stream.UpdatedStream
+import mastermind.journal.Stream.LoadedStream
+import mastermind.journal.Stream.UpdatedStream
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import org.junit.jupiter.api.Test

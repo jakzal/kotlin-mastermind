@@ -1,12 +1,11 @@
 package mastermind.game.journal
 
 import arrow.core.Either
-import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.raise.withError
-import arrow.core.tail
-import mastermind.game.journal.Stream.LoadedStream
-import mastermind.game.journal.Stream.UpdatedStream
+import mastermind.journal.Stream
+import mastermind.journal.Stream.LoadedStream
+import mastermind.journal.Stream.UpdatedStream
 
 class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     private val events = mutableMapOf<StreamName, LoadedStream<EVENT>>()
