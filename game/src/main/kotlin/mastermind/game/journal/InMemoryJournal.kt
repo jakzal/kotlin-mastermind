@@ -11,6 +11,7 @@ import mastermind.journal.Stream
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 import mastermind.journal.StreamName
+import mastermind.journal.toLoadedStream
 
 class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     private val events = mutableMapOf<StreamName, LoadedStream<EVENT>>()

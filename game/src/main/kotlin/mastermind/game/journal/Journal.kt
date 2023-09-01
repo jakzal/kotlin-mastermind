@@ -16,10 +16,3 @@ interface Journal<EVENT : Any> {
 
     suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>
 }
-
-fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> {
-    val mergedEvents =
-        if (this.events.isEmpty()) this.eventsToAppend
-        else nonEmptyListOf(this.events.first()) + this.events.tail() + this.eventsToAppend
-    return LoadedStream(streamName, this.streamVersion + this.eventsToAppend.size, mergedEvents)
-}
