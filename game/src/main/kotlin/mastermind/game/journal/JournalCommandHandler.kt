@@ -5,6 +5,8 @@ import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import mastermind.game.CommandHandler
 
+typealias Execute<COMMAND, EVENT, STATE, FAILURE> = (COMMAND, STATE?) -> Either<FAILURE, NonEmptyList<EVENT>>
+
 context(Journal<EVENT>)
 class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, RESULT>(
     private val execute: Execute<COMMAND, EVENT, NonEmptyList<EVENT>, FAILURE>,

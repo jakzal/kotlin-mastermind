@@ -7,8 +7,6 @@ import mastermind.game.journal.Stream.UpdatedStream
 typealias StreamName = String
 typealias StreamVersion = Long
 
-typealias Execute<COMMAND, EVENT, STATE, FAILURE> = (COMMAND, STATE?) -> Either<FAILURE, NonEmptyList<EVENT>>
-
 sealed interface Stream<EVENT : Any> {
     val streamName: StreamName
     val streamVersion: StreamVersion
