@@ -5,11 +5,11 @@ import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.journal.Stream.LoadedStream
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import mastermind.game.testkit.shouldSucceedWith
 import mastermind.journal.InMemoryJournal
+import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.append
 import org.junit.jupiter.api.Test
 
@@ -48,7 +48,7 @@ class JournalCommandHandlerExamples {
             }
 
         journal.stream("Stream:ABC") {
-            append(nonEmptyListOf(TestEvent("123"), TestEvent("456")))
+            append(TestEvent("123"), TestEvent("456"))
         }
 
         val handler = with(journal) {

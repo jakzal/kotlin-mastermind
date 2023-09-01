@@ -1,6 +1,6 @@
 package mastermind.journal
 
-import arrow.core.*
+import arrow.core.Either
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
@@ -12,23 +12,4 @@ interface Journal<EVENT : Any> {
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
 
     suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>
-}
-
-fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>): Either<ERROR, UpdatedStream<EVENT>> =
-    generateEvents().flatMap { append(it) }
-
-fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
-    event: EVENT,
-    vararg events: EVENT
-): Either<ERROR, UpdatedStream<EVENT>> =
-    append(nonEmptyListOf(event, *events))
-
-fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): Either<ERROR, UpdatedStream<EVENT>> =
-    UpdatedStream(streamName, streamVersion, events, eventsToAppend).right()
-
-fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> {
-    val mergedEvents =
-        if (this.events.isEmpty()) this.eventsToAppend
-        else nonEmptyListOf(this.events.first()) + this.events.tail() + this.eventsToAppend
-    return LoadedStream(streamName, this.streamVersion + this.eventsToAppend.size, mergedEvents)
 }

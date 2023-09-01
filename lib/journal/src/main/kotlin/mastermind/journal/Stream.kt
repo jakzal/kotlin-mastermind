@@ -1,6 +1,6 @@
 package mastermind.journal
 
-import arrow.core.NonEmptyList
+import arrow.core.*
 
 typealias StreamName = String
 typealias StreamVersion = Long
@@ -30,3 +30,15 @@ sealed interface Stream<EVENT : Any> {
         val eventsToAppend: NonEmptyList<EVENT>
     ) : Stream<EVENT>
 }
+
+fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>): Either<ERROR, Stream.UpdatedStream<EVENT>> =
+    generateEvents().flatMap { append(it) }
+
+fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
+    event: EVENT,
+    vararg events: EVENT
+): Either<ERROR, Stream.UpdatedStream<EVENT>> =
+    append(nonEmptyListOf(event, *events))
+
+private fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): Either<ERROR, Stream.UpdatedStream<EVENT>> =
+    Stream.UpdatedStream(streamName, streamVersion, events, eventsToAppend).right()
