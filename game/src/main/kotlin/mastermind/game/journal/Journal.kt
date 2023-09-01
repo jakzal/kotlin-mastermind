@@ -17,18 +17,6 @@ interface Journal<EVENT : Any> {
     suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>
 }
 
-fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>): Either<ERROR, UpdatedStream<EVENT>> =
-    generateEvents().flatMap { append(it) }
-
-fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
-    event: EVENT,
-    vararg events: EVENT
-): Either<ERROR, UpdatedStream<EVENT>> =
-    append(nonEmptyListOf(event, *events))
-
-fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): Either<ERROR, UpdatedStream<EVENT>> =
-    UpdatedStream(streamName, streamVersion, events, eventsToAppend).right()
-
 fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> {
     val mergedEvents =
         if (this.events.isEmpty()) this.eventsToAppend

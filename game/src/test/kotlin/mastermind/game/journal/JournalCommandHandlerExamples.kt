@@ -9,6 +9,7 @@ import mastermind.journal.Stream.LoadedStream
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import mastermind.game.testkit.shouldSucceedWith
+import mastermind.journal.append
 import org.junit.jupiter.api.Test
 
 class JournalCommandHandlerExamples {

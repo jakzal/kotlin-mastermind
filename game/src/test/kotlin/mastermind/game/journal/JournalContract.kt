@@ -13,6 +13,7 @@ import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 import mastermind.journal.StreamName
+import mastermind.journal.append
 import org.junit.jupiter.api.Test
 
 abstract class JournalContract {

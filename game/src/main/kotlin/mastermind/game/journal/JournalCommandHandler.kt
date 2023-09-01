@@ -5,6 +5,7 @@ import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import mastermind.game.CommandHandler
 import mastermind.journal.JournalFailure
+import mastermind.journal.append
 
 typealias Execute<COMMAND, EVENT, STATE, FAILURE> = (COMMAND, STATE?) -> Either<FAILURE, NonEmptyList<EVENT>>
 
