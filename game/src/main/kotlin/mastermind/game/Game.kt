@@ -29,6 +29,10 @@ sealed interface GameEvent {
     data class GameLost(override val gameId: GameId) : GameEvent
 }
 
+data class Code(val pegs: List<String>) : List<String> by pegs {
+    constructor(vararg pegs: String) : this(pegs.toList())
+}
+
 data class Guess(val code: Code, val feedback: Feedback)
 
 data class Feedback(val pegs: List<String>, val outcome: Outcome) {
