@@ -10,6 +10,7 @@ import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
+import mastermind.journal.StreamName
 import org.junit.jupiter.api.Test
 
 abstract class JournalContract {

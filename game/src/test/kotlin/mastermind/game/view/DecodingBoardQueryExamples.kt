@@ -13,7 +13,7 @@ import mastermind.game.Guess
 import mastermind.game.journal.EventStoreFailure
 import mastermind.game.journal.Journal
 import mastermind.journal.Stream.LoadedStream
-import mastermind.game.journal.StreamName
+import mastermind.journal.StreamName
 import mastermind.game.journal.StreamNotFound
 import mastermind.game.testkit.*
 import org.junit.jupiter.api.Test

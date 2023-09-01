@@ -6,6 +6,7 @@ import arrow.core.raise.withError
 import mastermind.journal.Stream
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
+import mastermind.journal.StreamName
 
 class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     private val events = mutableMapOf<StreamName, LoadedStream<EVENT>>()

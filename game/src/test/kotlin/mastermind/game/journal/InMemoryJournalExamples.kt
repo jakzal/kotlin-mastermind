@@ -1,5 +1,7 @@
 package mastermind.game.journal
 
+import mastermind.journal.StreamName
+
 class InMemoryJournalExamples : JournalContract() {
     private val journal = InMemoryJournal<TestEvent>()
     override fun journal(): Journal<TestEvent> = journal

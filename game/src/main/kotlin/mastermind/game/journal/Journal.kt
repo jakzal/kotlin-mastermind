@@ -4,8 +4,7 @@ import arrow.core.*
 import mastermind.journal.Stream
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
-
-typealias StreamName = String
+import mastermind.journal.StreamName
 
 interface Journal<EVENT : Any> {
     suspend fun <FAILURE : Any> stream(
