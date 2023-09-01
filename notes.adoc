@@ -9,3 +9,7 @@
 === JournalCommandHandler
 
 * make state generic (currently it's always NonEmptyList<EVENT>)
+
+=== testkit
+
+* extract common assertions to a new module
