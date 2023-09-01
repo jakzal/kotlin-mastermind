@@ -14,13 +14,6 @@ interface Journal<EVENT : Any> {
     suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>
 }
 
-sealed interface JournalFailure<FAILURE> {
-    sealed interface EventStoreFailure : JournalFailure<Nothing> {
-        data class StreamNotFound(val streamName: StreamName) : EventStoreFailure
-        data class ExecutionFailure<FAILURE>(val cause: FAILURE) : JournalFailure<FAILURE>
-    }
-}
-
 fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>): Either<ERROR, UpdatedStream<EVENT>> =
     generateEvents().flatMap { append(it) }
 
