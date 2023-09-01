@@ -2,7 +2,7 @@ package mastermind.game
 
 import arrow.core.Either
 import mastermind.game.GameCommand.JoinGame
-import mastermind.game.journal.JournalFailure
+import mastermind.journal.JournalFailure
 
 context(GameIdGenerator, CodeMaker, GameCommandHandler)
 suspend fun joinGame(): Either<JournalFailure<GameError>, GameId> =

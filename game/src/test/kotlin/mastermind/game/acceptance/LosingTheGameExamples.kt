@@ -6,11 +6,11 @@ import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
-import mastermind.game.journal.ExecutionFailure
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
+import mastermind.journal.JournalFailure.EventStoreFailure.ExecutionFailure
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 

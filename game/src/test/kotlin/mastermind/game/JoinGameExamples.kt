@@ -3,7 +3,7 @@ package mastermind.game
 import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.game.GameCommand.*
+import mastermind.game.GameCommand.JoinGame
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe

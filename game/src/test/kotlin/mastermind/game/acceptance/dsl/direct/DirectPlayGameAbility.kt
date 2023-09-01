@@ -7,8 +7,8 @@ import mastermind.game.GameError
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
 import mastermind.game.acceptance.dsl.PlayGameAbility
-import mastermind.game.journal.JournalFailure
 import mastermind.game.view.DecodingBoard
+import mastermind.journal.JournalFailure
 
 class DirectPlayGameAbility(private val app: MastermindApp) : PlayGameAbility {
     override suspend fun joinGame(onceJoined: suspend PlayGameAbility.(GameId) -> Unit) {

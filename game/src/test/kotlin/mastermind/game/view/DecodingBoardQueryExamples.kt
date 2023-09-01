@@ -10,19 +10,21 @@ import mastermind.game.Feedback
 import mastermind.game.GameEvent
 import mastermind.game.GameEvent.*
 import mastermind.game.Guess
-import mastermind.game.journal.EventStoreFailure
 import mastermind.game.journal.Journal
+import mastermind.game.testkit.*
+import mastermind.journal.JournalFailure.EventStoreFailure
+import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.StreamName
-import mastermind.game.journal.StreamNotFound
-import mastermind.game.testkit.*
 import org.junit.jupiter.api.Test
 
 class DecodingBoardQueryExamples {
     @Test
     fun `it returns null if the game is not found`() = runTest {
         with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName) = StreamNotFound(streamName).left()
+            override suspend fun load(streamName: StreamName) = StreamNotFound(
+                streamName
+            ).left()
         }) {
             viewDecodingBoard(anyGameId()) shouldReturn null
         }

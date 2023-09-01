@@ -5,7 +5,7 @@ import mastermind.game.GameCommand.*
 import mastermind.game.journal.InMemoryJournal
 import mastermind.game.journal.Journal
 import mastermind.game.journal.JournalCommandHandler
-import mastermind.game.journal.JournalFailure
+import mastermind.journal.JournalFailure
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.viewDecodingBoard
 

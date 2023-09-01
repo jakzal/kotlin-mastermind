@@ -4,8 +4,8 @@ import arrow.core.Either
 import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameId
-import mastermind.game.journal.JournalFailure
 import mastermind.game.view.DecodingBoard
+import mastermind.journal.JournalFailure
 
 interface PlayGameAbility {
     suspend fun joinGame(onceJoined: suspend PlayGameAbility.(GameId) -> Unit)

@@ -5,8 +5,8 @@ import kotlinx.coroutines.runBlocking
 import mastermind.game.GameError
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
-import mastermind.game.journal.JournalFailure
 import mastermind.game.view.DecodingBoard
+import mastermind.journal.JournalFailure
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header

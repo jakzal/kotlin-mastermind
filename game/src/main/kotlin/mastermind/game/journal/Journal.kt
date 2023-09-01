@@ -1,6 +1,8 @@
 package mastermind.game.journal
 
 import arrow.core.*
+import mastermind.journal.JournalFailure
+import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.Stream
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
@@ -14,11 +16,6 @@ interface Journal<EVENT : Any> {
 
     suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>
 }
-
-sealed interface JournalFailure<FAILURE>
-sealed interface EventStoreFailure : JournalFailure<Nothing>
-data class StreamNotFound(val streamName: StreamName) : EventStoreFailure
-data class ExecutionFailure<FAILURE>(val cause: FAILURE) : JournalFailure<FAILURE>
 
 fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>): Either<ERROR, UpdatedStream<EVENT>> =
     generateEvents().flatMap { append(it) }

@@ -3,6 +3,10 @@ package mastermind.game.journal
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.withError
+import mastermind.journal.JournalFailure
+import mastermind.journal.JournalFailure.EventStoreFailure
+import mastermind.journal.JournalFailure.EventStoreFailure.ExecutionFailure
+import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
