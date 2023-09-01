@@ -5,3 +5,4 @@ pluginManagement {
 }
 
 include("game")
+include("lib:journal")
