@@ -1,7 +1,6 @@
 package mastermind.game
 
 import arrow.core.*
-import arrow.core.raise.Raise
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import mastermind.game.GameCommand.JoinGame
@@ -81,34 +80,34 @@ private fun Game?.colourHits(guess: Code): List<String> = (this?.secret?.pegs ?:
             .flatten()
     }
 
-fun execute(command: GameCommand, game: Game? = null): Either<GameError, NonEmptyList<GameEvent>> = either {
-    when (command) {
-        is JoinGame -> nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts))
-        is MakeGuess -> makeGuess(command, game)
-    }
+fun execute(command: GameCommand, game: Game? = null): Either<GameError, NonEmptyList<GameEvent>> = when (command) {
+    is JoinGame -> joinGame(command)
+    is MakeGuess -> makeGuess(command, game).withOutcome()
 }
 
-private fun Raise<GameError>.makeGuess(
-    command: MakeGuess,
-    game: Game?
-): NonEmptyList<GameEvent> {
+private fun joinGame(command: JoinGame): Either<Nothing, NonEmptyList<GameStarted>> =
+    nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts)).right()
+
+private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessMade> = either {
     ensure(!game.isWon()) {
         GameAlreadyWon(command.gameId)
     }
     ensure(!game.isLost()) {
         GameAlreadyLost(command.gameId)
     }
-    return game.guessFeedback(command).let { feedback ->
-        nonEmptyListOf<GameEvent>(GuessMade(command.gameId, Guess(command.guess, feedback))) +
-                when (feedback.outcome) {
-                    Feedback.Outcome.WON -> listOf(GameWon(command.gameId))
-                    Feedback.Outcome.LOST -> listOf(GameLost(command.gameId))
-                    else -> emptyList()
-                }
-    }
+    return GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(command))).right()
 }
 
-private fun Game?.guessFeedback(command: MakeGuess) =
+private fun Either<GameError, GuessMade>.withOutcome(): Either<GameError, NonEmptyList<GameEvent>> = map { event ->
+    nonEmptyListOf<GameEvent>(event) +
+            when (event.guess.feedback.outcome) {
+                Feedback.Outcome.WON -> listOf(GameWon(event.gameId))
+                Feedback.Outcome.LOST -> listOf(GameLost(event.gameId))
+                else -> emptyList()
+            }
+}
+
+private fun Game?.feedbackOn(command: MakeGuess): Feedback =
     (exactHits(command.guess).map { "Black" } to colourHits(command.guess).map { "White" })
         .let { (exactHits, colourHits) ->
             Feedback(
