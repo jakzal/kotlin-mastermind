@@ -8,7 +8,7 @@ import mastermind.journal.Stream.UpdatedStream
 interface Journal<EVENT : Any> {
     suspend fun <FAILURE : Any> stream(
         streamName: StreamName,
-        execute: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
+        onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
 
     suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>

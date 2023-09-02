@@ -16,15 +16,13 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
 
     override suspend fun <FAILURE : Any> stream(
         streamName: StreamName,
-        execute: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
+        onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> = either {
         withError(::ExecutionFailure) {
-            (events[streamName] ?: EmptyStream(streamName))
-                .execute()
+            stream(streamName)
+                .onStream()
                 .map { stream -> stream.toLoadedStream() }
-                .onRight { stream ->
-                    events[streamName] = stream
-                }
+                .onRight { stream -> events[streamName] = stream }
                 .bind()
         }
     }
@@ -32,6 +30,8 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>> = either {
         events[streamName] ?: raise(StreamNotFound(streamName))
     }
+
+    private fun stream(streamName: StreamName) = events[streamName] ?: EmptyStream(streamName)
 }
 
 private fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> =
