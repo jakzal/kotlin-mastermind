@@ -1,10 +1,11 @@
 package mastermind.journal
 
 import arrow.core.Either
-import arrow.core.nonEmptyListOf
+import arrow.core.NonEmptyList
+import arrow.core.getOrElse
 import arrow.core.raise.either
 import arrow.core.raise.withError
-import arrow.core.tail
+import arrow.core.toNonEmptyListOrNone
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.ExecutionFailure
@@ -33,9 +34,10 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     }
 }
 
-private fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> {
-    val mergedEvents =
-        if (this.events.isEmpty()) this.eventsToAppend
-        else nonEmptyListOf(this.events.first()) + this.events.tail() + this.eventsToAppend
-    return LoadedStream(streamName, this.streamVersion + this.eventsToAppend.size, mergedEvents)
-}
+private fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> =
+    LoadedStream(streamName, streamVersion + eventsToAppend.size, events.append(eventsToAppend))
+
+private fun <EVENT : Any> List<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): NonEmptyList<EVENT> =
+    toNonEmptyListOrNone()
+        .map { events -> events + eventsToAppend }
+        .getOrElse { eventsToAppend }
