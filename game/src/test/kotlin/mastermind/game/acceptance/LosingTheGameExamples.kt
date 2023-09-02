@@ -10,7 +10,7 @@ import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
-import mastermind.journal.JournalFailure.EventStoreFailure.ExecutionFailure
+import mastermind.journal.JournalFailure.ExecutionFailure
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 

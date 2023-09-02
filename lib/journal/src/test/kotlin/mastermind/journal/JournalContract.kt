@@ -6,8 +6,8 @@ import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.journal.JournalContract.TestEvent.Event1
 import mastermind.journal.JournalContract.TestEvent.Event2
-import mastermind.journal.JournalFailure.EventStoreFailure.ExecutionFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
+import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 import org.junit.jupiter.api.Assertions
