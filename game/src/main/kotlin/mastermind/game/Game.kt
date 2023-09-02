@@ -101,7 +101,7 @@ private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessM
     ensure(!game.isLost()) {
         GameAlreadyLost(command.gameId)
     }
-    return GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(command))).right()
+    GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(command)))
 }
 
 private fun Either<GameError, GuessMade>.withOutcome(): Either<GameError, NonEmptyList<GameEvent>> = map { event ->
