@@ -1,5 +1,7 @@
 package mastermind.journal
 
+import arrow.atomic.Atomic
+import arrow.atomic.update
 import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.getOrElse
@@ -12,7 +14,7 @@ import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
 class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
-    private val events = mutableMapOf<StreamName, LoadedStream<EVENT>>()
+    private val events = Atomic(mapOf<StreamName, LoadedStream<EVENT>>())
 
     override suspend fun <FAILURE : Any> stream(
         streamName: StreamName,
@@ -22,16 +24,20 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
             stream(streamName)
                 .onStream()
                 .map { stream -> stream.toLoadedStream() }
-                .onRight { stream -> events[streamName] = stream }
+                .onRight { stream ->
+                    events.update {
+                        it + mapOf(streamName to stream)
+                    }
+                }
                 .bind()
         }
     }
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>> = either {
-        events[streamName] ?: raise(StreamNotFound(streamName))
+        events.get()[streamName] ?: raise(StreamNotFound(streamName))
     }
 
-    private fun stream(streamName: StreamName) = events[streamName] ?: EmptyStream(streamName)
+    private fun stream(streamName: StreamName) = events.get()[streamName] ?: EmptyStream(streamName)
 }
 
 private fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> =
