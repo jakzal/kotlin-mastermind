@@ -61,12 +61,7 @@ abstract class JournalContract {
 
     @Test
     fun `it loads events from a stream`() = runTest {
-        journal().stream(streamName) {
-            append(
-                Event1("ABC"),
-                Event2("ABC", "Event 2")
-            )
-        }
+        givenEventsExist(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
 
         journal().load(streamName) shouldSucceedWith LoadedStream(
             streamName,
@@ -82,11 +77,8 @@ abstract class JournalContract {
 
     @Test
     fun `it appends events to an existing stream`() = runTest {
-        journal().stream(streamName) {
-            append(
-                Event1("ABC"), Event2("ABC", "Event 2")
-            )
-        }
+        givenEventsExist(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
+
         val result = journal().stream(streamName) {
             UpdatedStream(
                 this.streamName,
@@ -110,6 +102,12 @@ abstract class JournalContract {
             Event1("XYZ"),
             Event2("XYZ", "Event XYZ")
         )
+    }
+
+    private suspend fun givenEventsExist(streamName: String, event: TestEvent, vararg events: TestEvent) {
+        journal().stream(streamName) {
+            append(event, *events)
+        }
     }
 
     protected sealed interface TestEvent {
