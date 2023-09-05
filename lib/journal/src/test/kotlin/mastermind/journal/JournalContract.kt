@@ -50,7 +50,7 @@ abstract class JournalContract {
     }
 
     @Test
-    fun `it returns the execution error`() = runTest {
+    fun `it returns the execution failure if stream update returns an error`() = runTest {
         val result = journal().stream(streamName) {
             TestFailure("Command failed.").left()
         }
