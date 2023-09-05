@@ -1,5 +1,6 @@
 package mastermind.journal
 
+import arrow.atomic.AtomicInt
 import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
@@ -18,22 +19,29 @@ abstract class JournalContract {
 
     protected abstract suspend fun loadEvents(streamName: StreamName): List<TestEvent>
 
+    companion object {
+        private val streamCount = AtomicInt(0)
+        private val streamName = { "stream:${streamCount.incrementAndGet()}" }
+    }
+
     @Test
     fun `it persists events to a new stream`() = runTest {
-        val result = journal().stream("stream:1a") {
+        val streamName = streamName()
+        val result = journal().stream(streamName) {
             append(
                 Event1("ABC"),
                 Event2("ABC", "Event 2")
             )
         }
 
-        result shouldBe LoadedStream("stream:1a", 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
-        loadEvents("stream:1a") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
+        result shouldBe LoadedStream(streamName, 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
+        loadEvents(streamName) shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
     }
 
     @Test
     fun `it persists generated events to a new stream`() = runTest {
-        val result = journal().stream("stream:1b") {
+        val streamName = streamName()
+        val result = journal().stream(streamName) {
             append {
                 nonEmptyListOf(
                     Event1("ABC"),
@@ -42,31 +50,33 @@ abstract class JournalContract {
             }
         }
 
-        result shouldBe LoadedStream("stream:1b", 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
-        loadEvents("stream:1b") shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
+        result shouldBe LoadedStream(streamName, 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
+        loadEvents(streamName) shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
     }
 
     @Test
     fun `it returns the execution error`() = runTest {
-        val result = journal().stream("stream:2") {
+        val streamName = streamName()
+        val result = journal().stream(streamName) {
             TestFailure("Command failed.").left()
         }
 
         result shouldBe ExecutionFailure(TestFailure("Command failed.")).left()
-        loadEvents("stream:2") shouldReturn emptyList()
+        loadEvents(streamName) shouldReturn emptyList()
     }
 
     @Test
     fun `it loads events from a stream`() = runTest {
-        journal().stream("stream:3") {
+        val streamName = streamName()
+        journal().stream(streamName) {
             append(
                 Event1("ABC"),
                 Event2("ABC", "Event 2")
             )
         }
 
-        journal().load("stream:3") shouldReturn LoadedStream(
-            "stream:3",
+        journal().load(streamName) shouldReturn LoadedStream(
+            streamName,
             2L,
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
         ).right()
@@ -74,17 +84,19 @@ abstract class JournalContract {
 
     @Test
     fun `it returns an error if the stream to load is not found`() = runTest {
-        journal().load("stream:4") shouldReturn StreamNotFound("stream:4").left()
+        val streamName = streamName()
+        journal().load(streamName) shouldReturn StreamNotFound(streamName).left()
     }
 
     @Test
     fun `it appends events to an existing stream`() = runTest {
-        journal().stream("stream:5") {
+        val streamName = streamName()
+        journal().stream(streamName) {
             append(
                 Event1("ABC"), Event2("ABC", "Event 2")
             )
         }
-        val result = journal().stream("stream:5") {
+        val result = journal().stream(streamName) {
             UpdatedStream(
                 this.streamName,
                 this.streamVersion,
@@ -94,14 +106,14 @@ abstract class JournalContract {
         }
 
         result shouldBe LoadedStream(
-            "stream:5", 4, nonEmptyListOf(
+            streamName, 4, nonEmptyListOf(
                 Event1("ABC"),
                 Event2("ABC", "Event 2"),
                 Event1("XYZ"),
                 Event2("XYZ", "Event XYZ")
             )
         ).right()
-        loadEvents("stream:5") shouldReturn listOf(
+        loadEvents(streamName) shouldReturn listOf(
             Event1("ABC"),
             Event2("ABC", "Event 2"),
             Event1("XYZ"),
