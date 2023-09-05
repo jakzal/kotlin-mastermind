@@ -4,7 +4,6 @@ import arrow.core.Either
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.journal.JournalCommandHandler
 import mastermind.game.view.DecodingBoard
-import mastermind.game.view.viewDecodingBoard
 import mastermind.journal.InMemoryJournal
 import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
@@ -27,17 +26,21 @@ data class Configuration(
 
 data class MastermindApp(
     private val configuration: Configuration = Configuration(),
-    private val joinGameUseCase: suspend context(GameIdGenerator, CodeMaker, GameCommandHandler) () -> Either<JournalFailure<GameError>, GameId> = ::joinGame,
+    private val joinGameUseCase: suspend () -> Either<JournalFailure<GameError>, GameId> = {
+        with(configuration) {
+            joinGame()
+        }
+    },
     private val makeGuessUseCase: suspend (MakeGuess) -> Either<JournalFailure<GameError>, GameId> = configuration.gameCommandHandler,
-    private val decodingBoardQuery: suspend context(Journal<GameEvent, GameError>) (GameId) -> DecodingBoard? = ::viewDecodingBoard
+    private val decodingBoardQuery: suspend (GameId) -> DecodingBoard? = { gameId ->
+        with(configuration) {
+            mastermind.game.view.viewDecodingBoard(gameId)
+        }
+    }
 ) {
-    suspend fun joinGame(): Either<JournalFailure<GameError>, GameId> = with(configuration) {
-        joinGameUseCase(this, this, this)
-    }
+    suspend fun joinGame(): Either<JournalFailure<GameError>, GameId> = joinGameUseCase()
 
-    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = with(configuration) {
-        decodingBoardQuery(this, gameId)
-    }
+    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = decodingBoardQuery(gameId)
 
     suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameError>, GameId> =
         makeGuessUseCase(MakeGuess(gameId, code))

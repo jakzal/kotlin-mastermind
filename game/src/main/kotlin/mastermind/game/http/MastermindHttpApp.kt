@@ -67,7 +67,7 @@ private fun GameId.asResponse() = Response(Status.CREATED).with(this.asLocationH
 private infix fun <T> T.thenRespond(responder: (T) -> Response): Response =
     this.let(responder)
 
-private infix fun Either<JournalFailure<GameError>, GameId>.thenRespond(responder: (GameId) -> Response): Response =
+private infix fun <RESULT> Either<JournalFailure<GameError>, RESULT>.thenRespond(responder: (RESULT) -> Response): Response =
     fold(JournalFailure<GameError>::response, responder)
 
 private fun JournalFailure<GameError>.response(): Response = when (this) {
