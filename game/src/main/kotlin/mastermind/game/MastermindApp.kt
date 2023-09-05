@@ -26,22 +26,19 @@ data class Configuration(
 
 data class MastermindApp(
     private val configuration: Configuration = Configuration(),
-    private val joinGameUseCase: suspend () -> Either<JournalFailure<GameError>, GameId> = {
+    val joinGame: suspend () -> Either<JournalFailure<GameError>, GameId> = {
         with(configuration) {
-            joinGame()
+            mastermind.game.joinGame()
         }
     },
-    private val makeGuessUseCase: suspend (MakeGuess) -> Either<JournalFailure<GameError>, GameId> = configuration.gameCommandHandler,
-    private val decodingBoardQuery: suspend (GameId) -> DecodingBoard? = { gameId ->
+    val makeGuess: suspend (MakeGuess) -> Either<JournalFailure<GameError>, GameId> = { command ->
+        with(configuration) {
+            gameCommandHandler(command)
+        }
+    },
+    val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
         with(configuration) {
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     }
-) {
-    suspend fun joinGame(): Either<JournalFailure<GameError>, GameId> = joinGameUseCase()
-
-    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = decodingBoardQuery(gameId)
-
-    suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameError>, GameId> =
-        makeGuessUseCase(MakeGuess(gameId, code))
-}
+)

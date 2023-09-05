@@ -2,10 +2,8 @@ package mastermind.game.http
 
 import arrow.core.Either
 import kotlinx.coroutines.runBlocking
-import mastermind.game.Code
-import mastermind.game.GameError
-import mastermind.game.GameId
-import mastermind.game.MastermindApp
+import mastermind.game.*
+import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.JournalFailure
 import mastermind.journal.JournalFailure.EventStoreFailure
@@ -40,10 +38,13 @@ fun mastermindHttpApp(
     },
     "games/{id}/guesses" bind Method.POST to { request ->
         runBlocking {
-            app.makeGuess(request.id.asGameId(), request.guess) thenRespond GameId::asResponse
+            app.makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse
         }
     }
 )
+
+private val Request.makeGuessCommand: MakeGuess
+    get() = MakeGuess(id.asGameId(), guess)
 
 private val Request.id: String
     get() = Path.of("id")(this)

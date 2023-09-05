@@ -23,7 +23,7 @@ class MakeGuessHttpHandlerExamples {
         val gameId = anyGameId()
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
-            makeGuessUseCase = { command: MakeGuess ->
+            makeGuess = { command: MakeGuess ->
                 command shouldBe MakeGuess(gameId, guess)
                 gameId.right()
             }
@@ -40,7 +40,7 @@ class MakeGuessHttpHandlerExamples {
         val gameId = anyGameId()
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
-            makeGuessUseCase = { _: MakeGuess ->
+            makeGuess = { _: MakeGuess ->
                 StreamNotFound<GameError>("my-stream").left()
             }
         ))
@@ -55,7 +55,7 @@ class MakeGuessHttpHandlerExamples {
         val gameId = anyGameId()
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
-            makeGuessUseCase = { _: MakeGuess ->
+            makeGuess = { _: MakeGuess ->
                 ExecutionFailure<GameError>(GameAlreadyWon(gameId)).left()
             }
         ))
@@ -71,7 +71,7 @@ class MakeGuessHttpHandlerExamples {
         val gameId = anyGameId()
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
-            makeGuessUseCase = { _: MakeGuess ->
+            makeGuess = { _: MakeGuess ->
                 ExecutionFailure<GameError>(GameAlreadyLost(gameId)).left()
             }
         ))
