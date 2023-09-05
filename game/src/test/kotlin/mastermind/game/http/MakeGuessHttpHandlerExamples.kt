@@ -5,14 +5,15 @@ import arrow.core.right
 import mastermind.game.Code
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError
+import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
+import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.MastermindApp
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldBe
+import mastermind.game.testkit.shouldReturn
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
-import org.http4k.core.Body
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Status
+import mastermind.journal.JournalFailure.ExecutionFailure
+import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.junit.jupiter.api.Test
 
@@ -48,6 +49,39 @@ class MakeGuessHttpHandlerExamples {
 
         response.status shouldBe Status.NOT_FOUND
     }
+
+    @Test
+    fun `it returns a 400 error in case game is already won`() {
+        val gameId = anyGameId()
+        val guess = Code("Red", "Green", "Green", "Yellow")
+        val app = mastermindHttpApp(MastermindApp(
+            makeGuessUseCase = { _: MakeGuess ->
+                ExecutionFailure<GameError>(GameAlreadyWon(gameId)).left()
+            }
+        ))
+
+        val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
+
+        response.status shouldBe Status.BAD_REQUEST
+        response.body() shouldReturn ErrorResponse("Game `${gameId.value}` is already won.")
+    }
+
+    @Test
+    fun `it returns a 400 error in case game is already lost`() {
+        val gameId = anyGameId()
+        val guess = Code("Red", "Green", "Green", "Yellow")
+        val app = mastermindHttpApp(MastermindApp(
+            makeGuessUseCase = { _: MakeGuess ->
+                ExecutionFailure<GameError>(GameAlreadyLost(gameId)).left()
+            }
+        ))
+
+        val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
+
+        response.status shouldBe Status.BAD_REQUEST
+        response.body() shouldReturn ErrorResponse("Game `${gameId.value}` is already lost.")
+    }
 }
 
 private fun Request.body(pegs: List<String>): Request = Body.auto<List<String>>().toLens().invoke(pegs, this)
+private fun Response.body(): ErrorResponse = Body.auto<ErrorResponse>().toLens().extract(this)

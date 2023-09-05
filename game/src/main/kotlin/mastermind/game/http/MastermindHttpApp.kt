@@ -70,11 +70,22 @@ private infix fun <T> T.thenRespond(responder: (T) -> Response): Response =
 private infix fun Either<JournalFailure<GameError>, GameId>.thenRespond(responder: (GameId) -> Response): Response =
     fold(JournalFailure<GameError>::response, responder)
 
-private fun JournalFailure<GameError>.response(): Response = when(this) {
+private fun JournalFailure<GameError>.response(): Response = when (this) {
     is EventStoreFailure<GameError> -> when (this) {
         is StreamNotFound<GameError> -> Response(Status.NOT_FOUND)
         is EventStoreFailure.VersionConflict -> TODO()
     }
 
-    is JournalFailure.ExecutionFailure -> TODO()
+    is JournalFailure.ExecutionFailure<GameError> -> this.cause.response()
 }
+
+private fun GameError.response() =
+    when (this) {
+        is GameError.GameFinishedError.GameAlreadyWon -> Response(Status.BAD_REQUEST)
+            .with(Body.auto<ErrorResponse>().toLens() of ErrorResponse("Game `${this.gameId.value}` is already won."))
+
+        is GameError.GameFinishedError.GameAlreadyLost -> Response(Status.BAD_REQUEST)
+            .with(Body.auto<ErrorResponse>().toLens() of ErrorResponse("Game `${this.gameId.value}` is already lost."))
+    }
+
+data class ErrorResponse(val message: String)
