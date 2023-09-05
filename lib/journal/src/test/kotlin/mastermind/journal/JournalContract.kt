@@ -30,7 +30,7 @@ abstract class JournalContract {
             )
         }
 
-        result shouldBe LoadedStream(streamName, 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
+        result shouldBeSuccessOf LoadedStream(streamName, 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")))
         loadEvents(streamName) shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
     }
 
@@ -45,7 +45,7 @@ abstract class JournalContract {
             }
         }
 
-        result shouldBe LoadedStream(streamName, 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))).right()
+        result shouldBeSuccessOf LoadedStream(streamName, 2, nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2")))
         loadEvents(streamName) shouldReturn listOf(Event1("ABC"), Event2("ABC", "Event 2"))
     }
 
@@ -55,7 +55,7 @@ abstract class JournalContract {
             TestFailure("Command failed.").left()
         }
 
-        result shouldBe ExecutionFailure(TestFailure("Command failed.")).left()
+        result shouldBeFailureOf ExecutionFailure(TestFailure("Command failed."))
         loadEvents(streamName) shouldReturn emptyList()
     }
 
@@ -68,17 +68,16 @@ abstract class JournalContract {
             )
         }
 
-        journal().load(streamName) shouldReturn LoadedStream(
+        journal().load(streamName) shouldSucceedWith LoadedStream(
             streamName,
             2L,
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"))
-        ).right()
+        )
     }
 
     @Test
     fun `it returns an error if the stream to load is not found`() = runTest {
-        println(streamName)
-        journal().load(streamName) shouldReturn StreamNotFound(streamName).left()
+        journal().load(streamName) shouldFailWith StreamNotFound(streamName)
     }
 
     @Test
@@ -97,14 +96,14 @@ abstract class JournalContract {
             ).right()
         }
 
-        result shouldBe LoadedStream(
+        result shouldBeSuccessOf LoadedStream(
             streamName, 4, nonEmptyListOf(
                 Event1("ABC"),
                 Event2("ABC", "Event 2"),
                 Event1("XYZ"),
                 Event2("XYZ", "Event XYZ")
             )
-        ).right()
+        )
         loadEvents(streamName) shouldReturn listOf(
             Event1("ABC"),
             Event2("ABC", "Event 2"),
@@ -138,3 +137,9 @@ infix fun <T> T?.shouldBe(expected: T?) {
 }
 
 infix fun <T> T?.shouldReturn(expected: T?) = shouldBe(expected)
+
+infix fun <T> T?.shouldSucceedWith(expected: T?) = shouldBe(expected.right())
+infix fun <T> T?.shouldFailWith(expected: T?) = shouldBe(expected.left())
+
+infix fun <T> T?.shouldBeSuccessOf(expected: T?) = shouldBe(expected.right())
+infix fun <T> T?.shouldBeFailureOf(expected: T?) = shouldBe(expected.left())
