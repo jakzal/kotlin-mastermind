@@ -2,14 +2,11 @@ package mastermind.journal
 
 import arrow.atomic.Atomic
 import arrow.atomic.update
-import arrow.core.Either
-import arrow.core.NonEmptyList
-import arrow.core.getOrElse
+import arrow.core.*
 import arrow.core.raise.either
-import arrow.core.raise.withError
-import arrow.core.toNonEmptyListOrNone
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
+import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
@@ -19,21 +16,23 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
     override suspend fun <FAILURE : Any> stream(
         streamName: StreamName,
         onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
-    ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> = either {
-        withError(::ExecutionFailure) {
-            stream(streamName)
-                .onStream()
-                .map { stream -> stream.toLoadedStream() }
-                .onRight { stream ->
-                    events.update {
-                        it + mapOf(streamName to stream)
+    ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+        stream(streamName)
+            .onStream()
+            .map { stream -> stream.toLoadedStream() }
+            .mapLeft { ExecutionFailure(it) }
+            .onRight { streamToWrite ->
+                events.update {
+                    it[streamName]?.let { writtenStream ->
+                        if (writtenStream.streamVersion >= streamToWrite.streamVersion) {
+                            return VersionConflict<FAILURE>(streamName).left()
+                        }
                     }
+                    it + mapOf(streamName to streamToWrite)
                 }
-                .bind()
-        }
-    }
+            }
 
-    override suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>> = either {
+    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<Nothing>, LoadedStream<EVENT>> = either {
         events.get()[streamName] ?: raise(StreamNotFound(streamName))
     }
 

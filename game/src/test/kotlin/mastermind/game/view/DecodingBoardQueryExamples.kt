@@ -37,7 +37,7 @@ class DecodingBoardQueryExamples {
         val totalAttempts = 12
 
         with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<GameEvent>> {
+            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<Nothing>, LoadedStream<GameEvent>> {
                 streamName shouldBe "Mastermind:${gameId.value}"
                 return LoadedStream(
                     streamName,

@@ -1,6 +1,7 @@
 package mastermind.journal
 
 import arrow.atomic.AtomicInt
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
@@ -8,11 +9,13 @@ import kotlinx.coroutines.test.runTest
 import mastermind.journal.JournalContract.TestEvent.Event1
 import mastermind.journal.JournalContract.TestEvent.Event2
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
+import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+
 
 abstract class JournalContract {
     protected abstract fun journal(): Journal<TestEvent>
@@ -104,11 +107,39 @@ abstract class JournalContract {
         )
     }
 
-    private suspend fun givenEventsExist(streamName: String, event: TestEvent, vararg events: TestEvent) {
+    @Test
+    fun `it returns a failure if version conflict arises during the write`() = runTest {
+        val stream = givenEventsExist(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
+
+        val result1 = journal().stream(streamName) {
+            // We're cheating a bit here as instead of using the provided stream
+            // we're using the previously loaded one to simulate concurrent reads.
+            stream.append(Event1("DEF"), Event1("GHI"))
+        }
+        val result2 = journal().stream(streamName) {
+            stream.append(Event2("XYZ", "Event XYZ"))
+        }
+
+        result1 shouldBeSuccessOf LoadedStream(
+            streamName,
+            4L,
+            nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"), Event1("DEF"), Event1("GHI"))
+        )
+        result2 shouldBeFailureOf VersionConflict<TestFailure>(streamName)
+        loadEvents(streamName) shouldReturn listOf(
+            Event1("ABC"),
+            Event2("ABC", "Event 2"),
+            Event1("DEF"),
+            Event1("GHI")
+        )
+    }
+
+    private suspend fun givenEventsExist(streamName: String, event: TestEvent, vararg events: TestEvent) =
         journal().stream(streamName) {
             append(event, *events)
+        }.getOrElse {
+            throw RuntimeException("Failed to persist events.")
         }
-    }
 
     protected sealed interface TestEvent {
         val id: String

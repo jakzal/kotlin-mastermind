@@ -11,5 +11,5 @@ interface Journal<EVENT : Any> {
         onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
 
-    suspend fun load(streamName: StreamName): Either<EventStoreFailure, LoadedStream<EVENT>>
+    suspend fun load(streamName: StreamName): Either<EventStoreFailure<Nothing>, LoadedStream<EVENT>>
 }
