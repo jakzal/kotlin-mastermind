@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
+    id("info.solidsoft.pitest")
 }
 
 repositories {
@@ -18,6 +19,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation("org.pitest:pitest-junit5-plugin:1.2.0")
 }
 
 tasks.test {
@@ -26,6 +28,10 @@ tasks.test {
         events("passed", "skipped", "failed")
     }
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+}
+
+pitest {
+    junit5PluginVersion.set("1.2.0")
 }
 
 tasks.withType<KotlinCompile>().configureEach {
