@@ -19,14 +19,10 @@ abstract class JournalContract {
 
     protected abstract suspend fun loadEvents(streamName: StreamName): List<TestEvent>
 
-    companion object {
-        private val streamCount = AtomicInt(0)
-        private val streamName = { "stream:${streamCount.incrementAndGet()}" }
-    }
+    private val streamName = UniqueSequence { index -> "stream:$index" }()
 
     @Test
     fun `it persists events to a new stream`() = runTest {
-        val streamName = streamName()
         val result = journal().stream(streamName) {
             append(
                 Event1("ABC"),
@@ -40,7 +36,6 @@ abstract class JournalContract {
 
     @Test
     fun `it persists generated events to a new stream`() = runTest {
-        val streamName = streamName()
         val result = journal().stream(streamName) {
             append {
                 nonEmptyListOf(
@@ -56,7 +51,6 @@ abstract class JournalContract {
 
     @Test
     fun `it returns the execution error`() = runTest {
-        val streamName = streamName()
         val result = journal().stream(streamName) {
             TestFailure("Command failed.").left()
         }
@@ -67,7 +61,6 @@ abstract class JournalContract {
 
     @Test
     fun `it loads events from a stream`() = runTest {
-        val streamName = streamName()
         journal().stream(streamName) {
             append(
                 Event1("ABC"),
@@ -84,13 +77,12 @@ abstract class JournalContract {
 
     @Test
     fun `it returns an error if the stream to load is not found`() = runTest {
-        val streamName = streamName()
+        println(streamName)
         journal().load(streamName) shouldReturn StreamNotFound(streamName).left()
     }
 
     @Test
     fun `it appends events to an existing stream`() = runTest {
-        val streamName = streamName()
         journal().stream(streamName) {
             append(
                 Event1("ABC"), Event2("ABC", "Event 2")
@@ -129,6 +121,16 @@ abstract class JournalContract {
     }
 
     protected data class TestFailure(val cause: String)
+}
+
+private class UniqueSequence<T>(
+    private val nextItem: (Int) -> T
+) {
+    companion object {
+        private val streamCount = AtomicInt(0)
+    }
+
+    operator fun invoke(): T = nextItem(streamCount.incrementAndGet())
 }
 
 infix fun <T> T?.shouldBe(expected: T?) {
