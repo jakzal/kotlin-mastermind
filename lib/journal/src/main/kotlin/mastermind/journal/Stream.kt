@@ -1,6 +1,7 @@
 package mastermind.journal
 
 import arrow.core.*
+import mastermind.journal.Stream.UpdatedStream
 
 typealias StreamName = String
 typealias StreamVersion = Long
@@ -11,10 +12,8 @@ sealed interface Stream<EVENT : Any> {
     val events: List<EVENT>
 
     data class EmptyStream<EVENT : Any>(override val streamName: StreamName) : Stream<EVENT> {
-        override val streamVersion: StreamVersion
-            get() = 0
-        override val events: List<EVENT>
-            get() = emptyList()
+        override val streamVersion: StreamVersion = 0
+        override val events: List<EVENT> = emptyList()
     }
 
     data class LoadedStream<EVENT : Any>(
@@ -31,14 +30,16 @@ sealed interface Stream<EVENT : Any> {
     ) : Stream<EVENT>
 }
 
-fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>): Either<ERROR, Stream.UpdatedStream<EVENT>> =
-    generateEvents().flatMap { append(it) }
+fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
+    generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>
+): Either<ERROR, UpdatedStream<EVENT>> =
+    generateEvents().flatMap(::append)
 
 fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
     event: EVENT,
     vararg events: EVENT
-): Either<ERROR, Stream.UpdatedStream<EVENT>> =
+): Either<ERROR, UpdatedStream<EVENT>> =
     append(nonEmptyListOf(event, *events))
 
-private fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): Either<ERROR, Stream.UpdatedStream<EVENT>> =
-    Stream.UpdatedStream(streamName, streamVersion, events, eventsToAppend).right()
+private fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): Either<ERROR, UpdatedStream<EVENT>> =
+    UpdatedStream(streamName, streamVersion, events, eventsToAppend).right()
