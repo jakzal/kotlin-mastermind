@@ -5,9 +5,7 @@ import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.game.Code
-import mastermind.game.Feedback
-import mastermind.game.GameEvent
+import mastermind.game.*
 import mastermind.game.GameEvent.*
 import mastermind.game.Guess
 import mastermind.game.testkit.*
@@ -21,10 +19,9 @@ import org.junit.jupiter.api.Test
 class DecodingBoardQueryExamples {
     @Test
     fun `it returns null if the game is not found`() = runTest {
-        with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName) = StreamNotFound(
-                streamName
-            ).left()
+        with(object : Journal<GameEvent, GameError> by fake() {
+            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> =
+                StreamNotFound<GameError>(streamName).left()
         }) {
             viewDecodingBoard(anyGameId()) shouldReturn null
         }
@@ -36,8 +33,8 @@ class DecodingBoardQueryExamples {
         val secret = anySecret()
         val totalAttempts = 12
 
-        with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<Nothing>, LoadedStream<GameEvent>> {
+        with(object : Journal<GameEvent, GameError> by fake() {
+            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
                 streamName shouldBe "Mastermind:${gameId.value}"
                 return LoadedStream(
                     streamName,
@@ -62,8 +59,8 @@ class DecodingBoardQueryExamples {
         val secret = anySecret()
         val totalAttempts = 12
 
-        with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName): Either<Nothing, LoadedStream<GameEvent>> {
+        with(object : Journal<GameEvent, GameError> by fake() {
+            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
                 streamName shouldBe "Mastermind:${gameId.value}"
                 return LoadedStream(
                     streamName,
@@ -99,8 +96,8 @@ class DecodingBoardQueryExamples {
         val secret = anySecret()
         val totalAttempts = 12
 
-        with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName): Either<Nothing, LoadedStream<GameEvent>> {
+        with(object : Journal<GameEvent, GameError> by fake() {
+            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
                 return LoadedStream(
                     streamName,
                     4L,
@@ -144,8 +141,8 @@ class DecodingBoardQueryExamples {
         val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 2
 
-        with(object : Journal<GameEvent> by fake() {
-            override suspend fun load(streamName: StreamName): Either<Nothing, LoadedStream<GameEvent>> {
+        with(object : Journal<GameEvent, GameError> by fake() {
+            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
                 return LoadedStream(
                     streamName,
                     4L,

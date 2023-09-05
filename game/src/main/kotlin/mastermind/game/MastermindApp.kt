@@ -12,7 +12,7 @@ import mastermind.journal.JournalFailure
 data class Configuration(
     val gameIdGenerator: GameIdGenerator = GameIdGenerator(::generateGameId),
     val codeMaker: CodeMaker = CodeMaker(::makeCode),
-    val journal: Journal<GameEvent> = InMemoryJournal(),
+    val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
     val gameCommandHandler: GameCommandHandler = with(journal) {
         JournalCommandHandler(
             ::execute,
@@ -23,13 +23,13 @@ data class Configuration(
 ) : GameIdGenerator by gameIdGenerator,
     CodeMaker by codeMaker,
     GameCommandHandler by gameCommandHandler,
-    Journal<GameEvent> by journal
+    Journal<GameEvent, GameError> by journal
 
 data class MastermindApp(
     private val configuration: Configuration = Configuration(),
     private val joinGameUseCase: suspend context(GameIdGenerator, CodeMaker, GameCommandHandler) () -> Either<JournalFailure<GameError>, GameId> = ::joinGame,
     private val makeGuessUseCase: suspend (MakeGuess) -> Either<JournalFailure<GameError>, GameId> = configuration.gameCommandHandler,
-    private val decodingBoardQuery: suspend context(Journal<GameEvent>) (GameId) -> DecodingBoard? = ::viewDecodingBoard
+    private val decodingBoardQuery: suspend context(Journal<GameEvent, GameError>) (GameId) -> DecodingBoard? = ::viewDecodingBoard
 ) {
     suspend fun joinGame(): Either<JournalFailure<GameError>, GameId> = with(configuration) {
         joinGameUseCase(this, this, this)

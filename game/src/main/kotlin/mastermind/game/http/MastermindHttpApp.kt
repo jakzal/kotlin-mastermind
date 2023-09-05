@@ -8,6 +8,8 @@ import mastermind.game.GameId
 import mastermind.game.MastermindApp
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.JournalFailure
+import mastermind.journal.JournalFailure.EventStoreFailure
+import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
@@ -68,4 +70,11 @@ private infix fun <T> T.thenRespond(responder: (T) -> Response): Response =
 private infix fun Either<JournalFailure<GameError>, GameId>.thenRespond(responder: (GameId) -> Response): Response =
     fold(JournalFailure<GameError>::response, responder)
 
-private fun JournalFailure<GameError>.response(): Response = TODO("Error handling")
+private fun JournalFailure<GameError>.response(): Response = when(this) {
+    is EventStoreFailure<GameError> -> when (this) {
+        is StreamNotFound<GameError> -> Response(Status.NOT_FOUND)
+        is EventStoreFailure.VersionConflict -> TODO()
+    }
+
+    is JournalFailure.ExecutionFailure -> TODO()
+}

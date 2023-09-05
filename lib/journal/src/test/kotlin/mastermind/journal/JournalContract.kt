@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 
 
 abstract class JournalContract {
-    protected abstract fun journal(): Journal<TestEvent>
+    protected abstract fun journal(): Journal<TestEvent, TestFailure>
 
     protected abstract suspend fun loadEvents(streamName: StreamName): List<TestEvent>
 
@@ -75,7 +75,7 @@ abstract class JournalContract {
 
     @Test
     fun `it returns an error if the stream to load is not found`() = runTest {
-        journal().load(streamName) shouldFailWith StreamNotFound(streamName)
+        journal().load(streamName) shouldFailWith StreamNotFound<TestFailure>(streamName)
     }
 
     @Test

@@ -10,7 +10,7 @@ import mastermind.journal.append
 
 typealias Execute<COMMAND, EVENT, STATE, FAILURE> = (COMMAND, STATE?) -> Either<FAILURE, NonEmptyList<EVENT>>
 
-context(Journal<EVENT>)
+context(Journal<EVENT, FAILURE>)
 class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, RESULT>(
     private val execute: Execute<COMMAND, EVENT, NonEmptyList<EVENT>, FAILURE>,
     private val streamNameResolver: (COMMAND) -> String,

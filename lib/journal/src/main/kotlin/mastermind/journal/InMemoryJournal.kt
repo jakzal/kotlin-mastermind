@@ -10,7 +10,7 @@ import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
-class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
+class InMemoryJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
     private val events = Atomic(mapOf<StreamName, LoadedStream<EVENT>>())
 
     override suspend fun <FAILURE : Any> stream(
@@ -32,7 +32,7 @@ class InMemoryJournal<EVENT : Any> : Journal<EVENT> {
                 }
             }
 
-    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<Nothing>, LoadedStream<EVENT>> = either {
+    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> = either {
         events.get()[streamName] ?: raise(StreamNotFound(streamName))
     }
 

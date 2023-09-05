@@ -14,7 +14,7 @@ import mastermind.journal.append
 import org.junit.jupiter.api.Test
 
 class JournalCommandHandlerExamples {
-    private val journal = InMemoryJournal<TestEvent>()
+    private val journal = InMemoryJournal<TestEvent, TestFailure>()
 
     @Test
     fun `it appends events created in reaction to the command to the journal`() = runTest {
