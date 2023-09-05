@@ -2,6 +2,7 @@ package mastermind.game.http
 
 import arrow.core.Either
 import kotlinx.coroutines.runBlocking
+import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
@@ -27,20 +28,26 @@ fun mastermindHttpApp(
 ) = routes(
     "/games" bind Method.POST to { _: Request ->
         runBlocking {
-            app.joinGame() thenRespond { gameId ->
-                Response(Status.CREATED).with(gameId.asLocationHeader())
-            }
+            app.joinGame() thenRespond GameId::asResponse
         }
     },
     "/games/{id}" bind Method.GET to { request ->
         runBlocking {
             app.viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
         }
+    },
+    "games/{id}/guesses" bind Method.POST to { request ->
+        runBlocking {
+            app.makeGuess(request.id.asGameId(), request.guess) thenRespond GameId::asResponse
+        }
     }
 )
 
 private val Request.id: String
     get() = Path.of("id")(this)
+
+private val Request.guess: Code
+    get() = Code(Body.auto<List<String>>().toLens().invoke(this))
 
 private fun String.asGameId(): GameId = GameId(this)
 
@@ -52,6 +59,8 @@ private fun DecodingBoard?.asResponse() = this?.let { decodingBoard ->
 
 private fun DecodingBoard.asResponseBody(): (Response) -> Response =
     Body.auto<DecodingBoard>().toLens() of this
+
+private fun GameId.asResponse() = Response(Status.CREATED).with(this.asLocationHeader())
 
 private infix fun <T> T.thenRespond(responder: (T) -> Response): Response =
     this.let(responder)
