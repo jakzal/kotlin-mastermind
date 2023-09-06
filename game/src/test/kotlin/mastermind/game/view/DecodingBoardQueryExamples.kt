@@ -1,9 +1,6 @@
 package mastermind.game.view
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.nonEmptyListOf
-import arrow.core.right
+import arrow.core.*
 import kotlinx.coroutines.test.runTest
 import mastermind.game.*
 import mastermind.game.GameEvent.*
@@ -19,10 +16,7 @@ import org.junit.jupiter.api.Test
 class DecodingBoardQueryExamples {
     @Test
     fun `it returns null if the game is not found`() = runTest {
-        with(object : Journal<GameEvent, GameError> by fake() {
-            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> =
-                StreamNotFound<GameError>(streamName).left()
-        }) {
+        with(emptyJournal()) {
             viewDecodingBoard(anyGameId()) shouldReturn null
         }
     }
@@ -33,16 +27,7 @@ class DecodingBoardQueryExamples {
         val secret = anySecret()
         val totalAttempts = 12
 
-        with(object : Journal<GameEvent, GameError> by fake() {
-            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
-                streamName shouldBe "Mastermind:${gameId.value}"
-                return LoadedStream(
-                    streamName,
-                    1L,
-                    nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, totalAttempts))
-                ).right()
-            }
-        }) {
+        with(journalOf(gameId, GameStarted(gameId, secret, totalAttempts))) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
@@ -59,25 +44,19 @@ class DecodingBoardQueryExamples {
         val secret = anySecret()
         val totalAttempts = 12
 
-        with(object : Journal<GameEvent, GameError> by fake() {
-            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
-                streamName shouldBe "Mastermind:${gameId.value}"
-                return LoadedStream(
-                    streamName,
-                    2L,
-                    nonEmptyListOf(
-                        GameStarted(gameId, secret, totalAttempts),
-                        GuessMade(
-                            gameId,
-                            Guess(
-                                Code("Red", "Green", "Blue", "Yellow"),
-                                Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
-                            )
-                        )
+        with(
+            journalOf(
+                gameId,
+                GameStarted(gameId, secret, totalAttempts),
+                GuessMade(
+                    gameId,
+                    Guess(
+                        Code("Red", "Green", "Blue", "Yellow"),
+                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
                     )
-                ).right()
-            }
-        }) {
+                )
+            )
+        ) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
@@ -96,32 +75,27 @@ class DecodingBoardQueryExamples {
         val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 2
 
-        with(object : Journal<GameEvent, GameError> by fake() {
-            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
-                return LoadedStream(
-                    streamName,
-                    4L,
-                    nonEmptyListOf(
-                        GameStarted(gameId, secret, totalAttempts),
-                        GuessMade(
-                            gameId,
-                            Guess(
-                                Code("Red", "Green", "Blue", "Blue"),
-                                Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
-                            )
-                        ),
-                        GuessMade(
-                            gameId,
-                            Guess(
-                                Code("Purple", "Purple", "Purple", "Purple"),
-                                Feedback(listOf(), Feedback.Outcome.LOST)
-                            )
-                        ),
-                        GameLost(gameId)
+        with(
+            journalOf(
+                gameId,
+                GameStarted(gameId, secret, totalAttempts),
+                GuessMade(
+                    gameId,
+                    Guess(
+                        Code("Red", "Green", "Blue", "Blue"),
+                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
                     )
-                ).right()
-            }
-        }) {
+                ),
+                GuessMade(
+                    gameId,
+                    Guess(
+                        Code("Purple", "Purple", "Purple", "Purple"),
+                        Feedback(listOf(), Feedback.Outcome.LOST)
+                    )
+                ),
+                GameLost(gameId)
+            )
+        ) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
@@ -141,32 +115,27 @@ class DecodingBoardQueryExamples {
         val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 3
 
-        with(object : Journal<GameEvent, GameError> by fake() {
-            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
-                return LoadedStream(
-                    streamName,
-                    4L,
-                    nonEmptyListOf(
-                        GameStarted(gameId, secret, totalAttempts),
-                        GuessMade(
-                            gameId,
-                            Guess(
-                                Code("Red", "Green", "Blue", "Blue"),
-                                Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
-                            )
-                        ),
-                        GuessMade(
-                            gameId,
-                            Guess(
-                                Code("Purple", "Purple", "Purple", "Purple"),
-                                Feedback(listOf(), Feedback.Outcome.LOST)
-                            )
-                        ),
-                        GameLost(gameId)
+        with(
+            journalOf(
+                gameId,
+                GameStarted(gameId, secret, totalAttempts),
+                GuessMade(
+                    gameId,
+                    Guess(
+                        Code("Red", "Green", "Blue", "Blue"),
+                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
                     )
-                ).right()
-            }
-        }) {
+                ),
+                GuessMade(
+                    gameId,
+                    Guess(
+                        Code("Purple", "Purple", "Purple", "Purple"),
+                        Feedback(listOf(), Feedback.Outcome.LOST)
+                    )
+                ),
+                GameLost(gameId)
+            )
+        ) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
@@ -187,32 +156,44 @@ class DecodingBoardQueryExamples {
         val secret = anySecret()
         val totalAttempts = 12
 
-        with(object : Journal<GameEvent, GameError> by fake() {
-            override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
-                return LoadedStream(
-                    streamName,
-                    3L,
-                    nonEmptyListOf(
-                        GameStarted(gameId, secret, totalAttempts),
-                        GuessMade(
-                            gameId,
-                            Guess(
-                                Code("Red", "Green", "Blue", "Yellow"),
-                                Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
-                            )
-                        ),
-                        GuessMade(
-                            gameId,
-                            Guess(
-                                Code("Red", "Green", "Blue", "Yellow"),
-                                Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
-                            )
-                        )
+        with(
+            journalOf(
+                gameId,
+                GameStarted(gameId, secret, totalAttempts),
+                GuessMade(
+                    gameId,
+                    Guess(
+                        Code("Red", "Green", "Blue", "Yellow"),
+                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
                     )
-                ).right()
-            }
-        }) {
+                ),
+                GuessMade(
+                    gameId,
+                    Guess(
+                        Code("Red", "Green", "Blue", "Yellow"),
+                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                    )
+                )
+            )
+        ) {
             viewDecodingBoard(gameId)?.leftAttempts shouldReturn 10
         }
     }
 }
+
+private fun emptyJournal() = object : Journal<GameEvent, GameError> by fake() {
+    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> =
+        StreamNotFound<GameError>(streamName).left()
+}
+
+private fun journalOf(gameId: GameId, event: GameEvent, vararg events: GameEvent) =
+    object : Journal<GameEvent, GameError> by fake() {
+        override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
+            streamName shouldBe "Mastermind:${gameId.value}"
+            return LoadedStream(
+                streamName,
+                events.size.toLong(),
+                nonEmptyListOf(event, *events)
+            ).right()
+        }
+    }
