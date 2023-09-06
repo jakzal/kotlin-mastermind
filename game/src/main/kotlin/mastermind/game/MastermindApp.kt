@@ -11,6 +11,7 @@ import mastermind.journal.JournalFailure
 
 data class Configuration(
     val availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
+    val totalAttempts: Int = 12,
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code =  { availablePegs.makeCode() },
     val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
@@ -28,7 +29,7 @@ data class MastermindApp(
     private val configuration: Configuration = Configuration(),
     val joinGame: suspend () -> Either<JournalFailure<GameError>, GameId> = {
         with(configuration) {
-            gameCommandHandler(JoinGame(generateGameId(), makeCode(), 12, availablePegs))
+            gameCommandHandler(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
         }
     },
     val makeGuess: suspend (MakeGuess) -> Either<JournalFailure<GameError>, GameId> = { command ->
