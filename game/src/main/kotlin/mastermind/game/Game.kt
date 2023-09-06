@@ -79,6 +79,7 @@ sealed interface GameError {
         data class GameNotStarted(val gameId: GameId) : GuessError
         data class GuessTooShort(val gameId: GameId, val guess: Code, val requiredSize: Int) : GuessError
         data class GuessTooLong(val gameId: GameId, val guess: Code, val requiredSize: Int) : GuessError
+        data class InvalidPegInGuess(val gameId: GameId, val guess: Code, val availablePegs: Set<Code.Peg>) : GuessError
     }
 }
 
@@ -92,6 +93,9 @@ private val Game.attempts: Int
 
 private val Game.totalAttempts: Int
     get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
+
+private val Game?.availablePegs: Set<Code.Peg>
+    get() = this?.filterIsInstance<GameStarted>()?.firstOrNull()?.availablePegs ?: emptySet()
 
 private fun Game?.isWon(): Boolean =
     this?.filterIsInstance<GameWon>()?.isNotEmpty() ?: false
@@ -107,6 +111,9 @@ private fun Game?.isGuessTooShort(guess: Code): Boolean =
 
 private fun Game?.isGuessTooLong(guess: Code): Boolean =
     guess.pegs.size > (this?.secret?.length ?: 0)
+
+private fun Game?.isGuessValid(guess: Code): Boolean =
+    availablePegs.containsAll(guess.pegs)
 
 private fun Game?.exactHits(guess: Code): List<Code.Peg> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
@@ -150,6 +157,9 @@ private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessM
     }
     ensure(!game.isGuessTooLong(command.guess)) {
         GuessTooLong(command.gameId, command.guess, game?.secret?.length ?: 0)
+    }
+    ensure(game.isGuessValid(command.guess)) {
+        InvalidPegInGuess(command.gameId, command.guess, game.availablePegs)
     }
     GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(command)))
 }

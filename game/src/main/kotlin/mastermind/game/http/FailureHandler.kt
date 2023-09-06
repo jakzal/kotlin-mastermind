@@ -34,8 +34,9 @@ private fun GameError.response() =
         is GameNotStarted -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` not found."))
         is GuessTooLong -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too long (required length is ${requiredSize})."))
         is GuessTooShort -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too short (required length is ${requiredSize})."))
+        is InvalidPegInGuess -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` contains unrecognised pegs (available pegs are `${availablePegs.formattedForResponse()}`)."))
     }
 
-private fun List<Code.Peg>.formattedForResponse(): String = joinToString(", ", transform = Code.Peg::name)
+private fun Collection<Code.Peg>.formattedForResponse(): String = joinToString(", ", transform = Code.Peg::name)
 
 fun Response.with(error: Error): Response = with(Body.auto<Error>().toLens() of error)

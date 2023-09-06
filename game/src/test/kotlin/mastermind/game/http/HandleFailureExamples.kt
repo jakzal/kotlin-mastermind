@@ -5,6 +5,7 @@ import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.GameError.GuessError.*
+import mastermind.game.setOfPegs
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldReturn
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
@@ -60,5 +61,12 @@ class HandleFailureExamples {
         val gameId = anyGameId()
         ExecutionFailure<GameError>(GuessTooLong(gameId, Code("Red", "Green", "Green", "Green", "Red"), 4))
             .response() shouldReturn Response(Status.BAD_REQUEST).with(Error("Guess `Red, Green, Green, Green, Red` is too long (required length is 4)."))
+    }
+
+    @Test
+    fun `it returns a 400 response for InvalidPegInGuess`() {
+        val gameId = anyGameId()
+        ExecutionFailure<GameError>(InvalidPegInGuess(gameId, Code("Red", "Green"), setOfPegs("Green", "Yellow")))
+            .response() shouldReturn Response(Status.BAD_REQUEST).with(Error("Guess `Red, Green` contains unrecognised pegs (available pegs are `Green, Yellow`)."))
     }
 }

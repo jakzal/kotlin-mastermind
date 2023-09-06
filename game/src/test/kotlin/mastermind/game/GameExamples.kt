@@ -171,4 +171,13 @@ class GameExamples {
 
         execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooLong(gameId, code, secret.length)
     }
+
+    @Test
+    fun `it rejects pegs that the game was not started with`() {
+        val secret = Code("Red", "Green", "Blue", "Yellow")
+        val availablePegs = setOfPegs("Red", "Green", "Blue")
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 12, availablePegs))
+
+        execute(MakeGuess(gameId, secret), game) shouldFailWith InvalidPegInGuess(gameId, secret, availablePegs)
+    }
 }
