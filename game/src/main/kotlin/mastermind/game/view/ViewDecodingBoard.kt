@@ -16,7 +16,7 @@ suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = load("Mastermind
 private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: GameEvent): DecodingBoard? = when (event) {
     is GameStarted -> DecodingBoard(
         event.gameId.value,
-        event.secret.size,
+        event.secret.length,
         event.totalAttempts,
         emptyList(),
         "In progress"

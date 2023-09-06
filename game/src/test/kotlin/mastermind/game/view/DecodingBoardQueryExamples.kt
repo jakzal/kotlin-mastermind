@@ -45,7 +45,7 @@ class DecodingBoardQueryExamples {
         }) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
-                secret.size,
+                secret.length,
                 totalAttempts,
                 emptyList(),
                 "In progress"
@@ -80,7 +80,7 @@ class DecodingBoardQueryExamples {
         }) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
-                secret.size,
+                secret.length,
                 totalAttempts,
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Yellow"), listOf("Black", "White"))
@@ -124,7 +124,7 @@ class DecodingBoardQueryExamples {
         }) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
-                secret.size,
+                secret.length,
                 totalAttempts,
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Yellow"), listOf("Black", "White")),
@@ -169,7 +169,7 @@ class DecodingBoardQueryExamples {
         }) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
-                secret.size,
+                secret.length,
                 totalAttempts,
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),

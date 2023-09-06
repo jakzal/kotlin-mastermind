@@ -34,7 +34,7 @@ class WinningTheGameExamples {
             // Then I should win the game
             viewDecodingBoard(gameId) shouldBe DecodingBoard(
                 gameId.value,
-                secret.size,
+                secret.length,
                 totalAttempts,
                 (1..11).map { Guess(listOf("Purple", "Purple", "Purple", "Purple"), emptyList()) } + Guess(
                     listOf(

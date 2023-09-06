@@ -9,7 +9,7 @@ class CodeMakerExamples {
     fun `it makes a code of the given length`() {
         val code = makeCode(length = 5)
 
-        code.size shouldBe 5
+        code.length shouldBe 5
     }
 
     @Test
@@ -21,6 +21,6 @@ class CodeMakerExamples {
 
     @Test
     fun `it makes a code of length 4 by default`() {
-        makeCode().size shouldBe 4
+        makeCode().length shouldBe 4
     }
 }

@@ -36,7 +36,7 @@ data class GameId(val value: String)
 data class Code(val pegs: List<String>) {
     constructor(vararg pegs: String) : this(pegs.toList())
 
-    val size: Int get() = pegs.size
+    val length: Int get() = pegs.size
 }
 
 data class Guess(val code: Code, val feedback: Feedback)
@@ -81,7 +81,7 @@ private fun Game?.isStarted(): Boolean =
     this?.filterIsInstance<GameStarted>()?.isNotEmpty() ?: false
 
 private fun Game?.isGuessToShort(guess: Code): Boolean =
-    guess.pegs.size < (this?.secret?.size ?: 0)
+    guess.pegs.size < (this?.secret?.length ?: 0)
 
 private fun Game?.exactHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
@@ -121,7 +121,7 @@ private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessM
         GameAlreadyLost(command.gameId)
     }
     ensure(!game.isGuessToShort(command.guess)) {
-        GuessTooShort(command.gameId, command.guess, game?.secret?.size ?: 0)
+        GuessTooShort(command.gameId, command.guess, game?.secret?.length ?: 0)
     }
     GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(command)))
 }
@@ -141,7 +141,7 @@ private fun Game?.feedbackOn(command: MakeGuess): Feedback =
             Feedback(
                 exactHits + colourHits,
                 when {
-                    exactHits.size == this?.secret?.size -> Feedback.Outcome.WON
+                    exactHits.size == this?.secret?.length -> Feedback.Outcome.WON
                     (this?.attempts ?: 0) + 1 == this?.totalAttempts -> Feedback.Outcome.LOST
                     else -> Feedback.Outcome.IN_PROGRESS
                 }

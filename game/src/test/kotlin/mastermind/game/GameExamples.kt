@@ -158,6 +158,6 @@ class GameExamples {
         val code = Code("Purple", "Purple", "Purple")
         val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 1))
 
-        execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooShort(gameId, code, secret.size)
+        execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooShort(gameId, code, secret.length)
     }
 }

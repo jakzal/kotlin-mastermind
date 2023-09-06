@@ -27,7 +27,7 @@ class JoiningTheGameExamples {
             // And I should have 12 attempts available
             viewDecodingBoard(gameId) shouldBe DecodingBoard(
                 gameId.value,
-                secret.size,
+                secret.length,
                 totalAttempts,
                 emptyList(),
                 "In progress"
