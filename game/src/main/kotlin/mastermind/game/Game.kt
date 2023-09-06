@@ -7,6 +7,7 @@ import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
+import mastermind.game.GameError.GameNotStarted
 import mastermind.game.GameEvent.*
 import kotlin.collections.unzip
 import kotlin.math.min
@@ -50,6 +51,8 @@ sealed interface GameError {
         data class GameAlreadyWon(val gameId: GameId) : GameFinishedError
         data class GameAlreadyLost(val gameId: GameId) : GameFinishedError
     }
+
+    data class GameNotStarted(val gameId: GameId) : GameError
 }
 
 typealias Game = NonEmptyList<GameEvent>
@@ -68,6 +71,9 @@ private fun Game?.isWon(): Boolean =
 
 private fun Game?.isLost(): Boolean =
     this?.filterIsInstance<GameLost>()?.isNotEmpty() ?: false
+
+private fun Game?.isStarted(): Boolean =
+    this?.filterIsInstance<GameStarted>()?.isNotEmpty() ?: false
 
 private fun Game?.exactHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
@@ -97,6 +103,9 @@ private fun joinGame(command: JoinGame): Either<Nothing, NonEmptyList<GameStarte
     nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts)).right()
 
 private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessMade> = either {
+    ensure(game.isStarted()) {
+        GameNotStarted(command.gameId)
+    }
     ensure(!game.isWon()) {
         GameAlreadyWon(command.gameId)
     }

@@ -29,6 +29,7 @@ private fun GameError.response() =
     when (this) {
         is GameAlreadyWon -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already won."))
         is GameAlreadyLost -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already lost."))
+        is GameError.GameNotStarted -> TODO()
     }
 
 fun Response.with(error: Error): Response = with(Body.auto<Error>().toLens() of error)

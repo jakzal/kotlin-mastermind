@@ -1,11 +1,13 @@
 package mastermind.game
 
+import arrow.core.getOrElse
 import arrow.core.nonEmptyListOf
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
-import mastermind.game.GameEvent.*
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
+import mastermind.game.GameError.GameNotStarted
+import mastermind.game.GameEvent.*
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldFailWith
 import mastermind.game.testkit.shouldSucceedWith
@@ -107,11 +109,12 @@ class GameExamples {
 
     @Test
     fun `the game can no longer be played once it's won`() {
-        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, totalAttempts))
 
-        val updatedGame = execute(MakeGuess(gameId, secret), game)
+        val update = execute(MakeGuess(gameId, secret), game)
+        val updatedGame = game + update.getOrElse { emptyList() }
 
-        execute(MakeGuess(gameId, secret), updatedGame.getOrNull()) shouldFailWith
+        execute(MakeGuess(gameId, secret), updatedGame) shouldFailWith
                 GameAlreadyWon(gameId)
     }
 
@@ -132,11 +135,20 @@ class GameExamples {
     @Test
     fun `the game can no longer be played once it's lost`() {
         val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
-        val game = nonEmptyListOf(GameStarted(gameId, secret, 1))
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 1))
 
-        val updatedGame = execute(MakeGuess(gameId, wrongCode), game)
+        val update = execute(MakeGuess(gameId, wrongCode), game)
+        val updatedGame = game + update.getOrElse { emptyList() }
 
-        execute(MakeGuess(gameId, secret), updatedGame.getOrNull()) shouldFailWith
+        execute(MakeGuess(gameId, secret), updatedGame) shouldFailWith
                 GameAlreadyLost(gameId)
+    }
+
+    @Test
+    fun `the game cannot be played if it was not started`() {
+        val code = Code("Red", "Purple", "Red", "Purple")
+        val game = null
+
+        execute(MakeGuess(gameId, code), game) shouldFailWith GameNotStarted(gameId)
     }
 }
