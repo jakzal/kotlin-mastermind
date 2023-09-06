@@ -22,7 +22,7 @@ class GameExamples {
     private val gameId = anyGameId()
     private val secret = Code("Red", "Green", "Blue", "Yellow")
     private val totalAttempts = 12
-    private val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple", "Pink")
+    private val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple", "Pink")
 
     @Test
     fun `it executes the JoinGame command`() {

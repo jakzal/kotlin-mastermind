@@ -10,7 +10,7 @@ import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
 
 data class Configuration(
-    val availablePegs: List<Code.Peg> = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
+    val availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     val gameIdGenerator: GameIdGenerator = GameIdGenerator(::generateGameId),
     val codeMaker: CodeMaker = CodeMaker(availablePegs::makeCode),
     val journal: Journal<GameEvent, GameError> = InMemoryJournal(),

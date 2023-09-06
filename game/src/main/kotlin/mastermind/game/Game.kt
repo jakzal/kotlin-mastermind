@@ -21,7 +21,7 @@ sealed interface GameCommand {
         override val gameId: GameId,
         val secret: Code,
         val totalAttempts: Int,
-        val availablePegs: List<Code.Peg>
+        val availablePegs: Set<Code.Peg>
     ) : GameCommand
 
     data class MakeGuess(override val gameId: GameId, val guess: Code) : GameCommand
@@ -34,7 +34,7 @@ sealed interface GameEvent {
         override val gameId: GameId,
         val secret: Code,
         val totalAttempts: Int,
-        val availablePegs: List<Code.Peg>
+        val availablePegs: Set<Code.Peg>
     ) : GameEvent
 
     data class GuessMade(override val gameId: GameId, val guess: Guess) : GameEvent
@@ -176,4 +176,4 @@ private fun Game?.feedbackOn(command: MakeGuess): Feedback =
             )
         }
 
-fun listOfPegs(vararg pegs: String): List<Code.Peg> = pegs.map(Code::Peg)
+fun setOfPegs(vararg pegs: String): Set<Code.Peg> = pegs.map(Code::Peg).toSet()

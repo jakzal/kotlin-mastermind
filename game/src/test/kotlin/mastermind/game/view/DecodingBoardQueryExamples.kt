@@ -29,7 +29,7 @@ class DecodingBoardQueryExamples {
     @Test
     fun `it returns the decoding board if the game is found`() = runTest {
         val gameId = anyGameId()
-        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple", "Pink")
+        val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple", "Pink")
         val secret = availablePegs.makeCode()
         val totalAttempts = 12
 
@@ -48,7 +48,7 @@ class DecodingBoardQueryExamples {
     @Test
     fun `it builds the board from the history of events`() = runTest {
         val gameId = anyGameId()
-        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
+        val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
         val secret = availablePegs.makeCode()
         val totalAttempts = 12
 
@@ -83,7 +83,7 @@ class DecodingBoardQueryExamples {
         val gameId = anyGameId()
         val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 2
-        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
+        val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
         with(
             journalOf(
@@ -125,7 +125,7 @@ class DecodingBoardQueryExamples {
         val gameId = anyGameId()
         val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 3
-        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
+        val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
         with(
             journalOf(
@@ -166,7 +166,7 @@ class DecodingBoardQueryExamples {
     @Test
     fun `it builds the board for a won game`() = runTest {
         val gameId = anyGameId()
-        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
+        val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
         val secret = availablePegs.makeCode()
         val totalAttempts = 12
 

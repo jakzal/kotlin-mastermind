@@ -6,20 +6,20 @@ import mastermind.game.Configuration
 import mastermind.game.MastermindApp
 import mastermind.game.acceptance.dsl.direct.DirectApplicationRunner
 import mastermind.game.acceptance.dsl.http.HttpApplicationRunner
-import mastermind.game.listOfPegs
+import mastermind.game.setOfPegs
 
 class MastermindScenario(
     private val ability: PlayGameAbility,
     val secret: Code,
     val totalAttempts: Int,
-    val availablePegs: List<Code.Peg>
+    val availablePegs: Set<Code.Peg>
 ) : PlayGameAbility by ability {
     companion object {
         context(ScenarioContext)
         operator fun invoke(
             secret: Code,
             totalAttempts: Int = 12,
-            availablePegs: List<Code.Peg> = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
+            availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
             scenario: suspend MastermindScenario.() -> Unit
         ) {
             val app = MastermindApp(
