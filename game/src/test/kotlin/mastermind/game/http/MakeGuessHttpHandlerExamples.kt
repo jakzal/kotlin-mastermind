@@ -3,9 +3,6 @@ package mastermind.game.http
 import arrow.core.left
 import arrow.core.right
 import mastermind.game.Code
-import mastermind.game.Code.Peg.Companion.GREEN
-import mastermind.game.Code.Peg.Companion.RED
-import mastermind.game.Code.Peg.Companion.YELLOW
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError
 import mastermind.game.MastermindApp
@@ -23,7 +20,7 @@ class MakeGuessHttpHandlerExamples {
     @Test
     fun `it returns the location of the game after making a guess`() {
         val gameId = anyGameId()
-        val guess = Code(RED, GREEN, GREEN, YELLOW)
+        val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
             makeGuess = { command: MakeGuess ->
                 command shouldBe MakeGuess(gameId, guess)
@@ -40,7 +37,7 @@ class MakeGuessHttpHandlerExamples {
     @Test
     fun `it returns an error response if the guess does not succeed`() {
         val gameId = anyGameId()
-        val guess = Code(RED, GREEN, GREEN, YELLOW)
+        val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
             makeGuess = { _: MakeGuess ->
                 StreamNotFound<GameError>("my-stream").left()
@@ -57,4 +54,4 @@ class MakeGuessHttpHandlerExamples {
     }
 }
 
-private fun Request.body(pegs: List<Code.Peg>): Request = Body.auto<List<String>>().toLens().invoke(pegs.map(Code.Peg::formattedName), this)
+private fun Request.body(pegs: List<Code.Peg>): Request = Body.auto<List<String>>().toLens().invoke(pegs.map(Code.Peg::name), this)

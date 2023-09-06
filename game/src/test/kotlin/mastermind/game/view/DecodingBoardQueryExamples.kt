@@ -6,11 +6,6 @@ import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.*
-import mastermind.game.Code.Peg.Companion.BLUE
-import mastermind.game.Code.Peg.Companion.GREEN
-import mastermind.game.Code.Peg.Companion.PURPLE
-import mastermind.game.Code.Peg.Companion.RED
-import mastermind.game.Code.Peg.Companion.YELLOW
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameEvent.*
@@ -61,7 +56,7 @@ class DecodingBoardQueryExamples {
                 GuessMade(
                     gameId,
                     Guess(
-                        Code(RED, GREEN, BLUE, YELLOW),
+                        Code("Red", "Green", "Blue", "Yellow"),
                         Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 )
@@ -82,7 +77,7 @@ class DecodingBoardQueryExamples {
     @Test
     fun `it builds the board for a lost game`() = runTest {
         val gameId = anyGameId()
-        val secret = Code(RED, BLUE, YELLOW, YELLOW)
+        val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 2
 
         with(
@@ -92,14 +87,14 @@ class DecodingBoardQueryExamples {
                 GuessMade(
                     gameId,
                     Guess(
-                        Code(RED, GREEN, BLUE, BLUE),
+                        Code("Red", "Green", "Blue", "Blue"),
                         Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 ),
                 GuessMade(
                     gameId,
                     Guess(
-                        Code(PURPLE, PURPLE, PURPLE, PURPLE),
+                        Code("Purple", "Purple", "Purple", "Purple"),
                         Feedback(listOf(), Feedback.Outcome.LOST)
                     )
                 ),
@@ -122,7 +117,7 @@ class DecodingBoardQueryExamples {
     @Test
     fun `it includes number of left attempts`() = runTest {
         val gameId = anyGameId()
-        val secret = Code(RED, BLUE, YELLOW, YELLOW)
+        val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 3
 
         with(
@@ -132,14 +127,14 @@ class DecodingBoardQueryExamples {
                 GuessMade(
                     gameId,
                     Guess(
-                        Code(RED, GREEN, BLUE, BLUE),
+                        Code("Red", "Green", "Blue", "Blue"),
                         Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 ),
                 GuessMade(
                     gameId,
                     Guess(
-                        Code(PURPLE, PURPLE, PURPLE, PURPLE),
+                        Code("Purple", "Purple", "Purple", "Purple"),
                         Feedback(listOf(), Feedback.Outcome.LOST)
                     )
                 ),
@@ -173,14 +168,14 @@ class DecodingBoardQueryExamples {
                 GuessMade(
                     gameId,
                     Guess(
-                        Code(RED, GREEN, BLUE, YELLOW),
+                        Code("Red", "Green", "Blue", "Yellow"),
                         Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 ),
                 GuessMade(
                     gameId,
                     Guess(
-                        Code(RED, GREEN, BLUE, YELLOW),
+                        Code("Red", "Green", "Blue", "Yellow"),
                         Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 )

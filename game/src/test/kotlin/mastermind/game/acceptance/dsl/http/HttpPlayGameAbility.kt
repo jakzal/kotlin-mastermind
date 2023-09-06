@@ -62,5 +62,5 @@ private fun Response.executionFailure(gameId: GameId): Either<JournalFailure<Gam
     }
 }
 
-private fun Request.body(pegs: List<Code.Peg>): Request = Body.auto<List<String>>().toLens().invoke(pegs.map(Code.Peg::formattedName), this)
+private fun Request.body(pegs: List<Code.Peg>): Request = Body.auto<List<String>>().toLens().invoke(pegs.map(Code.Peg::name), this)
 private fun Response.body(): Error = Body.auto<Error>().toLens().extract(this)

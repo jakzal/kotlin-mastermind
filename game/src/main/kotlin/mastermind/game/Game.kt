@@ -38,17 +38,7 @@ data class Code(val pegs: List<Peg>) {
     constructor(vararg pegs: Peg) : this(pegs.toList())
     constructor(vararg pegs: String) : this(pegs.map(::Peg))
 
-    data class Peg(val name: String) {
-        companion object {
-            const val RED = "RED"
-            const val GREEN = "GREEN"
-            const val BLUE = "BLUE"
-            const val YELLOW = "YELLOW"
-            const val PURPLE = "PURPLE"
-        }
-
-        fun formattedName(): String = name.lowercase().replaceFirstChar(Char::uppercase)
-    }
+    data class Peg(val name: String)
 
     val length: Int get() = pegs.size
 }

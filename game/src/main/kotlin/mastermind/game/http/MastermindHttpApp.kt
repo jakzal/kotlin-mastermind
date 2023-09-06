@@ -58,7 +58,7 @@ private val Request.id: String
 private val Request.guess: Code
     get() = Code(Body.auto<List<String>>().toLens().invoke(this).toCodePegs())
 
-private fun List<String>.toCodePegs(): List<Peg> = map(String::uppercase).map { Peg(it) }
+private fun List<String>.toCodePegs(): List<Peg> = map(::Peg)
 
 private fun String.asGameId(): GameId = GameId(this)
 

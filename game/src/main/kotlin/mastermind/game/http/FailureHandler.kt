@@ -36,6 +36,6 @@ private fun GameError.response() =
         is GuessTooShort -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too short (required length is ${requiredSize})."))
     }
 
-private fun List<Code.Peg>.formattedForResponse(): String = joinToString(", ", transform = Code.Peg::formattedName)
+private fun List<Code.Peg>.formattedForResponse(): String = joinToString(", ", transform = Code.Peg::name)
 
 fun Response.with(error: Error): Response = with(Body.auto<Error>().toLens() of error)

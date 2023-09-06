@@ -1,8 +1,6 @@
 package mastermind.game.http
 
 import mastermind.game.Code
-import mastermind.game.Code.Peg.Companion.GREEN
-import mastermind.game.Code.Peg.Companion.RED
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
@@ -53,14 +51,14 @@ class HandleFailureExamples {
     @Test
     fun `it returns a 400 response for GuessTooShort`() {
         val gameId = anyGameId()
-        ExecutionFailure<GameError>(GuessTooShort(gameId, Code(RED, GREEN), 4))
+        ExecutionFailure<GameError>(GuessTooShort(gameId, Code("Red", "Green"), 4))
             .response() shouldReturn Response(Status.BAD_REQUEST).with(Error("Guess `Red, Green` is too short (required length is 4)."))
     }
 
     @Test
     fun `it returns a 400 response for GuessTooLong`() {
         val gameId = anyGameId()
-        ExecutionFailure<GameError>(GuessTooLong(gameId, Code(RED, GREEN, GREEN, GREEN, RED), 4))
+        ExecutionFailure<GameError>(GuessTooLong(gameId, Code("Red", "Green", "Green", "Green", "Red"), 4))
             .response() shouldReturn Response(Status.BAD_REQUEST).with(Error("Guess `Red, Green, Green, Green, Red` is too long (required length is 4)."))
     }
 }

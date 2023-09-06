@@ -2,11 +2,6 @@ package mastermind.game.acceptance
 
 import arrow.core.left
 import mastermind.game.Code
-import mastermind.game.Code.Peg.Companion.BLUE
-import mastermind.game.Code.Peg.Companion.GREEN
-import mastermind.game.Code.Peg.Companion.PURPLE
-import mastermind.game.Code.Peg.Companion.RED
-import mastermind.game.Code.Peg.Companion.YELLOW
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
@@ -27,12 +22,12 @@ class LosingTheGameExamples {
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
         // And the code maker placed the "Red Green Yellow Blue" secret on the board
-        secret = Code(RED, GREEN, YELLOW, BLUE)
+        secret = Code("Red", "Green", "Yellow", "Blue")
     ) {
         joinGame { gameId ->
             // When I try to break the code with an invalid pattern 12 times
             repeat(12) {
-                makeGuess(gameId, Code(PURPLE, PURPLE, PURPLE, PURPLE))
+                makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
             }
             // Then I should lose the game
             viewDecodingBoard(gameId) shouldBe DecodingBoard(
@@ -43,7 +38,7 @@ class LosingTheGameExamples {
                 "Lost"
             )
             // And I should no longer be able to make guesses
-            makeGuess(gameId, Code(RED, GREEN, YELLOW, BLUE)) shouldReturn ExecutionFailure(
+            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn ExecutionFailure(
                 GameAlreadyLost(gameId)
             ).left()
         }

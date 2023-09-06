@@ -28,6 +28,6 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
     is GameLost -> decodingBoard?.copy(outcome = "Lost")
 }
 
-private fun mastermind.game.Guess.codePegs(): List<String> = code.pegs.map(Code.Peg::formattedName)
+private fun mastermind.game.Guess.codePegs(): List<String> = code.pegs.map(Code.Peg::name)
 
 private fun mastermind.game.Guess.feedbackPegs(): List<String> = feedback.pegs.map(Feedback.Peg::formattedName)
