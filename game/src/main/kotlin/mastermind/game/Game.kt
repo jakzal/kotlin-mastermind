@@ -17,14 +17,25 @@ import kotlin.math.min
 sealed interface GameCommand {
     val gameId: GameId
 
-    data class JoinGame(override val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameCommand
+    data class JoinGame(
+        override val gameId: GameId,
+        val secret: Code,
+        val totalAttempts: Int,
+        val availablePegs: List<Code.Peg>
+    ) : GameCommand
+
     data class MakeGuess(override val gameId: GameId, val guess: Code) : GameCommand
 }
 
 sealed interface GameEvent {
     val gameId: GameId
 
-    data class GameStarted(override val gameId: GameId, val secret: Code, val totalAttempts: Int) : GameEvent
+    data class GameStarted(
+        override val gameId: GameId,
+        val secret: Code,
+        val totalAttempts: Int,
+        val availablePegs: List<Code.Peg>
+    ) : GameEvent
 
     data class GuessMade(override val gameId: GameId, val guess: Guess) : GameEvent
 
@@ -66,7 +77,7 @@ sealed interface GameError {
 
     sealed interface GuessError : GameError {
         data class GameNotStarted(val gameId: GameId) : GuessError
-        data class GuessTooShort(val gameId: GameId, val guess: Code, val requiredSize: Int): GuessError
+        data class GuessTooShort(val gameId: GameId, val guess: Code, val requiredSize: Int) : GuessError
         data class GuessTooLong(val gameId: GameId, val guess: Code, val requiredSize: Int) : GuessError
     }
 }
@@ -122,7 +133,7 @@ fun execute(command: GameCommand, game: Game? = null): Either<GameError, NonEmpt
 }
 
 private fun joinGame(command: JoinGame): Either<Nothing, NonEmptyList<GameStarted>> =
-    nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts)).right()
+    nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts, command.availablePegs)).right()
 
 private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessMade> = either {
     ensure(game.isStarted()) {
@@ -164,3 +175,5 @@ private fun Game?.feedbackOn(command: MakeGuess): Feedback =
                 }
             )
         }
+
+fun listOfPegs(vararg pegs: String): List<Code.Peg> = pegs.map(Code::Peg)

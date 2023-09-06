@@ -11,9 +11,10 @@ import org.junit.jupiter.api.Test
 class ViewDecodingBoardHandlerExamples {
     @Test
     fun `it returns the decoding board view if found`() {
+        val codePegs = listOf("Red", "Green", "Blue", "Yellow", "Purple")
         val app = mastermindHttpApp(MastermindApp(
             viewDecodingBoard = { gameId: GameId ->
-                DecodingBoard(gameId.value, 4, 8, emptyList(), "In progress")
+                DecodingBoard(gameId.value, 4, 8, codePegs, emptyList(), "In progress")
             }
         ))
 
@@ -24,6 +25,7 @@ class ViewDecodingBoardHandlerExamples {
             "60693d0a-152c-4c4e-a11e-35fd8176df53",
             4,
             8,
+            codePegs,
             emptyList(),
             "In progress"
         )

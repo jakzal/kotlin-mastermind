@@ -19,7 +19,8 @@ data class Configuration(
             { command -> "Mastermind:${command.gameId.value}" },
             { events -> events.head.gameId }
         )
-    }
+    },
+    val availablePegs: List<Code.Peg> = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 ) : GameIdGenerator by gameIdGenerator,
     CodeMaker by codeMaker,
     GameCommandHandler by gameCommandHandler,
@@ -29,7 +30,7 @@ data class MastermindApp(
     private val configuration: Configuration = Configuration(),
     val joinGame: suspend () -> Either<JournalFailure<GameError>, GameId> = {
         with(configuration) {
-            gameCommandHandler(JoinGame(generateGameId(), makeCode(), 12))
+            gameCommandHandler(JoinGame(generateGameId(), makeCode(), 12, availablePegs))
         }
     },
     val makeGuess: suspend (MakeGuess) -> Either<JournalFailure<GameError>, GameId> = { command ->

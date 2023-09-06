@@ -1,8 +1,10 @@
 package mastermind.game.acceptance
 
+import mastermind.game.Code
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
+import mastermind.game.listOfPegs
 import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
 import mastermind.game.view.DecodingBoard
@@ -18,6 +20,8 @@ class JoiningTheGameExamples {
     fun `code breaker joins the game`() = MastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
+        // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"
+        availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
         // And the code maker has placed a secret on the board
         secret = anySecret()
     ) {
@@ -29,6 +33,7 @@ class JoiningTheGameExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
+                availablePegs.map(Code.Peg::name),
                 emptyList(),
                 "In progress"
             )

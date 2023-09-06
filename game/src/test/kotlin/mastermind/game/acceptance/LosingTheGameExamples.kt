@@ -6,6 +6,7 @@ import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
+import mastermind.game.listOfPegs
 import mastermind.game.testkit.shouldBe
 import mastermind.game.testkit.shouldReturn
 import mastermind.game.view.DecodingBoard
@@ -21,6 +22,8 @@ class LosingTheGameExamples {
     fun `code breaker loses the game`() = MastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
+        // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"
+        availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
         // And the code maker placed the "Red Green Yellow Blue" secret on the board
         secret = Code("Red", "Green", "Yellow", "Blue")
     ) {
@@ -34,6 +37,7 @@ class LosingTheGameExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
+                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 (1..12).map { Guess(listOf("Purple", "Purple", "Purple", "Purple"), emptyList()) },
                 "Lost"
             )

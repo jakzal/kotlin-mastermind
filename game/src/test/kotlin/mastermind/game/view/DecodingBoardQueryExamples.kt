@@ -31,12 +31,14 @@ class DecodingBoardQueryExamples {
         val gameId = anyGameId()
         val secret = anySecret()
         val totalAttempts = 12
+        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple", "Pink")
 
-        with(journalOf(gameId, GameStarted(gameId, secret, totalAttempts))) {
+        with(journalOf(gameId, GameStarted(gameId, secret, totalAttempts, availablePegs))) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
                 totalAttempts,
+                listOf("Red", "Green", "Blue", "Yellow", "Purple", "Pink"),
                 emptyList(),
                 "In progress"
             )
@@ -48,11 +50,12 @@ class DecodingBoardQueryExamples {
         val gameId = anyGameId()
         val secret = anySecret()
         val totalAttempts = 12
+        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
         with(
             journalOf(
                 gameId,
-                GameStarted(gameId, secret, totalAttempts),
+                GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
                     gameId,
                     Guess(
@@ -66,6 +69,7 @@ class DecodingBoardQueryExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
+                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Yellow"), listOf("Black", "White"))
                 ),
@@ -79,11 +83,12 @@ class DecodingBoardQueryExamples {
         val gameId = anyGameId()
         val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 2
+        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
         with(
             journalOf(
                 gameId,
-                GameStarted(gameId, secret, totalAttempts),
+                GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
                     gameId,
                     Guess(
@@ -105,6 +110,7 @@ class DecodingBoardQueryExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
+                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),
                     Guess(listOf("Purple", "Purple", "Purple", "Purple"), listOf())
@@ -119,11 +125,12 @@ class DecodingBoardQueryExamples {
         val gameId = anyGameId()
         val secret = Code("Red", "Blue", "Yellow", "Yellow")
         val totalAttempts = 3
+        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
         with(
             journalOf(
                 gameId,
-                GameStarted(gameId, secret, totalAttempts),
+                GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
                     gameId,
                     Guess(
@@ -145,6 +152,7 @@ class DecodingBoardQueryExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
+                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),
                     Guess(listOf("Purple", "Purple", "Purple", "Purple"), listOf())
@@ -160,11 +168,12 @@ class DecodingBoardQueryExamples {
         val gameId = anyGameId()
         val secret = anySecret()
         val totalAttempts = 12
+        val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
         with(
             journalOf(
                 gameId,
-                GameStarted(gameId, secret, totalAttempts),
+                GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
                     gameId,
                     Guess(

@@ -4,6 +4,7 @@ import mastermind.game.Code
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
+import mastermind.game.listOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -22,6 +23,8 @@ class PlayingTheGameExamples {
         MastermindScenario(
             // Given a decoding board of 12 attempts
             totalAttempts = 12,
+            // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"
+            availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
             // And the code maker placed the "Red Green Blue Yellow" code pattern on the board
             secret = secret
         ) {

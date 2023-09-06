@@ -22,21 +22,23 @@ class GameExamples {
     private val gameId = anyGameId()
     private val secret = Code("Red", "Green", "Blue", "Yellow")
     private val totalAttempts = 12
+    private val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple", "Pink")
 
     @Test
     fun `it executes the JoinGame command`() {
-        execute(JoinGame(gameId, secret, totalAttempts)) shouldSucceedWith listOf(
+        execute(JoinGame(gameId, secret, totalAttempts, availablePegs)) shouldSucceedWith listOf(
             GameStarted(
                 gameId,
                 secret,
-                totalAttempts
+                totalAttempts,
+                availablePegs
             )
         )
     }
 
     @Test
     fun `it executes the MakeGuess command`() {
-        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
+        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
         execute(MakeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple")), game) shouldSucceedWith listOf(
             GuessMade(
@@ -52,7 +54,7 @@ class GameExamples {
     @ParameterizedTest(name = "{0}")
     @MethodSource("guessExamples")
     fun `it gives feedback on the guess`(message: String, secret: Code, guess: Code, feedback: Feedback) {
-        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
+        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
         execute(MakeGuess(gameId, guess), game) shouldSucceedWith listOf(GuessMade(gameId, Guess(guess, feedback)))
     }
@@ -95,7 +97,7 @@ class GameExamples {
 
     @Test
     fun `the game is won if the secret is guessed`() {
-        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts))
+        val game = nonEmptyListOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
         execute(MakeGuess(gameId, secret), game) shouldSucceedWith listOf(
             GuessMade(
@@ -111,7 +113,7 @@ class GameExamples {
 
     @Test
     fun `the game can no longer be played once it's won`() {
-        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, totalAttempts))
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
         val update = execute(MakeGuess(gameId, secret), game)
         val updatedGame = game + update.getOrElse { emptyList() }
@@ -124,7 +126,7 @@ class GameExamples {
     fun `the game is lost if the secret is not guessed within the number of attempts`() {
         val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
         val game = nonEmptyListOf(
-            GameStarted(gameId, secret, 3),
+            GameStarted(gameId, secret, 3, availablePegs),
             GuessMade(gameId, Guess(wrongCode, Feedback(listOf(), Feedback.Outcome.IN_PROGRESS))),
             GuessMade(gameId, Guess(wrongCode, Feedback(listOf(), Feedback.Outcome.IN_PROGRESS))),
         )
@@ -137,7 +139,7 @@ class GameExamples {
     @Test
     fun `the game can no longer be played once it's lost`() {
         val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
-        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 1))
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 1, availablePegs))
 
         val update = execute(MakeGuess(gameId, wrongCode), game)
         val updatedGame = game + update.getOrElse { emptyList() }
@@ -157,7 +159,7 @@ class GameExamples {
     @Test
     fun `the guess size cannot be shorter than the secret`() {
         val code = Code("Purple", "Purple", "Purple")
-        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 12))
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 12, availablePegs))
 
         execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooShort(gameId, code, secret.length)
     }
@@ -165,7 +167,7 @@ class GameExamples {
     @Test
     fun `the guess size cannot be longer than the secret`() {
         val code = Code("Purple", "Purple", "Purple", "Purple", "Purple")
-        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 12))
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 12, availablePegs))
 
         execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooLong(gameId, code, secret.length)
     }
