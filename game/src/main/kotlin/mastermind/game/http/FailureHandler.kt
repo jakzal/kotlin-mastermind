@@ -3,7 +3,7 @@ package mastermind.game.http
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
-import mastermind.game.GameError.GuessError.GameNotStarted
+import mastermind.game.GameError.GuessError.*
 import mastermind.journal.JournalFailure
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
@@ -31,6 +31,8 @@ private fun GameError.response() =
         is GameAlreadyWon -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already won."))
         is GameAlreadyLost -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already lost."))
         is GameNotStarted -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` not found."))
+        is GuessTooLong -> TODO()
+        is GuessTooShort -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.joinToString(", ")}` is too short (required length is ${requiredSize})."))
     }
 
 fun Response.with(error: Error): Response = with(Body.auto<Error>().toLens() of error)

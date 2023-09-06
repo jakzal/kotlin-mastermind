@@ -1,9 +1,11 @@
 package mastermind.game.http
 
+import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.GameError.GuessError.GameNotStarted
+import mastermind.game.GameError.GuessError.GuessTooShort
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldReturn
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
@@ -45,5 +47,12 @@ class HandleFailureExamples {
         val gameId = anyGameId()
         ExecutionFailure<GameError>(GameNotStarted(gameId))
             .response() shouldReturn Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` not found."))
+    }
+
+    @Test
+    fun `it returns a 400 response for GuessTooShort`() {
+        val gameId = anyGameId()
+        ExecutionFailure<GameError>(GuessTooShort(gameId, Code("Red", "Green"), 4))
+            .response() shouldReturn Response(Status.BAD_REQUEST).with(Error("Guess `Red, Green` is too short (required length is 4)."))
     }
 }
