@@ -24,7 +24,7 @@ class MastermindScenario(
         ) {
             val app = MastermindApp(
                 configuration = Configuration(
-                    codeMaker = { secret }
+                    makeCode = { secret }
                 )
             )
             runBlocking {
