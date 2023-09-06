@@ -35,9 +35,7 @@ sealed interface GameEvent {
 data class GameId(val value: String)
 
 data class Code(val pegs: List<Peg>) {
-    constructor(vararg pegs: String) : this(pegs.toList().map {
-        Peg.valueOf(it.uppercase())
-    })
+    constructor(vararg pegs: Peg) : this(pegs.toList())
 
     enum class Peg {
         RED, GREEN, BLUE, YELLOW, PURPLE;

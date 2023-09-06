@@ -3,6 +3,7 @@ package mastermind.game.http
 import arrow.core.left
 import arrow.core.right
 import mastermind.game.Code
+import mastermind.game.Code.Peg.*
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError
 import mastermind.game.MastermindApp
@@ -20,7 +21,7 @@ class MakeGuessHttpHandlerExamples {
     @Test
     fun `it returns the location of the game after making a guess`() {
         val gameId = anyGameId()
-        val guess = Code("Red", "Green", "Green", "Yellow")
+        val guess = Code(RED, GREEN, GREEN, YELLOW)
         val app = mastermindHttpApp(MastermindApp(
             makeGuess = { command: MakeGuess ->
                 command shouldBe MakeGuess(gameId, guess)
@@ -37,7 +38,7 @@ class MakeGuessHttpHandlerExamples {
     @Test
     fun `it returns an error response if the guess does not succeed`() {
         val gameId = anyGameId()
-        val guess = Code("Red", "Green", "Green", "Yellow")
+        val guess = Code(RED, GREEN, GREEN, YELLOW)
         val app = mastermindHttpApp(MastermindApp(
             makeGuess = { _: MakeGuess ->
                 StreamNotFound<GameError>("my-stream").left()

@@ -1,6 +1,7 @@
 package mastermind.game.acceptance
 
 import mastermind.game.Code
+import mastermind.game.Code.Peg.*
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
@@ -37,83 +38,83 @@ class PlayingTheGameExamples {
         @JvmStatic
         fun guessExamples(): List<Arguments> = listOf(
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Red", "Purple", "Purple", "Purple"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(RED, PURPLE, PURPLE, PURPLE),
                 listOf("Black")
             ),
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Purple", "Purple", "Purple", "Purple"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(PURPLE, PURPLE, PURPLE, PURPLE),
                 emptyList<String>()
             ),
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Purple", "Red", "Purple", "Purple"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(PURPLE, RED, PURPLE, PURPLE),
                 listOf("White")
             ),
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Red", "Purple", "Green", "Purple"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(RED, PURPLE, GREEN, PURPLE),
                 listOf("Black", "White")
             ),
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Red", "Green", "Blue", "Purple"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(RED, GREEN, BLUE, PURPLE),
                 listOf("Black", "Black", "Black")
             ),
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Red", "Yellow", "Blue", "Green"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(RED, YELLOW, BLUE, GREEN),
                 listOf("Black", "Black", "White", "White")
             ),
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Yellow", "Blue", "Green", "Red"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(YELLOW, BLUE, GREEN, RED),
                 listOf("White", "White", "White", "White")
             ),
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Red", "Green", "Blue", "Yellow"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(RED, GREEN, BLUE, YELLOW),
                 listOf("Black", "Black", "Black", "Black")
             ),
             Arguments.of(
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Red", "Red", "Red", "Purple"),
+                Code(RED, GREEN, BLUE, YELLOW),
+                Code(RED, RED, RED, PURPLE),
                 listOf("Black")
             ),
             Arguments.of(
-                Code("Green", "Red", "Blue", "Yellow"),
-                Code("Green", "Yellow", "Red", "Blue"),
+                Code(GREEN, RED, BLUE, YELLOW),
+                Code(GREEN, YELLOW, RED, BLUE),
                 listOf("Black", "White", "White", "White")
             ),
             Arguments.of(
-                Code("Green", "Red", "Blue", "Yellow"),
-                Code("Red", "Green", "Yellow", "Blue"),
+                Code(GREEN, RED, BLUE, YELLOW),
+                Code(RED, GREEN, YELLOW, BLUE),
                 listOf("White", "White", "White", "White")
             ),
             Arguments.of(
-                Code("Green", "Red", "Blue", "Yellow"),
-                Code("Green", "Red", "Yellow", "Blue"),
+                Code(GREEN, RED, BLUE, YELLOW),
+                Code(GREEN, RED, YELLOW, BLUE),
                 listOf("Black", "Black", "White", "White")
             ),
             Arguments.of(
-                Code("Red", "Green", "Red", "Yellow"),
-                Code("Red", "Red", "Purple", "Purple"),
+                Code(RED, GREEN, RED, YELLOW),
+                Code(RED, RED, PURPLE, PURPLE),
                 listOf("Black", "White")
             ),
             Arguments.of(
-                Code("Red", "Red", "Red", "Yellow"),
-                Code("Red", "Green", "Purple", "Purple"),
+                Code(RED, RED, RED, YELLOW),
+                Code(RED, GREEN, PURPLE, PURPLE),
                 listOf("Black")
             ),
             Arguments.of(
-                Code("Red", "Red", "Blue", "Yellow"),
-                Code("Purple", "Purple", "Red", "Purple"),
+                Code(RED, RED, BLUE, YELLOW),
+                Code(PURPLE, PURPLE, RED, PURPLE),
                 listOf("White")
             ),
             Arguments.of(
-                Code("Red", "Blue", "Blue", "Yellow"),
-                Code("Purple", "Purple", "Red", "Red"),
+                Code(RED, BLUE, BLUE, YELLOW),
+                Code(PURPLE, PURPLE, RED, RED),
                 listOf("White")
             ),
         )

@@ -2,6 +2,7 @@ package mastermind.game.acceptance
 
 import arrow.core.left
 import mastermind.game.Code
+import mastermind.game.Code.Peg.*
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
@@ -22,15 +23,15 @@ class WinningTheGameExamples {
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
         // And the code maker placed the "Red Green Yellow Blue" secret on the board
-        secret = Code("Red", "Green", "Yellow", "Blue")
+        secret = Code(RED, GREEN, YELLOW, BLUE)
     ) {
         joinGame { gameId ->
             // When I try to break the code with an invalid pattern 11 times
             repeat(11) {
-                makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
+                makeGuess(gameId, Code(PURPLE, PURPLE, PURPLE, PURPLE))
             }
             // But I break the code in the final guess
-            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue"))
+            makeGuess(gameId, Code(RED, GREEN, YELLOW, BLUE))
             // Then I should win the game
             viewDecodingBoard(gameId) shouldBe DecodingBoard(
                 gameId.value,
@@ -47,7 +48,7 @@ class WinningTheGameExamples {
                 "Won"
             )
             // And I should no longer be able to make guesses
-            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn ExecutionFailure(
+            makeGuess(gameId, Code(RED, GREEN, YELLOW, BLUE)) shouldReturn ExecutionFailure(
                 GameAlreadyWon(gameId)
             ).left()
         }
