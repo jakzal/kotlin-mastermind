@@ -1,9 +1,7 @@
 package mastermind.game.view
 
-import mastermind.game.GameError
-import mastermind.game.GameEvent
+import mastermind.game.*
 import mastermind.game.GameEvent.*
-import mastermind.game.GameId
 import mastermind.journal.Journal
 
 context(Journal<GameEvent, GameError>)
@@ -23,13 +21,13 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
     )
 
     is GuessMade -> decodingBoard?.copy(
-        guesses = decodingBoard.guesses + Guess(event.guess.code.pegs, event.guess.feedbackPegs())
+        guesses = decodingBoard.guesses + Guess(event.guess.codePegs(), event.guess.feedbackPegs())
     )
 
     is GameWon -> decodingBoard?.copy(outcome = "Won")
     is GameLost -> decodingBoard?.copy(outcome = "Lost")
 }
 
-private fun mastermind.game.Guess.feedbackPegs(): List<String> = feedback.pegs.map {
-    it.name.lowercase().replaceFirstChar(Char::uppercase)
-}
+private fun mastermind.game.Guess.codePegs(): List<String> = code.pegs.map(Code.Peg::formattedName)
+
+private fun mastermind.game.Guess.feedbackPegs(): List<String> = feedback.pegs.map(Feedback.Peg::formattedName)

@@ -55,7 +55,9 @@ private val Request.id: String
     get() = Path.of("id")(this)
 
 private val Request.guess: Code
-    get() = Code(Body.auto<List<String>>().toLens().invoke(this))
+    get() = Code(Body.auto<List<String>>().toLens().invoke(this).toCodePegs())
+
+private fun List<String>.toCodePegs() = map(String::uppercase).map(Code.Peg::valueOf)
 
 private fun String.asGameId(): GameId = GameId(this)
 

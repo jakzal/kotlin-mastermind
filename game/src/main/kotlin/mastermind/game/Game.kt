@@ -34,8 +34,16 @@ sealed interface GameEvent {
 
 data class GameId(val value: String)
 
-data class Code(val pegs: List<String>) {
-    constructor(vararg pegs: String) : this(pegs.toList())
+data class Code(val pegs: List<Peg>) {
+    constructor(vararg pegs: String) : this(pegs.toList().map {
+        Peg.valueOf(it.uppercase())
+    })
+
+    enum class Peg {
+        RED, GREEN, BLUE, YELLOW, PURPLE;
+
+        fun formattedName(): String = name.lowercase().replaceFirstChar(Char::uppercase)
+    }
 
     val length: Int get() = pegs.size
 }
@@ -45,7 +53,9 @@ data class Guess(val code: Code, val feedback: Feedback)
 data class Feedback(val pegs: List<Peg>, val outcome: Outcome) {
 
     enum class Peg {
-        BLACK, WHITE
+        BLACK, WHITE;
+
+        fun formattedName(): String = name.lowercase().replaceFirstChar(Char::uppercase)
     }
 
     enum class Outcome {
@@ -92,13 +102,13 @@ private fun Game?.isGuessTooShort(guess: Code): Boolean =
 private fun Game?.isGuessTooLong(guess: Code): Boolean =
     guess.pegs.size > (this?.secret?.length ?: 0)
 
-private fun Game?.exactHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
+private fun Game?.exactHits(guess: Code): List<Code.Peg> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
     .filter { it.first == it.second }
     .unzip()
     .second
 
-private fun Game?.colourHits(guess: Code): List<String> = (this?.secret?.pegs ?: emptyList())
+private fun Game?.colourHits(guess: Code): List<Code.Peg> = (this?.secret?.pegs ?: emptyList())
     .zip(guess.pegs)
     .filter { (secretColour, guessColour) -> secretColour != guessColour }
     .unzip()

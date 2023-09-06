@@ -50,4 +50,4 @@ class MakeGuessHttpHandlerExamples {
     }
 }
 
-private fun Request.body(pegs: List<String>): Request = Body.auto<List<String>>().toLens().invoke(pegs, this)
+private fun Request.body(pegs: List<Code.Peg>): Request = Body.auto<List<String>>().toLens().invoke(pegs.map(Code.Peg::formattedName), this)

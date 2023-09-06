@@ -1,5 +1,6 @@
 package mastermind.game.http
 
+import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
@@ -31,8 +32,10 @@ private fun GameError.response() =
         is GameAlreadyWon -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already won."))
         is GameAlreadyLost -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already lost."))
         is GameNotStarted -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` not found."))
-        is GuessTooLong -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.joinToString(", ")}` is too long (required length is ${requiredSize})."))
-        is GuessTooShort -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.joinToString(", ")}` is too short (required length is ${requiredSize})."))
+        is GuessTooLong -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too long (required length is ${requiredSize})."))
+        is GuessTooShort -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too short (required length is ${requiredSize})."))
     }
+
+private fun List<Code.Peg>.formattedForResponse(): String = joinToString(", ", transform = Code.Peg::formattedName)
 
 fun Response.with(error: Error): Response = with(Body.auto<Error>().toLens() of error)

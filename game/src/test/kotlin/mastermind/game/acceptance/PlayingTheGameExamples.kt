@@ -29,7 +29,7 @@ class PlayingTheGameExamples {
                 // When I try to break the code with "Red Purple Purple Purple"
                 makeGuess(gameId, guess)
                 // Then the code maker should give me "Black" feedback on my guess
-                viewDecodingBoard(gameId) shouldReturnGuess Guess(guess.pegs, feedback)
+                viewDecodingBoard(gameId) shouldReturnGuess Guess(guess.pegNames(), feedback)
             }
         }
 
@@ -128,3 +128,5 @@ private infix fun DecodingBoard?.shouldReturnGuess(guess: Guess) {
         "`$guess` is the last found guess: `${this?.guesses?.joinToString(",") ?: ""}`."
     )
 }
+
+private fun Code.pegNames(): List<String> = pegs.map(Code.Peg::formattedName)
