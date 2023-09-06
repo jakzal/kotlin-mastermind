@@ -13,6 +13,7 @@ import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
 import org.http4k.lens.Path
+import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.server.Undertow
@@ -25,18 +26,21 @@ fun main() {
 }
 
 fun mastermindHttpApp(
-    app: MastermindApp
-) = routes(
-    "/games" bind Method.POST to app.handler {
-        joinGame() thenRespond GameId::asResponse or JournalFailure<GameError>::response
-    },
-    "/games/{id}" bind Method.GET to app.handler { request ->
-        viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
-    },
-    "games/{id}/guesses" bind Method.POST to app.handler { request ->
-        makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse or JournalFailure<GameError>::response
-    }
-)
+    app: MastermindApp,
+    handleFailure: (JournalFailure<GameError>) -> Response = JournalFailure<GameError>::response
+): RoutingHttpHandler {
+    return routes(
+        "/games" bind Method.POST to app.handler {
+            joinGame() thenRespond GameId::asResponse or handleFailure
+        },
+        "/games/{id}" bind Method.GET to app.handler { request ->
+            viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
+        },
+        "games/{id}/guesses" bind Method.POST to app.handler { request ->
+            makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse or handleFailure
+        }
+    )
+}
 
 private fun MastermindApp.handler(handle: suspend MastermindApp.(Request) -> Response) = { request: Request ->
     run {
