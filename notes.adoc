@@ -2,10 +2,6 @@
 
 == Test list
 
-=== MastermindHttpApp
-
-* error handling
-
 === JournalCommandHandler
 
 * make state generic (currently it's always NonEmptyList<EVENT>)

@@ -7,8 +7,6 @@ import mastermind.game.*
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.JournalFailure
-import mastermind.journal.JournalFailure.EventStoreFailure
-import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header

@@ -18,8 +18,8 @@ data class Error(val message: String)
 
 fun JournalFailure<GameError>.response(): Response = when (this) {
     is EventStoreFailure<GameError> -> when (this) {
-        is StreamNotFound<GameError> -> Response(Status.NOT_FOUND)
-        is VersionConflict -> TODO()
+        is StreamNotFound<GameError> -> Response(Status.NOT_FOUND).with(Error("Game not found."))
+        is VersionConflict -> Response(Status.INTERNAL_SERVER_ERROR).with(Error("Internal server error."))
     }
 
     is ExecutionFailure<GameError> -> this.cause.response()
