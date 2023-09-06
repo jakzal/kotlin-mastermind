@@ -3,6 +3,7 @@ package mastermind.game.http
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
+import mastermind.game.GameError.GameNotStarted
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldReturn
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
@@ -37,5 +38,12 @@ class HandleFailureExamples {
         val gameId = anyGameId()
         ExecutionFailure<GameError>(GameAlreadyLost(gameId))
             .response() shouldReturn Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already lost."))
+    }
+
+    @Test
+    fun `it returns a 400 response for GameNotStarted`() {
+        val gameId = anyGameId()
+        ExecutionFailure<GameError>(GameNotStarted(gameId))
+            .response() shouldReturn Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` not found."))
     }
 }

@@ -3,6 +3,7 @@ package mastermind.game.http
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
+import mastermind.game.GameError.GameNotStarted
 import mastermind.journal.JournalFailure
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
@@ -29,7 +30,7 @@ private fun GameError.response() =
     when (this) {
         is GameAlreadyWon -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already won."))
         is GameAlreadyLost -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already lost."))
-        is GameError.GameNotStarted -> TODO()
+        is GameNotStarted -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` not found."))
     }
 
 fun Response.with(error: Error): Response = with(Body.auto<Error>().toLens() of error)
