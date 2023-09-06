@@ -23,9 +23,13 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
     )
 
     is GuessMade -> decodingBoard?.copy(
-        guesses = decodingBoard.guesses + Guess(event.guess.code.pegs, event.guess.feedback.pegs)
+        guesses = decodingBoard.guesses + Guess(event.guess.code.pegs, event.guess.feedbackPegs())
     )
 
     is GameWon -> decodingBoard?.copy(outcome = "Won")
     is GameLost -> decodingBoard?.copy(outcome = "Lost")
+}
+
+private fun mastermind.game.Guess.feedbackPegs(): List<String> = feedback.pegs.map {
+    it.name.lowercase().replaceFirstChar(Char::uppercase)
 }

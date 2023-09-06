@@ -2,6 +2,8 @@ package mastermind.game
 
 import arrow.core.getOrElse
 import arrow.core.nonEmptyListOf
+import mastermind.game.Feedback.Peg.BLACK
+import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
@@ -62,31 +64,31 @@ class GameExamples {
                 "it gives a black peg for each code peg on the correct position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Red", "Purple", "Blue", "Purple"),
-                Feedback(listOf("Black", "Black"), Feedback.Outcome.IN_PROGRESS)
+                Feedback(listOf(BLACK, BLACK), Feedback.Outcome.IN_PROGRESS)
             ),
             Arguments.of(
                 "it gives no black peg for code peg duplicated on a wrong position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Red", "Red", "Purple", "Purple"),
-                Feedback(listOf("Black"), Feedback.Outcome.IN_PROGRESS)
+                Feedback(listOf(BLACK), Feedback.Outcome.IN_PROGRESS)
             ),
             Arguments.of(
                 "it gives a white peg for code peg that is part of the code but is placed on a wrong position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Purple", "Red", "Purple", "Purple"),
-                Feedback(listOf("White"), Feedback.Outcome.IN_PROGRESS)
+                Feedback(listOf(WHITE), Feedback.Outcome.IN_PROGRESS)
             ),
             Arguments.of(
                 "it gives no white peg for code peg duplicated on a wrong position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Purple", "Red", "Red", "Purple"),
-                Feedback(listOf("White"), Feedback.Outcome.IN_PROGRESS)
+                Feedback(listOf(WHITE), Feedback.Outcome.IN_PROGRESS)
             ),
             Arguments.of(
                 "it gives a white peg for each code peg on a wrong position",
                 Code("Red", "Green", "Blue", "Red"),
                 Code("Purple", "Red", "Red", "Purple"),
-                Feedback(listOf("White", "White"), Feedback.Outcome.IN_PROGRESS)
+                Feedback(listOf(WHITE, WHITE), Feedback.Outcome.IN_PROGRESS)
             )
         )
     }
@@ -99,7 +101,7 @@ class GameExamples {
             GuessMade(
                 gameId, Guess(
                     secret, Feedback(
-                        listOf("Black", "Black", "Black", "Black"), Feedback.Outcome.WON
+                        listOf(BLACK, BLACK, BLACK, BLACK), Feedback.Outcome.WON
                     )
                 )
             ),

@@ -3,6 +3,8 @@ package mastermind.game.view
 import arrow.core.*
 import kotlinx.coroutines.test.runTest
 import mastermind.game.*
+import mastermind.game.Feedback.Peg.BLACK
+import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameEvent.*
 import mastermind.game.Guess
 import mastermind.game.testkit.*
@@ -52,7 +54,7 @@ class DecodingBoardQueryExamples {
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Yellow"),
-                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 )
             )
@@ -83,7 +85,7 @@ class DecodingBoardQueryExamples {
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Blue"),
-                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 ),
                 GuessMade(
@@ -123,7 +125,7 @@ class DecodingBoardQueryExamples {
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Blue"),
-                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 ),
                 GuessMade(
@@ -164,14 +166,14 @@ class DecodingBoardQueryExamples {
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Yellow"),
-                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 ),
                 GuessMade(
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Yellow"),
-                        Feedback(listOf("Black", "White"), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
                     )
                 )
             )

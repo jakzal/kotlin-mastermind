@@ -3,6 +3,8 @@ package mastermind.game
 import arrow.core.*
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import mastermind.game.Feedback.Peg.BLACK
+import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
@@ -40,7 +42,12 @@ data class Code(val pegs: List<String>) {
 
 data class Guess(val code: Code, val feedback: Feedback)
 
-data class Feedback(val pegs: List<String>, val outcome: Outcome) {
+data class Feedback(val pegs: List<Peg>, val outcome: Outcome) {
+
+    enum class Peg {
+        BLACK, WHITE
+    }
+
     enum class Outcome {
         IN_PROGRESS, WON, LOST
     }
@@ -141,7 +148,7 @@ private fun Either<GameError, GuessMade>.withOutcome(): Either<GameError, NonEmp
 }
 
 private fun Game?.feedbackOn(command: MakeGuess): Feedback =
-    (exactHits(command.guess).map { "Black" } to colourHits(command.guess).map { "White" })
+    (exactHits(command.guess).map { BLACK } to colourHits(command.guess).map { WHITE })
         .let { (exactHits, colourHits) ->
             Feedback(
                 exactHits + colourHits,
