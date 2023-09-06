@@ -23,4 +23,11 @@ class CodeMakerExamples {
     fun `it makes a code of length 4 by default`() {
         makeCode().length shouldBe 4
     }
+
+    @Test
+    fun `it makes a code out of the given pegs`() {
+        val code = makeCode(pegs = listOfPegs("Red"), length = 5)
+
+        code shouldBe Code("Red", "Red", "Red", "Red", "Red")
+    }
 }
