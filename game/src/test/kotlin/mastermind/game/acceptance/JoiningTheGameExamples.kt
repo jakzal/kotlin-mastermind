@@ -5,7 +5,6 @@ import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
 import mastermind.game.listOfPegs
-import mastermind.game.testkit.anySecret
 import mastermind.game.testkit.shouldBe
 import mastermind.game.view.DecodingBoard
 import org.junit.jupiter.api.Tag
@@ -23,7 +22,7 @@ class JoiningTheGameExamples {
         // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"
         availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
         // And the code maker has placed a secret on the board
-        secret = anySecret()
+        secret = Code("Red", "Red", "Red", "Red")
     ) {
         // When I join the game
         joinGame { gameId ->

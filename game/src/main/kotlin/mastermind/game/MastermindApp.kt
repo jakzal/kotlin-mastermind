@@ -10,8 +10,9 @@ import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
 
 data class Configuration(
+    val availablePegs: List<Code.Peg> = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     val gameIdGenerator: GameIdGenerator = GameIdGenerator(::generateGameId),
-    val codeMaker: CodeMaker = CodeMaker(::makeCode),
+    val codeMaker: CodeMaker = CodeMaker(availablePegs::makeCode),
     val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
     val gameCommandHandler: GameCommandHandler = with(journal) {
         JournalCommandHandler(
@@ -19,8 +20,7 @@ data class Configuration(
             { command -> "Mastermind:${command.gameId.value}" },
             { events -> events.head.gameId }
         )
-    },
-    val availablePegs: List<Code.Peg> = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
+    }
 ) : GameIdGenerator by gameIdGenerator,
     CodeMaker by codeMaker,
     GameCommandHandler by gameCommandHandler,

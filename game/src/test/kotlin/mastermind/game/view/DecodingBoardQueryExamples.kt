@@ -29,9 +29,9 @@ class DecodingBoardQueryExamples {
     @Test
     fun `it returns the decoding board if the game is found`() = runTest {
         val gameId = anyGameId()
-        val secret = anySecret()
-        val totalAttempts = 12
         val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple", "Pink")
+        val secret = availablePegs.makeCode()
+        val totalAttempts = 12
 
         with(journalOf(gameId, GameStarted(gameId, secret, totalAttempts, availablePegs))) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
@@ -48,9 +48,9 @@ class DecodingBoardQueryExamples {
     @Test
     fun `it builds the board from the history of events`() = runTest {
         val gameId = anyGameId()
-        val secret = anySecret()
-        val totalAttempts = 12
         val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
+        val secret = availablePegs.makeCode()
+        val totalAttempts = 12
 
         with(
             journalOf(
@@ -166,9 +166,9 @@ class DecodingBoardQueryExamples {
     @Test
     fun `it builds the board for a won game`() = runTest {
         val gameId = anyGameId()
-        val secret = anySecret()
-        val totalAttempts = 12
         val availablePegs = listOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
+        val secret = availablePegs.makeCode()
+        val totalAttempts = 12
 
         with(
             journalOf(

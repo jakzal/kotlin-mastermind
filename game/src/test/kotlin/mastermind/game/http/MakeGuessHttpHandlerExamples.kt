@@ -48,10 +48,6 @@ class MakeGuessHttpHandlerExamples {
 
         response.status shouldBe Status.NOT_FOUND
     }
-
-    @Test
-    fun `it rejects unrecognised code colours`() {
-    }
 }
 
 private fun Request.body(pegs: List<Code.Peg>): Request = Body.auto<List<String>>().toLens().invoke(pegs.map(Code.Peg::name), this)
