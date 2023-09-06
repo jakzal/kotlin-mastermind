@@ -9,7 +9,7 @@ import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.GameId
 import mastermind.game.acceptance.dsl.PlayGameAbility
-import mastermind.game.http.ErrorResponse
+import mastermind.game.http.Error
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.JournalFailure
 import mastermind.journal.JournalFailure.ExecutionFailure
@@ -60,4 +60,4 @@ private fun Response.executionFailure(gameId: GameId): Either<JournalFailure<Gam
 }
 
 private fun Request.body(pegs: List<String>): Request = Body.auto<List<String>>().toLens().invoke(pegs, this)
-private fun Response.body(): ErrorResponse = Body.auto<ErrorResponse>().toLens().extract(this)
+private fun Response.body(): Error = Body.auto<Error>().toLens().extract(this)

@@ -80,23 +80,3 @@ private infix fun <ERROR, RESULT> Either<ERROR, RESULT>.thenRespond(responder: (
 
 private infix fun <ERROR> Either<ERROR, Response>.or(errorHandler: (ERROR) -> Response): Response =
     getOrElse(errorHandler)
-
-private fun JournalFailure<GameError>.response(): Response = when (this) {
-    is EventStoreFailure<GameError> -> when (this) {
-        is StreamNotFound<GameError> -> Response(Status.NOT_FOUND)
-        is EventStoreFailure.VersionConflict -> TODO()
-    }
-
-    is JournalFailure.ExecutionFailure<GameError> -> this.cause.response()
-}
-
-private fun GameError.response() =
-    when (this) {
-        is GameError.GameFinishedError.GameAlreadyWon -> Response(Status.BAD_REQUEST)
-            .with(Body.auto<ErrorResponse>().toLens() of ErrorResponse("Game `${this.gameId.value}` is already won."))
-
-        is GameError.GameFinishedError.GameAlreadyLost -> Response(Status.BAD_REQUEST)
-            .with(Body.auto<ErrorResponse>().toLens() of ErrorResponse("Game `${this.gameId.value}` is already lost."))
-    }
-
-data class ErrorResponse(val message: String)

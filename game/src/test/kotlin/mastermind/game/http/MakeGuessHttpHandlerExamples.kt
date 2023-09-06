@@ -63,7 +63,7 @@ class MakeGuessHttpHandlerExamples {
         val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
 
         response.status shouldBe Status.BAD_REQUEST
-        response.body() shouldReturn ErrorResponse("Game `${gameId.value}` is already won.")
+        response.body() shouldReturn Error("Game `${gameId.value}` is already won.")
     }
 
     @Test
@@ -79,9 +79,9 @@ class MakeGuessHttpHandlerExamples {
         val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
 
         response.status shouldBe Status.BAD_REQUEST
-        response.body() shouldReturn ErrorResponse("Game `${gameId.value}` is already lost.")
+        response.body() shouldReturn Error("Game `${gameId.value}` is already lost.")
     }
 }
 
 private fun Request.body(pegs: List<String>): Request = Body.auto<List<String>>().toLens().invoke(pegs, this)
-private fun Response.body(): ErrorResponse = Body.auto<ErrorResponse>().toLens().extract(this)
+private fun Response.body(): Error = Body.auto<Error>().toLens().extract(this)
