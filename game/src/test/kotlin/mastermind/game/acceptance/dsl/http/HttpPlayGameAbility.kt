@@ -34,8 +34,11 @@ class HttpPlayGameAbility(
 
     override suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? {
         val response = client(Request(Method.GET, "http://localhost:$serverPort/games/${gameId.value}"))
-        Assertions.assertEquals(Status.OK, response.status)
-        return Body.auto<DecodingBoard>().toLens()(response)
+        return if (response.status.successful) {
+            Body.auto<DecodingBoard>().toLens()(response)
+        } else {
+            null
+        }
     }
 
     override suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameError>, GameId> {
