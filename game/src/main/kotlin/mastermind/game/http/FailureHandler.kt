@@ -32,8 +32,8 @@ private fun GameError.response() =
         is GameAlreadyWon -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already won."))
         is GameAlreadyLost -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` is already lost."))
         is GameNotStarted -> Response(Status.BAD_REQUEST).with(Error("Game `${gameId.value}` not found."))
-        is GuessTooLong -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too long (required length is ${requiredSize})."))
-        is GuessTooShort -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too short (required length is ${requiredSize})."))
+        is GuessTooLong -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too long (required length is ${requiredLength})."))
+        is GuessTooShort -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` is too short (required length is ${requiredLength})."))
         is InvalidPegInGuess -> Response(Status.BAD_REQUEST).with(Error("Guess `${guess.pegs.formattedForResponse()}` contains unrecognised pegs (available pegs are `${availablePegs.formattedForResponse()}`)."))
     }
 

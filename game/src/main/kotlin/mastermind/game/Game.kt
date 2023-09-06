@@ -77,8 +77,8 @@ sealed interface GameError {
 
     sealed interface GuessError : GameError {
         data class GameNotStarted(val gameId: GameId) : GuessError
-        data class GuessTooShort(val gameId: GameId, val guess: Code, val requiredSize: Int) : GuessError
-        data class GuessTooLong(val gameId: GameId, val guess: Code, val requiredSize: Int) : GuessError
+        data class GuessTooShort(val gameId: GameId, val guess: Code, val requiredLength: Int) : GuessError
+        data class GuessTooLong(val gameId: GameId, val guess: Code, val requiredLength: Int) : GuessError
         data class InvalidPegInGuess(val gameId: GameId, val guess: Code, val availablePegs: Set<Code.Peg>) : GuessError
     }
 }
