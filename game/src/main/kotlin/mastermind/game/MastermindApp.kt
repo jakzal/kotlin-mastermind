@@ -1,6 +1,7 @@
 package mastermind.game
 
 import arrow.core.Either
+import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.journal.JournalCommandHandler
 import mastermind.game.view.DecodingBoard
@@ -28,7 +29,7 @@ data class MastermindApp(
     private val configuration: Configuration = Configuration(),
     val joinGame: suspend () -> Either<JournalFailure<GameError>, GameId> = {
         with(configuration) {
-            mastermind.game.joinGame()
+            gameCommandHandler(JoinGame(generateGameId(), makeCode(), 12))
         }
     },
     val makeGuess: suspend (MakeGuess) -> Either<JournalFailure<GameError>, GameId> = { command ->
@@ -42,3 +43,13 @@ data class MastermindApp(
         }
     }
 )
+
+typealias GameCommandHandler = CommandHandler<GameCommand, JournalFailure<GameError>, GameId>
+
+fun interface CodeMaker {
+    fun makeCode(): Code
+}
+
+fun interface GameIdGenerator {
+    fun generateGameId(): GameId
+}
