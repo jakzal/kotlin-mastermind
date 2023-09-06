@@ -6,8 +6,7 @@ import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
-import mastermind.game.GameError.GuessError.GameNotStarted
-import mastermind.game.GameError.GuessError.GuessTooShort
+import mastermind.game.GameError.GuessError.*
 import mastermind.game.GameEvent.*
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldFailWith
@@ -154,10 +153,18 @@ class GameExamples {
     }
 
     @Test
-    fun `the guess size cannot be longer than the secret`() {
+    fun `the guess size cannot be shorter than the secret`() {
         val code = Code("Purple", "Purple", "Purple")
-        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 1))
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 12))
 
         execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooShort(gameId, code, secret.length)
+    }
+
+    @Test
+    fun `the guess size cannot be longer than the secret`() {
+        val code = Code("Purple", "Purple", "Purple", "Purple", "Purple")
+        val game = nonEmptyListOf<GameEvent>(GameStarted(gameId, secret, 12))
+
+        execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooLong(gameId, code, secret.length)
     }
 }
