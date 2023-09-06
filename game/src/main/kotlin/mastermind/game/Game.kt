@@ -7,7 +7,7 @@ import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
-import mastermind.game.GameError.GameNotStarted
+import mastermind.game.GameError.GuessError.GameNotStarted
 import mastermind.game.GameEvent.*
 import kotlin.collections.unzip
 import kotlin.math.min
@@ -52,7 +52,9 @@ sealed interface GameError {
         data class GameAlreadyLost(val gameId: GameId) : GameFinishedError
     }
 
-    data class GameNotStarted(val gameId: GameId) : GameError
+    sealed interface GuessError : GameError {
+        data class GameNotStarted(val gameId: GameId) : GuessError
+    }
 }
 
 typealias Game = NonEmptyList<GameEvent>

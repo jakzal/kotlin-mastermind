@@ -6,7 +6,7 @@ import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
-import mastermind.game.GameError.GameNotStarted
+import mastermind.game.GameError.GuessError.GameNotStarted
 import mastermind.game.GameEvent.*
 import mastermind.game.testkit.anyGameId
 import mastermind.game.testkit.shouldFailWith

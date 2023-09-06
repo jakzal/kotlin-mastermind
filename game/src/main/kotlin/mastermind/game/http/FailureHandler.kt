@@ -3,7 +3,7 @@ package mastermind.game.http
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
-import mastermind.game.GameError.GameNotStarted
+import mastermind.game.GameError.GuessError.GameNotStarted
 import mastermind.journal.JournalFailure
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
