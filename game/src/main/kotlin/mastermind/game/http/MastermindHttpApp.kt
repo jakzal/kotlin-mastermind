@@ -25,23 +25,25 @@ fun main() {
 
 fun mastermindHttpApp(
     app: MastermindApp
-) = routes(
-    "/games" bind Method.POST to { _: Request ->
-        runBlocking {
-            app.joinGame() thenRespond GameId::asResponse
+) = with(app) {
+    routes(
+        "/games" bind Method.POST to { _: Request ->
+            runBlocking {
+                joinGame() thenRespond GameId::asResponse
+            }
+        },
+        "/games/{id}" bind Method.GET to { request ->
+            runBlocking {
+                viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
+            }
+        },
+        "games/{id}/guesses" bind Method.POST to { request ->
+            runBlocking {
+                makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse
+            }
         }
-    },
-    "/games/{id}" bind Method.GET to { request ->
-        runBlocking {
-            app.viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
-        }
-    },
-    "games/{id}/guesses" bind Method.POST to { request ->
-        runBlocking {
-            app.makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse
-        }
-    }
-)
+    )
+}
 
 private val Request.makeGuessCommand: MakeGuess
     get() = MakeGuess(id.asGameId(), guess)
