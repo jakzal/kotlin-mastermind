@@ -2,7 +2,7 @@ package mastermind.game.view
 
 data class DecodingBoard(
     val id: String,
-    val size: Int,
+    val secretLength: Int,
     val totalAttempts: Int,
     val guesses: List<Guess>,
     val outcome: String
