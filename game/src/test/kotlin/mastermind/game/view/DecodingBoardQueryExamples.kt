@@ -1,9 +1,16 @@
 package mastermind.game.view
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.nonEmptyListOf
+import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.*
-import mastermind.game.Code.Peg.*
+import mastermind.game.Code.Peg.Companion.BLUE
+import mastermind.game.Code.Peg.Companion.GREEN
+import mastermind.game.Code.Peg.Companion.PURPLE
+import mastermind.game.Code.Peg.Companion.RED
+import mastermind.game.Code.Peg.Companion.YELLOW
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameEvent.*

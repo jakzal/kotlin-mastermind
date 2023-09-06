@@ -2,7 +2,11 @@ package mastermind.game
 
 import arrow.core.getOrElse
 import arrow.core.nonEmptyListOf
-import mastermind.game.Code.Peg.*
+import mastermind.game.Code.Peg.Companion.BLUE
+import mastermind.game.Code.Peg.Companion.GREEN
+import mastermind.game.Code.Peg.Companion.PURPLE
+import mastermind.game.Code.Peg.Companion.RED
+import mastermind.game.Code.Peg.Companion.YELLOW
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameCommand.JoinGame

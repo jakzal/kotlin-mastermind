@@ -3,7 +3,9 @@ package mastermind.game.http
 import arrow.core.left
 import arrow.core.right
 import mastermind.game.Code
-import mastermind.game.Code.Peg.*
+import mastermind.game.Code.Peg.Companion.GREEN
+import mastermind.game.Code.Peg.Companion.RED
+import mastermind.game.Code.Peg.Companion.YELLOW
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError
 import mastermind.game.MastermindApp
@@ -48,6 +50,10 @@ class MakeGuessHttpHandlerExamples {
         val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
 
         response.status shouldBe Status.NOT_FOUND
+    }
+
+    @Test
+    fun `it rejects unrecognised code colours`() {
     }
 }
 

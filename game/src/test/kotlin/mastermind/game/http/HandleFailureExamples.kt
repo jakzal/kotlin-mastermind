@@ -1,8 +1,8 @@
 package mastermind.game.http
 
 import mastermind.game.Code
-import mastermind.game.Code.Peg.GREEN
-import mastermind.game.Code.Peg.RED
+import mastermind.game.Code.Peg.Companion.GREEN
+import mastermind.game.Code.Peg.Companion.RED
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon

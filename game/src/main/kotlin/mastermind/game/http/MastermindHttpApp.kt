@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import kotlinx.coroutines.runBlocking
 import mastermind.game.*
+import mastermind.game.Code.Peg
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.JournalFailure
@@ -57,7 +58,7 @@ private val Request.id: String
 private val Request.guess: Code
     get() = Code(Body.auto<List<String>>().toLens().invoke(this).toCodePegs())
 
-private fun List<String>.toCodePegs() = map(String::uppercase).map(Code.Peg::valueOf)
+private fun List<String>.toCodePegs(): List<Peg> = map(String::uppercase).map { Peg(it) }
 
 private fun String.asGameId(): GameId = GameId(this)
 

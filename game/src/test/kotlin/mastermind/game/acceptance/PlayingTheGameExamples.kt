@@ -1,7 +1,11 @@
 package mastermind.game.acceptance
 
 import mastermind.game.Code
-import mastermind.game.Code.Peg.*
+import mastermind.game.Code.Peg.Companion.BLUE
+import mastermind.game.Code.Peg.Companion.GREEN
+import mastermind.game.Code.Peg.Companion.PURPLE
+import mastermind.game.Code.Peg.Companion.RED
+import mastermind.game.Code.Peg.Companion.YELLOW
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
