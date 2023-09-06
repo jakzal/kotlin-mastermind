@@ -26,7 +26,7 @@ fun main() {
 
 fun mastermindHttpApp(
     app: MastermindApp
-) = with(app) {
+) = app.run {
     routes(
         "/games" bind Method.POST to { _: Request ->
             runBlocking {
