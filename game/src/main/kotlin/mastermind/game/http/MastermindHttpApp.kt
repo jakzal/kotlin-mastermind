@@ -1,6 +1,7 @@
 package mastermind.game.http
 
 import arrow.core.Either
+import arrow.core.getOrElse
 import kotlinx.coroutines.runBlocking
 import mastermind.game.*
 import mastermind.game.GameCommand.MakeGuess
@@ -29,7 +30,7 @@ fun mastermindHttpApp(
     routes(
         "/games" bind Method.POST to { _: Request ->
             runBlocking {
-                joinGame() thenRespond GameId::asResponse
+                joinGame() thenRespond GameId::asResponse or JournalFailure<GameError>::response
             }
         },
         "/games/{id}" bind Method.GET to { request ->
@@ -39,7 +40,7 @@ fun mastermindHttpApp(
         },
         "games/{id}/guesses" bind Method.POST to { request ->
             runBlocking {
-                makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse
+                makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse or JournalFailure<GameError>::response
             }
         }
     )
@@ -70,8 +71,11 @@ private fun GameId.asResponse() = Response(Status.CREATED).with(this.asLocationH
 private infix fun <T> T.thenRespond(responder: (T) -> Response): Response =
     this.let(responder)
 
-private infix fun <RESULT> Either<JournalFailure<GameError>, RESULT>.thenRespond(responder: (RESULT) -> Response): Response =
-    fold(JournalFailure<GameError>::response, responder)
+private infix fun <ERROR, RESULT> Either<ERROR, RESULT>.thenRespond(responder: (RESULT) -> Response): Either<ERROR, Response> =
+    map(responder)
+
+private infix fun <ERROR> Either<ERROR, Response>.or(errorHandler: (ERROR) -> Response): Response =
+    getOrElse(errorHandler)
 
 private fun JournalFailure<GameError>.response(): Response = when (this) {
     is EventStoreFailure<GameError> -> when (this) {
