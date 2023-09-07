@@ -11,7 +11,6 @@ import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.GameError.GuessError.*
 import mastermind.game.GameEvent.*
 import kotlin.collections.unzip
-import kotlin.math.min
 
 sealed interface GameCommand {
     val gameId: GameId
@@ -131,13 +130,18 @@ private fun Game.colourHits(guess: Code): List<Code.Peg> = this.secretPegs
     .filter { (secretColour, guessColour) -> secretColour != guessColour }
     .unzip()
     .let { (secret, guess) ->
-        val secretGrouped = secret.groupBy { colour -> colour }.mapValues { colours -> colours.value.size }
-        val guessGrouped = guess.groupBy { colour -> colour }.mapValues { colours -> colours.value.size }
-        secretGrouped
-            .zip(guessGrouped)
-            .map { (colour, occurrences) -> (1..min(occurrences.first, occurrences.second)).map { colour } }
-            .flatten()
+        guess.fold(secret to emptyList<Code.Peg>()) { (secretPegs, colourHits), guessPeg ->
+            secretPegs.remove(guessPeg)?.let { it to colourHits + guessPeg } ?: (secretPegs to colourHits)
+        }.second
     }
+
+/**
+ * Removes an element from the list and returns the new list, or null if the element wasn't found.
+ */
+private fun <T> List<T>.remove(item: T): List<T>? = indexOf(item).let { index ->
+    if (index != -1) filterIndexed { i, _ -> i != index }
+    else null
+}
 
 fun execute(command: GameCommand, game: Game? = null): Either<GameError, NonEmptyList<GameEvent>> = when (command) {
     is JoinGame -> joinGame(command)
