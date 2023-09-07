@@ -35,7 +35,7 @@ class JournalCommandHandlerExamples {
     }
 
     @Test
-    fun `it makes state available to the command executor`() = runTest {
+    fun `it makes result available to the command executor`() = runTest {
         val expectedEvent = TestEvent("ABC")
         val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
         val execute: Execute<TestCommand, TestEvent, NonEmptyList<TestEvent>, TestFailure> =
