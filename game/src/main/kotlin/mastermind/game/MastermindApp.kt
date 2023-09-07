@@ -1,9 +1,10 @@
 package mastermind.game
 
 import arrow.core.Either
+import mastermind.eventsourcing.CommandHandler
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
-import mastermind.game.journal.JournalCommandHandler
+import mastermind.eventsourcing.journal.JournalCommandHandler
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.InMemoryJournal
 import mastermind.journal.Journal

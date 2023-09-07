@@ -1,9 +1,9 @@
-package mastermind.game.journal
+package mastermind.eventsourcing.journal
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
-import mastermind.game.CommandHandler
+import mastermind.eventsourcing.CommandHandler
 import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
 import mastermind.journal.append

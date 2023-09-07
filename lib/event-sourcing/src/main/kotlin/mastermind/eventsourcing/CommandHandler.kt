@@ -1,4 +1,4 @@
-package mastermind.game
+package mastermind.eventsourcing
 
 import arrow.core.Either
 
