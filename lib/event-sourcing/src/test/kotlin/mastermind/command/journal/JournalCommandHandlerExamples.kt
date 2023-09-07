@@ -13,10 +13,10 @@ import mastermind.journal.InMemoryJournal
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.append
-import mastermind.testkit.shouldBe
-import mastermind.testkit.shouldFailWith
-import mastermind.testkit.shouldReturn
-import mastermind.testkit.shouldSucceedWith
+import mastermind.testkit.assertions.shouldBe
+import mastermind.testkit.assertions.shouldFailWith
+import mastermind.testkit.assertions.shouldReturn
+import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 class JournalCommandHandlerExamples {

@@ -8,8 +8,8 @@ import mastermind.game.GameError
 import mastermind.game.MastermindApp
 import mastermind.game.testkit.anyGameId
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
-import mastermind.testkit.shouldBe
-import mastermind.testkit.shouldReturn
+import mastermind.testkit.assertions.shouldBe
+import mastermind.testkit.assertions.shouldReturn
 import org.http4k.core.Body
 import org.http4k.core.Method
 import org.http4k.core.Request

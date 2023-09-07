@@ -3,8 +3,8 @@ package mastermind.game.http
 import arrow.core.right
 import mastermind.game.MastermindApp
 import mastermind.game.testkit.anyGameId
-import mastermind.testkit.shouldBe
-import mastermind.testkit.shouldReturn
+import mastermind.testkit.assertions.shouldBe
+import mastermind.testkit.assertions.shouldReturn
 import org.http4k.core.Method.POST
 import org.http4k.core.Request
 import org.http4k.core.Status.Companion.CREATED

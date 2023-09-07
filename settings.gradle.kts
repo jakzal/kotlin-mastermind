@@ -5,6 +5,6 @@ pluginManagement {
 }
 
 include("game")
-include("lib:testkit")
+include("lib:testkit:assertions")
 include("lib:journal")
 include("lib:event-sourcing")

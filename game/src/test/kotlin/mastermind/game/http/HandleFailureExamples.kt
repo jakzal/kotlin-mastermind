@@ -10,7 +10,7 @@ import mastermind.game.testkit.anyGameId
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.JournalFailure.ExecutionFailure
-import mastermind.testkit.shouldReturn
+import mastermind.testkit.assertions.shouldReturn
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.junit.jupiter.api.Test

@@ -16,8 +16,8 @@ import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.StreamName
-import mastermind.testkit.shouldBe
-import mastermind.testkit.shouldReturn
+import mastermind.testkit.assertions.shouldBe
+import mastermind.testkit.assertions.shouldReturn
 import org.junit.jupiter.api.Test
 
 class DecodingBoardQueryExamples {

@@ -6,7 +6,7 @@ import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
-import mastermind.testkit.shouldReturn
+import mastermind.testkit.assertions.shouldReturn
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

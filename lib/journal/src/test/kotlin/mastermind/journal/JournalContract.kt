@@ -13,7 +13,7 @@ import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
-import mastermind.testkit.*
+import mastermind.testkit.assertions.*
 import org.junit.jupiter.api.Test
 
 

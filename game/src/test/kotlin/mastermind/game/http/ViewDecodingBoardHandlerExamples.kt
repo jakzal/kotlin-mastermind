@@ -3,8 +3,8 @@ package mastermind.game.http
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
 import mastermind.game.view.DecodingBoard
-import mastermind.testkit.shouldBe
-import mastermind.testkit.shouldReturn
+import mastermind.testkit.assertions.shouldBe
+import mastermind.testkit.assertions.shouldReturn
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.junit.jupiter.api.Test

@@ -1,4 +1,4 @@
-package mastermind.testkit
+package mastermind.testkit.assertions
 
 import arrow.core.left
 import arrow.core.right

@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    testImplementation(project(":lib:testkit"))
+    testImplementation(project(":lib:testkit:assertions"))
 }
