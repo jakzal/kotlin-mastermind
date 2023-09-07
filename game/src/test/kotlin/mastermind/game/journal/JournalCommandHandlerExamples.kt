@@ -27,7 +27,7 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it appends events created in reaction to the command to the journal`() = runTest {
-        val execute: Execute<TestCommand, TestEvent, NonEmptyList<TestEvent>, TestFailure> =
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? ->
                 either {
                     nonEmptyListOf(expectedEvent)
@@ -43,7 +43,7 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it makes result available to the command executor`() = runTest {
-        val execute: Execute<TestCommand, TestEvent, NonEmptyList<TestEvent>, TestFailure> =
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
             { _: TestCommand, state: NonEmptyList<TestEvent>? ->
                 either {
                     nonEmptyListOf(expectedEvent).also {
@@ -68,7 +68,7 @@ class JournalCommandHandlerExamples {
         val applyEvent: Apply<TestState, TestEvent> = { state, event ->
             state?.let { TestState(it.history + event.id) } ?: TestState(listOf(event.id))
         }
-        val execute: Execute<TestCommand, TestEvent, TestState, TestFailure> =
+        val execute: Execute<TestCommand, TestState, TestFailure, TestEvent> =
             { _: TestCommand, state: TestState? ->
                 either {
                     nonEmptyListOf(expectedEvent).also {
@@ -90,7 +90,7 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it returns journal failure in case execute fails`() = runTest {
-        val execute: Execute<TestCommand, TestEvent, NonEmptyList<TestEvent>, TestFailure> =
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? -> TestFailure("Execution failed.").left() }
         val handler = with(journal) {
             JournalCommandHandler(apply, execute, streamNameResolver) { events -> events.head.id }

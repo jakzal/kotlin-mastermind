@@ -7,15 +7,13 @@ import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
 import mastermind.journal.append
 
-// @TODO sort out order of type parameters
-
-typealias Execute<COMMAND, EVENT, STATE, FAILURE> = (COMMAND, STATE?) -> Either<FAILURE, NonEmptyList<EVENT>>
+typealias Execute<COMMAND, STATE, FAILURE, EVENT> = (COMMAND, STATE?) -> Either<FAILURE, NonEmptyList<EVENT>>
 typealias Apply<STATE, EVENT> = (STATE?, EVENT) -> STATE
 
 context(Journal<EVENT, FAILURE>)
-class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, RESULT, STATE : Any>(
+class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : Any, RESULT>(
     private val applyEvent: Apply<STATE, EVENT>,
-    private val execute: Execute<COMMAND, EVENT, STATE, FAILURE>,
+    private val execute: Execute<COMMAND, STATE, FAILURE, EVENT>,
     private val streamNameResolver: (COMMAND) -> String,
     private val calculateResult: (NonEmptyList<EVENT>) -> RESULT
 ) : CommandHandler<COMMAND, JournalFailure<FAILURE>, RESULT> {
