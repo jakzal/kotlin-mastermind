@@ -3,8 +3,8 @@ package mastermind.command.journal
 import arrow.core.*
 import arrow.core.raise.either
 import kotlinx.coroutines.test.runTest
-import mastermind.eventsourcing.journal.Apply
-import mastermind.eventsourcing.journal.Execute
+import mastermind.eventsourcing.Apply
+import mastermind.eventsourcing.Execute
 import mastermind.eventsourcing.journal.JournalCommandHandler
 import mastermind.journal.InMemoryJournal
 import mastermind.journal.JournalFailure.ExecutionFailure

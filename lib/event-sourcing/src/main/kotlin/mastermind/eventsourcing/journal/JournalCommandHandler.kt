@@ -3,13 +3,12 @@ package mastermind.eventsourcing.journal
 import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
+import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.CommandHandler
+import mastermind.eventsourcing.Execute
 import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
 import mastermind.journal.append
-
-typealias Execute<COMMAND, STATE, FAILURE, EVENT> = (COMMAND, STATE?) -> Either<FAILURE, NonEmptyList<EVENT>>
-typealias Apply<STATE, EVENT> = (STATE?, EVENT) -> STATE
 
 context(Journal<EVENT, FAILURE>)
 class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : Any, OUTCOME>(
