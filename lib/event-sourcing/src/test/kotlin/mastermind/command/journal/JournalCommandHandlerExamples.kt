@@ -1,7 +1,10 @@
 package mastermind.command.journal
 
-import arrow.core.*
+import arrow.core.NonEmptyList
+import arrow.core.left
+import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
+import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.Execute
@@ -10,7 +13,10 @@ import mastermind.journal.InMemoryJournal
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.append
-import org.junit.jupiter.api.Assertions
+import mastermind.testkit.shouldBe
+import mastermind.testkit.shouldFailWith
+import mastermind.testkit.shouldReturn
+import mastermind.testkit.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 class JournalCommandHandlerExamples {
@@ -96,18 +102,4 @@ class JournalCommandHandlerExamples {
     private data class TestEvent(val id: String)
     private data class TestFailure(val cause: String)
     private data class TestState(val history: List<String>)
-}
-
-infix fun <T> T?.shouldBe(expected: T?) {
-    Assertions.assertEquals(expected, this)
-}
-
-infix fun <T> T?.shouldReturn(expected: T?) = shouldBe(expected)
-
-infix fun <A, B> Either<A, B>.shouldSucceedWith(expected: B) {
-    this shouldReturn expected.right()
-}
-
-infix fun <A, B> Either<A, B>.shouldFailWith(expected: A) {
-    this shouldReturn expected.left()
 }

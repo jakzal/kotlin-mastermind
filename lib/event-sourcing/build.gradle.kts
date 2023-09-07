@@ -6,4 +6,5 @@ plugins {
 
 dependencies {
     implementation(project(":lib:journal"))
+    testImplementation(project(":lib:testkit"))
 }
