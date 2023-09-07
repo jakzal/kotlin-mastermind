@@ -10,5 +10,4 @@ dependencies {
     implementation("org.http4k:http4k-server-undertow")
     implementation("org.http4k:http4k-format-jackson")
     testImplementation("org.http4k:http4k-client-apache")
-    implementation("io.arrow-kt:arrow-core:1.2.1")
 }
