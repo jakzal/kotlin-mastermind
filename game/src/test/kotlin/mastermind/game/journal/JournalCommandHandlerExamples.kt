@@ -20,10 +20,6 @@ class JournalCommandHandlerExamples {
     private val journal = InMemoryJournal<TestEvent, TestFailure>()
     private val expectedEvent = TestEvent("ABC")
     private val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
-    private val apply = { state: NonEmptyList<TestEvent>?, event: TestEvent ->
-        if (state == null) nonEmptyListOf(event)
-        else state + event
-    }
 
     @Test
     fun `it appends events created in reaction to the command to the journal`() = runTest {
@@ -34,7 +30,7 @@ class JournalCommandHandlerExamples {
                 }
             }
         val handler = with(journal) {
-            JournalCommandHandler(apply, execute, streamNameResolver) { events -> events.head.id }
+            JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
         }
 
         handler(TestCommand("ABC")) shouldReturn "ABC".right()
@@ -57,7 +53,7 @@ class JournalCommandHandlerExamples {
         }
 
         val handler = with(journal) {
-            JournalCommandHandler(apply, execute, streamNameResolver) { events -> events.map { it.id }.joinToString(",") }
+            JournalCommandHandler(execute, streamNameResolver) { events -> events.map { it.id }.joinToString(",") }
         }
 
         handler(TestCommand("ABC")) shouldSucceedWith  "123,456,ABC"
@@ -93,7 +89,7 @@ class JournalCommandHandlerExamples {
         val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? -> TestFailure("Execution failed.").left() }
         val handler = with(journal) {
-            JournalCommandHandler(apply, execute, streamNameResolver) { events -> events.head.id }
+            JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
         }
 
         handler(TestCommand("ABC")) shouldFailWith ExecutionFailure(TestFailure("Execution failed."))
