@@ -15,7 +15,7 @@ context(Journal<EVENT, FAILURE>)
 class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : Any, RESULT>(
     private val applyEvent: Apply<STATE, EVENT>,
     private val execute: Execute<COMMAND, STATE, FAILURE, EVENT>,
-    private val streamNameResolver: (COMMAND) -> String,
+    private val streamNameFor: (COMMAND) -> String,
     private val calculateResult: (NonEmptyList<EVENT>) -> RESULT
 ) : CommandHandler<COMMAND, JournalFailure<FAILURE>, RESULT> {
 
@@ -38,7 +38,7 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : A
     }
 
     override suspend operator fun invoke(command: COMMAND): Either<JournalFailure<FAILURE>, RESULT> {
-        return stream(streamNameResolver(command)) {
+        return stream(streamNameFor(command)) {
             append {
                 execute(command, events.fold(null, applyEvent))
             }
