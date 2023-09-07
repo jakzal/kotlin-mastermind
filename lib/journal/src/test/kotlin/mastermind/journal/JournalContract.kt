@@ -13,7 +13,7 @@ import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
-import org.junit.jupiter.api.Assertions
+import mastermind.testkit.*
 import org.junit.jupiter.api.Test
 
 
@@ -160,15 +160,3 @@ private class UniqueSequence<T>(
 
     operator fun invoke(): T = nextItem(streamCount.incrementAndGet())
 }
-
-infix fun <T> T?.shouldBe(expected: T?) {
-    Assertions.assertEquals(expected, this)
-}
-
-infix fun <T> T?.shouldReturn(expected: T?) = shouldBe(expected)
-
-infix fun <T> T?.shouldSucceedWith(expected: T?) = shouldBe(expected.right())
-infix fun <T> T?.shouldFailWith(expected: T?) = shouldBe(expected.left())
-
-infix fun <T> T?.shouldBeSuccessOf(expected: T?) = shouldBe(expected.right())
-infix fun <T> T?.shouldBeFailureOf(expected: T?) = shouldBe(expected.left())
