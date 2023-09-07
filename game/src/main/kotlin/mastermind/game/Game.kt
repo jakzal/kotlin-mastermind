@@ -90,40 +90,43 @@ private val Game.secret: Code?
 private val Game.secretLength: Int
     get() = this.secret?.length ?: 0
 
+private val Game.secretPegs: List<Code.Peg>
+    get() = this.secret?.pegs ?: emptyList()
+
 private val Game.attempts: Int
     get() = filterIsInstance<GuessMade>().size
 
 private val Game.totalAttempts: Int
     get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
 
-private val Game?.availablePegs: Set<Code.Peg>
-    get() = this?.filterIsInstance<GameStarted>()?.firstOrNull()?.availablePegs ?: emptySet()
+private val Game.availablePegs: Set<Code.Peg>
+    get() = this.filterIsInstance<GameStarted>().firstOrNull()?.availablePegs ?: emptySet()
 
-private fun Game?.isWon(): Boolean =
-    this?.filterIsInstance<GameWon>()?.isNotEmpty() ?: false
+private fun Game.isWon(): Boolean =
+    this.filterIsInstance<GameWon>().isNotEmpty()
 
-private fun Game?.isLost(): Boolean =
-    this?.filterIsInstance<GameLost>()?.isNotEmpty() ?: false
+private fun Game.isLost(): Boolean =
+    this.filterIsInstance<GameLost>().isNotEmpty()
 
-private fun Game?.isStarted(): Boolean =
-    this?.filterIsInstance<GameStarted>()?.isNotEmpty() ?: false
+private fun Game.isStarted(): Boolean =
+    this.filterIsInstance<GameStarted>().isNotEmpty()
 
-private fun Game?.isGuessTooShort(guess: Code): Boolean =
-    guess.pegs.size < (this?.secret?.length ?: 0)
+private fun Game.isGuessTooShort(guess: Code): Boolean =
+    guess.pegs.size < this.secretLength
 
-private fun Game?.isGuessTooLong(guess: Code): Boolean =
-    guess.pegs.size > (this?.secret?.length ?: 0)
+private fun Game.isGuessTooLong(guess: Code): Boolean =
+    guess.pegs.size > this.secretLength
 
-private fun Game?.isGuessValid(guess: Code): Boolean =
+private fun Game.isGuessValid(guess: Code): Boolean =
     availablePegs.containsAll(guess.pegs)
 
-private fun Game?.exactHits(guess: Code): List<Code.Peg> = (this?.secret?.pegs ?: emptyList())
+private fun Game.exactHits(guess: Code): List<Code.Peg> = this.secretPegs
     .zip(guess.pegs)
     .filter { it.first == it.second }
     .unzip()
     .second
 
-private fun Game?.colourHits(guess: Code): List<Code.Peg> = (this?.secret?.pegs ?: emptyList())
+private fun Game.colourHits(guess: Code): List<Code.Peg> = this.secretPegs
     .zip(guess.pegs)
     .filter { (secretColour, guessColour) -> secretColour != guessColour }
     .unzip()
