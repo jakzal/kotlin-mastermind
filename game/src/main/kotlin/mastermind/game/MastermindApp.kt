@@ -1,6 +1,8 @@
 package mastermind.game
 
 import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.nonEmptyListOf
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.journal.JournalCommandHandler
@@ -17,6 +19,11 @@ data class Configuration(
     val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
     val gameCommandHandler: GameCommandHandler = with(journal) {
         JournalCommandHandler(
+            // @TODO replace with a production implementation
+            { state: NonEmptyList<GameEvent>?, event: GameEvent ->
+                if (state == null) nonEmptyListOf(event)
+                else state + event
+            },
             ::execute,
             { command -> "Mastermind:${command.gameId.value}" },
             { events -> events.head.gameId }

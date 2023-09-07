@@ -9,9 +9,12 @@ import mastermind.journal.JournalFailure
 import mastermind.journal.append
 
 typealias Execute<COMMAND, EVENT, STATE, FAILURE> = (COMMAND, STATE?) -> Either<FAILURE, NonEmptyList<EVENT>>
+typealias Apply<STATE, EVENT> = (STATE?, EVENT) -> STATE
 
 context(Journal<EVENT, FAILURE>)
 class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, RESULT>(
+    // @TODO use applyEvent to reconstitute state
+    private val applyEvent: Apply<NonEmptyList<EVENT>, EVENT>,
     private val execute: Execute<COMMAND, EVENT, NonEmptyList<EVENT>, FAILURE>,
     private val streamNameResolver: (COMMAND) -> String,
     private val calculateResult: (NonEmptyList<EVENT>) -> RESULT

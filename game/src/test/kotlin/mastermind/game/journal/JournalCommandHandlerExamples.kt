@@ -15,11 +15,15 @@ import org.junit.jupiter.api.Test
 
 class JournalCommandHandlerExamples {
     private val journal = InMemoryJournal<TestEvent, TestFailure>()
+    private val expectedEvent = TestEvent("ABC")
+    private val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
+    private val apply = { state: NonEmptyList<TestEvent>?, event: TestEvent ->
+        if (state == null) nonEmptyListOf(event)
+        else state + event
+    }
 
     @Test
     fun `it appends events created in reaction to the command to the journal`() = runTest {
-        val expectedEvent = TestEvent("ABC")
-        val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
         val execute: Execute<TestCommand, TestEvent, NonEmptyList<TestEvent>, TestFailure> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? ->
                 either {
@@ -27,7 +31,7 @@ class JournalCommandHandlerExamples {
                 }
             }
         val handler = with(journal) {
-            JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
+            JournalCommandHandler(apply, execute, streamNameResolver) { events -> events.head.id }
         }
 
         handler(TestCommand("ABC")) shouldReturn "ABC".right()
@@ -36,8 +40,6 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it makes result available to the command executor`() = runTest {
-        val expectedEvent = TestEvent("ABC")
-        val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
         val execute: Execute<TestCommand, TestEvent, NonEmptyList<TestEvent>, TestFailure> =
             { _: TestCommand, state: NonEmptyList<TestEvent>? ->
                 either {
@@ -52,7 +54,7 @@ class JournalCommandHandlerExamples {
         }
 
         val handler = with(journal) {
-            JournalCommandHandler(execute, streamNameResolver) { events -> events.map { it.id }.joinToString(",") }
+            JournalCommandHandler(apply, execute, streamNameResolver) { events -> events.map { it.id }.joinToString(",") }
         }
 
         handler(TestCommand("ABC")) shouldReturn "123,456,ABC".right()
