@@ -7,8 +7,9 @@ import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError
 import mastermind.game.MastermindApp
 import mastermind.game.testkit.anyGameId
-import mastermind.game.testkit.shouldBe
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
+import mastermind.testkit.shouldBe
+import mastermind.testkit.shouldReturn
 import org.http4k.core.Body
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -31,7 +32,7 @@ class MakeGuessHttpHandlerExamples {
         val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
 
         response.status shouldBe Status.CREATED
-        response.header("Location") shouldBe "/games/${gameId.value}"
+        response.header("Location") shouldReturn "/games/${gameId.value}"
     }
 
     @Test

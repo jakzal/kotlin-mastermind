@@ -10,4 +10,5 @@ dependencies {
     implementation("org.http4k:http4k-server-undertow")
     implementation("org.http4k:http4k-format-jackson")
     testImplementation("org.http4k:http4k-client-apache")
+    testImplementation(project(":lib:testkit"))
 }

@@ -1,9 +1,10 @@
 package mastermind.game.http
 
-import mastermind.game.view.DecodingBoard
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
-import mastermind.game.testkit.shouldBe
+import mastermind.game.view.DecodingBoard
+import mastermind.testkit.shouldBe
+import mastermind.testkit.shouldReturn
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.junit.jupiter.api.Test
@@ -21,7 +22,7 @@ class ViewDecodingBoardHandlerExamples {
         val response = app(Request(Method.GET, "/games/60693d0a-152c-4c4e-a11e-35fd8176df53"))
 
         response.status shouldBe Status.OK
-        response.asDecodingBoard() shouldBe DecodingBoard(
+        response.asDecodingBoard() shouldReturn DecodingBoard(
             "60693d0a-152c-4c4e-a11e-35fd8176df53",
             4,
             8,

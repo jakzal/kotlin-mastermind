@@ -5,8 +5,8 @@ import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
 import mastermind.game.setOfPegs
-import mastermind.game.testkit.shouldBe
 import mastermind.game.view.DecodingBoard
+import mastermind.testkit.shouldReturn
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -28,7 +28,7 @@ class JoiningTheGameExamples {
         joinGame { gameId ->
             // Then the game should be started with an empty board
             // And I should have 12 attempts available
-            viewDecodingBoard(gameId) shouldBe DecodingBoard(
+            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
                 totalAttempts,

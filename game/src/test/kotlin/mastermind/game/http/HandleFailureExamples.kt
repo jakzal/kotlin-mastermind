@@ -7,10 +7,10 @@ import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.GameError.GuessError.*
 import mastermind.game.setOfPegs
 import mastermind.game.testkit.anyGameId
-import mastermind.game.testkit.shouldReturn
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.JournalFailure.ExecutionFailure
+import mastermind.testkit.shouldReturn
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.junit.jupiter.api.Test

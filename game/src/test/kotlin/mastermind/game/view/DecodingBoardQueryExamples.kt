@@ -9,13 +9,15 @@ import mastermind.game.*
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameEvent.*
-import mastermind.game.Guess
-import mastermind.game.testkit.*
+import mastermind.game.testkit.anyGameId
+import mastermind.game.testkit.fake
 import mastermind.journal.Journal
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.StreamName
+import mastermind.testkit.shouldBe
+import mastermind.testkit.shouldReturn
 import org.junit.jupiter.api.Test
 
 class DecodingBoardQueryExamples {

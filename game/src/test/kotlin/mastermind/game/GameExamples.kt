@@ -11,8 +11,8 @@ import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.GameError.GuessError.*
 import mastermind.game.GameEvent.*
 import mastermind.game.testkit.anyGameId
-import mastermind.game.testkit.shouldFailWith
-import mastermind.game.testkit.shouldSucceedWith
+import mastermind.testkit.shouldFailWith
+import mastermind.testkit.shouldSucceedWith
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments

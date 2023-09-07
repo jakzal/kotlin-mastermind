@@ -7,11 +7,10 @@ import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
 import mastermind.game.setOfPegs
-import mastermind.game.testkit.shouldBe
-import mastermind.game.testkit.shouldReturn
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
 import mastermind.journal.JournalFailure.ExecutionFailure
+import mastermind.testkit.shouldReturn
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -33,7 +32,7 @@ class LosingTheGameExamples {
                 makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
             }
             // Then I should lose the game
-            viewDecodingBoard(gameId) shouldBe DecodingBoard(
+            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
                 totalAttempts,

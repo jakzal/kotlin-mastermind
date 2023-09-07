@@ -1,7 +1,7 @@
 package mastermind.game
 
-import mastermind.game.testkit.shouldBe
-import mastermind.game.testkit.shouldNotBe
+import mastermind.testkit.shouldBe
+import mastermind.testkit.shouldNotBe
 import org.junit.jupiter.api.Test
 
 class CodeMakerExamples {
