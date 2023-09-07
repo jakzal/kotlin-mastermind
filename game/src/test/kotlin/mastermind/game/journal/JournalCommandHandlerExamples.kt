@@ -38,7 +38,7 @@ class JournalCommandHandlerExamples {
     }
 
     @Test
-    fun `it makes result available to the command executor`() = runTest {
+    fun `it makes outcome available to the command executor`() = runTest {
         val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
             { _: TestCommand, state: NonEmptyList<TestEvent>? ->
                 either {

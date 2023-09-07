@@ -12,12 +12,12 @@ typealias Execute<COMMAND, STATE, FAILURE, EVENT> = (COMMAND, STATE?) -> Either<
 typealias Apply<STATE, EVENT> = (STATE?, EVENT) -> STATE
 
 context(Journal<EVENT, FAILURE>)
-class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : Any, RESULT>(
+class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : Any, OUTCOME>(
     private val applyEvent: Apply<STATE, EVENT>,
     private val execute: Execute<COMMAND, STATE, FAILURE, EVENT>,
     private val streamNameFor: (COMMAND) -> String,
-    private val calculateResult: (NonEmptyList<EVENT>) -> RESULT
-) : CommandHandler<COMMAND, JournalFailure<FAILURE>, RESULT> {
+    private val produceOutcome: (NonEmptyList<EVENT>) -> OUTCOME
+) : CommandHandler<COMMAND, JournalFailure<FAILURE>, OUTCOME> {
 
     companion object {
         /**
@@ -25,25 +25,25 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : A
          * without having to provide the apply function for state reconstitution.
          */
         context(Journal<EVENT, FAILURE>)
-        operator fun <COMMAND : Any, EVENT : Any, FAILURE : Any, RESULT> invoke(
+        operator fun <COMMAND : Any, EVENT : Any, FAILURE : Any, OUTCOME> invoke(
             execute: Execute<COMMAND, NonEmptyList<EVENT>, FAILURE, EVENT>,
             streamNameResolver: (COMMAND) -> String,
-            calculateResult: (NonEmptyList<EVENT>) -> RESULT
+            produceOutcome: (NonEmptyList<EVENT>) -> OUTCOME
         ) = JournalCommandHandler(
             { state: NonEmptyList<EVENT>?, event: EVENT -> state?.let { state + event } ?: nonEmptyListOf(event) },
             execute,
             streamNameResolver,
-            calculateResult
+            produceOutcome
         )
     }
 
-    override suspend operator fun invoke(command: COMMAND): Either<JournalFailure<FAILURE>, RESULT> {
+    override suspend operator fun invoke(command: COMMAND): Either<JournalFailure<FAILURE>, OUTCOME> {
         return stream(streamNameFor(command)) {
             append {
                 execute(command, events.fold(null, applyEvent))
             }
         }.map {
-            calculateResult(it.events)
+            produceOutcome(it.events)
         }
     }
 }
