@@ -2,7 +2,6 @@ package mastermind.game
 
 import arrow.core.*
 import arrow.core.raise.either
-import arrow.core.raise.ensure
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameCommand.JoinGame
@@ -88,6 +87,9 @@ typealias Game = NonEmptyList<GameEvent>
 private val Game.secret: Code?
     get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
 
+private val Game.secretLength: Int
+    get() = this.secret?.length ?: 0
+
 private val Game.attempts: Int
     get() = filterIsInstance<GuessMade>().size
 
@@ -143,25 +145,37 @@ private fun joinGame(command: JoinGame): Either<Nothing, NonEmptyList<GameStarte
     nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts, command.availablePegs)).right()
 
 private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessMade> = either {
-    ensure(game.isStarted()) {
-        GameNotStarted(command.gameId)
+    return startedNotFinishedGame(command, game).flatMap { game ->
+        validGuess(command, game).map { guess ->
+            GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(guess)))
+        }
     }
-    ensure(!game.isWon()) {
-        GameAlreadyWon(command.gameId)
+}
+
+private fun startedNotFinishedGame(command: MakeGuess, game: Game?): Either<GameError, Game> {
+    if (game == null || !game.isStarted()) {
+        return GameNotStarted(command.gameId).left()
     }
-    ensure(!game.isLost()) {
-        GameAlreadyLost(command.gameId)
+    if (game.isWon()) {
+        return GameAlreadyWon(command.gameId).left()
     }
-    ensure(!game.isGuessTooShort(command.guess)) {
-        GuessTooShort(command.gameId, command.guess, game?.secret?.length ?: 0)
+    if (game.isLost()) {
+        return GameAlreadyLost(command.gameId).left()
     }
-    ensure(!game.isGuessTooLong(command.guess)) {
-        GuessTooLong(command.gameId, command.guess, game?.secret?.length ?: 0)
+    return game.right()
+}
+
+private fun validGuess(command: MakeGuess, game: Game): Either<GameError, Code> {
+    if(game.isGuessTooShort(command.guess)) {
+        return GuessTooShort(command.gameId, command.guess, game.secretLength).left()
     }
-    ensure(game.isGuessValid(command.guess)) {
-        InvalidPegInGuess(command.gameId, command.guess, game.availablePegs)
+    if(game.isGuessTooLong(command.guess)) {
+        return GuessTooLong(command.gameId, command.guess, game.secretLength).left()
     }
-    GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(command)))
+    if (!game.isGuessValid(command.guess)) {
+        return InvalidPegInGuess(command.gameId, command.guess, game.availablePegs).left()
+    }
+    return command.guess.right()
 }
 
 private fun Either<GameError, GuessMade>.withOutcome(): Either<GameError, NonEmptyList<GameEvent>> = map { event ->
@@ -173,14 +187,14 @@ private fun Either<GameError, GuessMade>.withOutcome(): Either<GameError, NonEmp
             }
 }
 
-private fun Game?.feedbackOn(command: MakeGuess): Feedback =
-    (exactHits(command.guess).map { BLACK } to colourHits(command.guess).map { WHITE })
+private fun Game.feedbackOn(guess: Code): Feedback =
+    (exactHits(guess).map { BLACK } to colourHits(guess).map { WHITE })
         .let { (exactHits, colourHits) ->
             Feedback(
                 exactHits + colourHits,
                 when {
-                    exactHits.size == this?.secret?.length -> Feedback.Outcome.WON
-                    (this?.attempts ?: 0) + 1 == this?.totalAttempts -> Feedback.Outcome.LOST
+                    exactHits.size == this.secretLength -> Feedback.Outcome.WON
+                    this.attempts + 1 == this.totalAttempts -> Feedback.Outcome.LOST
                     else -> Feedback.Outcome.IN_PROGRESS
                 }
             )
