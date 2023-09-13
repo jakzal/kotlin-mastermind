@@ -41,7 +41,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     private val asEvent: ByteArray.(KClass<EVENT>) -> Either<ReadFailure, EVENT> = createReader(),
     private val asBytes: EVENT.() -> Either<WriteFailure, ByteArray> = createWriter()
 ) : Journal<EVENT, FAILURE> {
-    override suspend fun <FAILURE : Any> stream(
+    override suspend fun stream(
         streamName: StreamName,
         onStream: Stream<EVENT>.() -> Either<FAILURE, Stream.UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> {

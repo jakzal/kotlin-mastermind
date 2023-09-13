@@ -13,7 +13,7 @@ import mastermind.journal.Stream.*
 class InMemoryJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
     private val events = Atomic(mapOf<StreamName, LoadedStream<EVENT>>())
 
-    override suspend fun <FAILURE : Any> stream(
+    override suspend fun stream(
         streamName: StreamName,
         onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =

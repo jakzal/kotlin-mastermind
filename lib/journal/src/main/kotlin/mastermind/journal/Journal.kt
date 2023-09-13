@@ -6,7 +6,7 @@ import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 
 interface Journal<EVENT : Any, FAILURE : Any> {
-    suspend fun <FAILURE : Any> stream(
+    suspend fun stream(
         streamName: StreamName,
         onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
