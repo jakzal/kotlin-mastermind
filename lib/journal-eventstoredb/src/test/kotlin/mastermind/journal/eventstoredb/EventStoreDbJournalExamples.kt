@@ -6,6 +6,7 @@ import kotlinx.coroutines.future.await
 import mastermind.journal.*
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
+import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.EmptyStream
 import mastermind.journal.Stream.LoadedStream
 import mastermind.testkit.testcontainers.eventstoredb.EventStoreDbContainer
@@ -47,7 +48,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> {
         return load(streamName)
             .orCreate(streamName)
-            .flatMap(onStream)
+            .flatMap { it.onStream().mapLeft { e -> ExecutionFailure(e) } }
             .flatMap { stream ->
                 stream.eventsToAppend
                     .mapOrAccumulate { event ->
@@ -80,8 +81,8 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
                             }
                     }
                     .also { println(it) }
-                    .mapLeft { _ -> StreamNotFound<FAILURE>(streamName) }
-            } as Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
+                    .mapLeft { _ -> StreamNotFound(streamName) }
+            }
     }
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> {
