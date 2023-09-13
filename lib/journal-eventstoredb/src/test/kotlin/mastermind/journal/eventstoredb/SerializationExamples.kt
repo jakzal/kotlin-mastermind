@@ -1,9 +1,9 @@
-package mastermind.journal.eventstoredb.serialization
+package mastermind.journal.eventstoredb
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import mastermind.journal.eventstoredb.serialization.SerializationExamples.TestEvent.Event1
-import mastermind.journal.eventstoredb.serialization.SerializationExamples.TestEvent.Event2
+import mastermind.journal.eventstoredb.SerializationExamples.TestEvent.Event1
+import mastermind.journal.eventstoredb.SerializationExamples.TestEvent.Event2
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
