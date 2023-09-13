@@ -9,14 +9,14 @@ class SerializationExamples {
 
     @Test
     fun `it writes an object to an array of bytes`() {
-        val asJson: TestEvent.() -> ByteArray = createWriter()
+        val asJson = createWriter<TestEvent>()
 
         Event1("First event").asJson() shouldReturnJson """{"name":"First event"}"""
     }
 
     @Test
     fun `it reads an array of bytes to an object`() {
-        val asObject: ByteArray.(Class<Event2>) -> TestEvent = createReader()
+        val asObject = createReader<Event2>()
         val bytes = """{"id":13, "name":"Second event"}""".toByteArray()
 
         bytes.asObject(Event2::class.java) shouldReturn Event2(13, "Second event")
