@@ -7,5 +7,5 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 fun <T : Any> createWriter(objectMapper: ObjectMapper = jacksonObjectMapper()): T.() -> ByteArray =
     objectMapper::writeValueAsBytes
 
-fun <T : Any> createReader(objectMapper: ObjectMapper = jacksonObjectMapper()): ByteArray.(Class<T>) -> T =
+fun <T : Any> createReader(objectMapper: ObjectMapper = jacksonObjectMapper()): ByteArray.(Class<out T>) -> T =
     { type -> objectMapper.readValue(this, type) }
