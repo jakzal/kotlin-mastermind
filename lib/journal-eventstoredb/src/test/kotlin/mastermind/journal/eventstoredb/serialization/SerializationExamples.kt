@@ -25,5 +25,4 @@ infix fun ByteArray.shouldReturnJson(expected: String) {
     assertEquals(expected, this.decodeToString(), "`$expected` is `${this.decodeToString()}`")
 }
 
-fun createWriter(objectMapper: ObjectMapper): (SerializationExamples.TestEvent) -> ByteArray =
-    { event -> objectMapper.writeValueAsBytes(event) }
+fun <T> createWriter(objectMapper: ObjectMapper): (T) -> ByteArray = objectMapper::writeValueAsBytes
