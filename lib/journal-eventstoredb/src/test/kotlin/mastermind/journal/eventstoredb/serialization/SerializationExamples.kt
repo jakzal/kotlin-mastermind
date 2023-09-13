@@ -18,9 +18,7 @@ class SerializationExamples {
 
     @Test
     fun `it reads an array of bytes to an object`() {
-        val asObject: ByteArray.(Class<Event2>) -> TestEvent = { type ->
-            jacksonObjectMapper().readValue(this, type)
-        }
+        val asObject: ByteArray.(Class<Event2>) -> TestEvent = createReader()
         val bytes = """{"id":13, "name":"Second event"}""".toByteArray()
 
         bytes.asObject(Event2::class.java) shouldReturn Event2(13, "Second event")
@@ -42,3 +40,8 @@ infix fun <T> T.shouldReturn(expected: T) {
 
 fun <T : Any> createWriter(objectMapper: ObjectMapper = jacksonObjectMapper()): T.() -> ByteArray =
     objectMapper::writeValueAsBytes
+
+private fun createReader(objectMapper: ObjectMapper = jacksonObjectMapper()): ByteArray.(Class<Event2>) -> Event2 =
+    { type ->
+        objectMapper.readValue(this, type)
+    }
