@@ -25,4 +25,4 @@ infix fun ByteArray.shouldReturnJson(expected: String) {
     assertEquals(expected, this.decodeToString(), "`$expected` is `${this.decodeToString()}`")
 }
 
-fun <T> createWriter(objectMapper: ObjectMapper = jacksonObjectMapper()): T.() -> ByteArray = objectMapper::writeValueAsBytes
+fun <T : Any> createWriter(objectMapper: ObjectMapper = jacksonObjectMapper()): T.() -> ByteArray = objectMapper::writeValueAsBytes
