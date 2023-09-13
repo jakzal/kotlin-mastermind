@@ -10,7 +10,7 @@ class SerializationExamples {
 
     @Test
     fun `it writes an object to an array of bytes`() {
-        val writer: (TestEvent) -> ByteArray = createWriter(jacksonObjectMapper())
+        val writer: (TestEvent) -> ByteArray = createWriter()
 
         writer(Event1("First event")) shouldReturnJson """{"name":"First event"}"""
     }
@@ -25,4 +25,4 @@ infix fun ByteArray.shouldReturnJson(expected: String) {
     assertEquals(expected, this.decodeToString(), "`$expected` is `${this.decodeToString()}`")
 }
 
-fun <T> createWriter(objectMapper: ObjectMapper): (T) -> ByteArray = objectMapper::writeValueAsBytes
+fun <T> createWriter(objectMapper: ObjectMapper = jacksonObjectMapper()): (T) -> ByteArray = objectMapper::writeValueAsBytes
