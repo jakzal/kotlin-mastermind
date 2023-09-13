@@ -41,7 +41,5 @@ infix fun <T> T.shouldReturn(expected: T) {
 fun <T : Any> createWriter(objectMapper: ObjectMapper = jacksonObjectMapper()): T.() -> ByteArray =
     objectMapper::writeValueAsBytes
 
-private fun createReader(objectMapper: ObjectMapper = jacksonObjectMapper()): ByteArray.(Class<Event2>) -> Event2 =
-    { type ->
-        objectMapper.readValue(this, type)
-    }
+fun <T : Any> createReader(objectMapper: ObjectMapper = jacksonObjectMapper()): ByteArray.(Class<T>) -> T =
+    { type -> objectMapper.readValue(this, type) }
