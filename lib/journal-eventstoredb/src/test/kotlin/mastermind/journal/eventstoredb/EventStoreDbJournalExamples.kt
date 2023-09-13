@@ -10,7 +10,6 @@ import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.EmptyStream
 import mastermind.journal.Stream.LoadedStream
 import mastermind.testkit.testcontainers.eventstoredb.EventStoreDbContainer
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -18,7 +17,6 @@ import kotlin.reflect.KClass
 
 @Testcontainers(disabledWithoutDocker = true)
 @Tag("io")
-@Disabled
 class EventStoreDbJournalExamples : JournalContract() {
     private val journal = EventStoreDbJournal<TestEvent, TestFailure>(eventStoreClient())
 
@@ -46,43 +44,46 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
         streamName: StreamName,
         onStream: Stream<EVENT>.() -> Either<FAILURE, Stream.UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> {
-        return load(streamName)
-            .orCreate(streamName)
-            .flatMap { it.onStream().mapLeft { e -> ExecutionFailure(e) } }
-            .flatMap { stream ->
-                stream.eventsToAppend
-                    .mapOrAccumulate { event ->
-                        event
-                            .asBytes()
-                            .map { event::class.java.typeName to it }
-                            .map { (type, bytes) -> EventData.builderAsBinary(type, bytes).build() }
-                            .bind()
-                    }
-                    .map { events ->
-                        eventStore
-                            .appendToStream(
-                                streamName,
-                                AppendToStreamOptions.get().expectedRevision(
-                                    if (stream.streamVersion == 0L) ExpectedRevision.noStream() else ExpectedRevision.expectedRevision(
-                                        stream.streamVersion - 1
-                                    )
-                                ),
-                                events.iterator()
-                            )
-                            .await()
-                            .let { writeResult ->
-                                LoadedStream(
+        return try {
+            load(streamName)
+                .orCreate(streamName)
+                .flatMap { it.onStream().mapLeft { e -> ExecutionFailure(e) } }
+                .flatMap { stream ->
+                    stream.eventsToAppend
+                        .mapOrAccumulate { event ->
+                            event
+                                .asBytes()
+                                .map { event::class.java.typeName to it }
+                                .map { (type, bytes) -> EventData.builderAsBinary(type, bytes).build() }
+                                .bind()
+                        }
+                        .map { events ->
+                            eventStore
+                                .appendToStream(
                                     streamName,
-                                    writeResult.nextExpectedRevision.toRawLong() + 1,
-                                    stream.events.toNonEmptyListOrNone()
-                                        .map { it + stream.eventsToAppend }
-                                        .getOrElse { stream.eventsToAppend }
+                                    AppendToStreamOptions.get().expectedRevision(
+                                        if (stream.streamVersion == 0L) ExpectedRevision.noStream() else ExpectedRevision.expectedRevision(
+                                            stream.streamVersion - 1
+                                        )
+                                    ),
+                                    events.iterator()
                                 )
-                            }
-                    }
-                    .also { println(it) }
-                    .mapLeft { _ -> StreamNotFound(streamName) }
-            }
+                                .await()
+                                .let { writeResult ->
+                                    LoadedStream(
+                                        streamName,
+                                        writeResult.nextExpectedRevision.toRawLong() + 1,
+                                        stream.events.toNonEmptyListOrNone()
+                                            .map { it + stream.eventsToAppend }
+                                            .getOrElse { stream.eventsToAppend }
+                                    )
+                                }
+                        }
+                        .mapLeft { _ -> StreamNotFound(streamName) }
+                }
+        } catch (e: WrongExpectedVersionException) {
+            EventStoreFailure.VersionConflict<FAILURE>(streamName).left()
+        }
     }
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> {
