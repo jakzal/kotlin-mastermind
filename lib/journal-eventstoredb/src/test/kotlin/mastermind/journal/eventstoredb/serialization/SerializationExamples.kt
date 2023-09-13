@@ -18,8 +18,8 @@ class SerializationExamples {
 
     @Test
     fun `it reads an array of bytes to an object`() {
-        val asObject: ByteArray.() -> TestEvent = { Event2(13, "Second event") }
-        val bytes = """{"id":13, "name":"Second event}""".toByteArray()
+        val asObject: ByteArray.() -> TestEvent = { jacksonObjectMapper().readValue(this, Event2::class.java) }
+        val bytes = """{"id":13, "name":"Second event"}""".toByteArray()
 
         bytes.asObject() shouldReturn Event2(13, "Second event")
     }
