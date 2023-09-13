@@ -19,7 +19,7 @@ class SerializationExamples {
         val asObject = createReader<TestEvent>()
         val bytes = """{"id":13, "name":"Second event"}""".toByteArray()
 
-        bytes.asObject(Event2::class.java) shouldReturn Event2(13, "Second event")
+        bytes.asObject(Event2::class) shouldReturn Event2(13, "Second event")
     }
 
     sealed interface TestEvent {
