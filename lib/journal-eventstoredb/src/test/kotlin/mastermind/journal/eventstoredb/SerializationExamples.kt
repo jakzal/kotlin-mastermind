@@ -2,9 +2,14 @@ package mastermind.journal.eventstoredb
 
 import arrow.core.Either
 import arrow.core.right
+import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.PropertyAccessor
 import com.fasterxml.jackson.core.io.JsonEOFException
-import mastermind.journal.eventstoredb.SerializationExamples.TestEvent.Event1
-import mastermind.journal.eventstoredb.SerializationExamples.TestEvent.Event2
+import com.fasterxml.jackson.databind.JsonMappingException
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import mastermind.journal.eventstoredb.SerializationExamples.TestEvent.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
@@ -16,6 +21,21 @@ class SerializationExamples {
         val asJson = createWriter<TestEvent>()
 
         Event1("First event").asJson() shouldReturnJson """{"name":"First event"}"""
+    }
+
+    @Test
+    fun `it returns an error if it fails to write the value`() {
+        val mapper = jacksonMapperBuilder()
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true)
+            .build()
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.PUBLIC_ONLY)
+        val asJson = createWriter<Any>(mapper)
+
+        object {
+            val name: String get() = throw RuntimeException("Writing failed.")
+        }.asJson() shouldFailWith { failure: WriteFailure ->
+            failure.cause shouldHaveTypeOf JsonMappingException::class.java
+        }
     }
 
     @Test
@@ -39,11 +59,15 @@ class SerializationExamples {
     sealed interface TestEvent {
         data class Event1(val name: String) : TestEvent
         data class Event2(val id: Int, val name: String) : TestEvent
+        data class Event3(private val name: String) : TestEvent
     }
 }
 
-private infix fun ByteArray.shouldReturnJson(expected: String) {
-    assertEquals(expected, this.decodeToString(), "`$expected` is `${this.decodeToString()}`")
+private infix fun Either<WriteFailure, ByteArray>.shouldReturnJson(expected: String) {
+    this.onLeft { fail("Expected a success but g ot: `$this`.") }
+        .map { bytes ->
+            assertEquals(expected, bytes.decodeToString(), "`$expected` is `${bytes.decodeToString()}`")
+        }
 }
 
 private infix fun <T> T.shouldSucceedWith(expected: T) {
