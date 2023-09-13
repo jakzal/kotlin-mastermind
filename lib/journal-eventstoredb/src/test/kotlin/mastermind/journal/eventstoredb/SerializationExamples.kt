@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.io.JsonEOFException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import mastermind.journal.eventstoredb.SerializationExamples.TestEvent.*
+import mastermind.journal.eventstoredb.SerializationExamples.TestEvent.Event1
+import mastermind.journal.eventstoredb.SerializationExamples.TestEvent.Event2
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
@@ -32,6 +32,7 @@ class SerializationExamples {
         val asJson = createWriter<Any>(mapper)
 
         object {
+            @Suppress("unused")
             val name: String get() = throw RuntimeException("Writing failed.")
         }.asJson() shouldFailWith { failure: WriteFailure ->
             failure.cause shouldHaveTypeOf JsonMappingException::class.java
@@ -59,7 +60,6 @@ class SerializationExamples {
     sealed interface TestEvent {
         data class Event1(val name: String) : TestEvent
         data class Event2(val id: Int, val name: String) : TestEvent
-        data class Event3(private val name: String) : TestEvent
     }
 }
 
