@@ -53,30 +53,13 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
         VersionConflict<FAILURE>(streamName).left()
     }
 
-    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> {
-        return try {
+    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+        try {
             eventStore.readStream(streamName)
-                .let { readResult ->
-                    readResult.events
-                        .mapOrAccumulate { resolvedEvent ->
-                            resolvedEvent
-                                .event
-                                .eventData
-                                .asEvent(Class.forName(resolvedEvent.event.eventType).kotlin as KClass<EVENT>)
-                                .bind()
-                        }
-                        .mapLeft { _ -> StreamNotFound<FAILURE>(streamName) }
-                        .map { events ->
-                            events
-                                .toNonEmptyListOrNone()
-                                .map { e -> LoadedStream(streamName, readResult.lastStreamPosition + 1, e) }
-                        }
-                        .getOrNull()?.getOrNull()?.right() ?: StreamNotFound<FAILURE>(streamName).left()
-                }
+                .mapToEvents(streamName)
         } catch (e: StreamNotFoundException) {
             StreamNotFound<FAILURE>(streamName).left()
         }
-    }
 
     private fun Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
         recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
@@ -136,4 +119,21 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
         get() = if (streamVersion == 0L) ExpectedRevision.noStream() else ExpectedRevision.expectedRevision(
             streamVersion - 1
         )
+
+    private fun ReadResult.mapToEvents(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+        events
+            .mapOrAccumulate { resolvedEvent ->
+                resolvedEvent
+                    .event
+                    .eventData
+                    .asEvent(Class.forName(resolvedEvent.event.eventType).kotlin as KClass<EVENT>)
+                    .bind()
+            }
+            .mapLeft { _ -> StreamNotFound<FAILURE>(streamName) }
+            .map { events ->
+                events
+                    .toNonEmptyListOrNone()
+                    .map { e -> LoadedStream(streamName, lastStreamPosition + 1, e) }
+            }
+            .getOrNull()?.getOrNull()?.right() ?: StreamNotFound<FAILURE>(streamName).left()
 }
