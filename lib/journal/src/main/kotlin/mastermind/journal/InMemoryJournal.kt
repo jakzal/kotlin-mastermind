@@ -51,7 +51,7 @@ private fun <EVENT : Any, FAILURE : Any> Stream<EVENT>.execute(onStream: Stream<
 private fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> =
     LoadedStream(streamName, streamVersion + eventsToAppend.size, events + eventsToAppend)
 
-private infix operator fun <EVENT : Any> List<EVENT>.plus(eventsToAppend: NonEmptyList<EVENT>): NonEmptyList<EVENT> =
+private infix operator fun <T> List<T>.plus(other: NonEmptyList<T>): NonEmptyList<T> =
     toNonEmptyListOrNone()
-        .map { events -> events + eventsToAppend }
-        .getOrElse { eventsToAppend }
+        .map { items -> items + other }
+        .getOrElse { other }
