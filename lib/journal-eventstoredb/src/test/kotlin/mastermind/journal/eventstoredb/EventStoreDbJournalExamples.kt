@@ -55,8 +55,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> {
         return try {
-            eventStore.readStream(streamName, ReadStreamOptions.get())
-                .await()
+            eventStore.readStream(streamName)
                 .let { readResult ->
                     readResult.events
                         .mapOrAccumulate { resolvedEvent ->
@@ -66,7 +65,6 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
                                 .asEvent(Class.forName(resolvedEvent.event.eventType).kotlin as KClass<EVENT>)
                                 .bind()
                         }
-                        .also { println(it) }
                         .mapLeft { _ -> StreamNotFound<FAILURE>(streamName) }
                         .map { events ->
                             events
@@ -124,14 +122,15 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
         map { events -> eventStore.append(events).mapToLoadedStream() }.mapLeft { _ -> StreamNotFound(streamName) }
 
     context(UpdatedStream<EVENT>)
-    private suspend fun EventStoreDBClient.append(events: NonEmptyList<EventData>): WriteResult {
-        return appendToStream(
+    private suspend fun EventStoreDBClient.append(events: NonEmptyList<EventData>): WriteResult =
+        appendToStream(
             streamName,
             AppendToStreamOptions.get().expectedRevision(expectedRevision),
             events.iterator()
-        )
-            .await()
-    }
+        ).await()
+
+    private suspend fun EventStoreDBClient.readStream(streamName: StreamName) =
+        readStream(streamName, ReadStreamOptions.get()).await()
 
     private val UpdatedStream<EVENT>.expectedRevision: ExpectedRevision
         get() = if (streamVersion == 0L) ExpectedRevision.noStream() else ExpectedRevision.expectedRevision(
