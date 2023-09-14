@@ -126,7 +126,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
                 resolvedEvent
                     .event
                     .eventData
-                    .asEvent(Class.forName(resolvedEvent.event.eventType).kotlin as KClass<EVENT>)
+                    .asEvent(resolvedEvent.asClass())
                     .bind()
             }
             .map { events ->
@@ -135,4 +135,6 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
                     .map { e -> LoadedStream(streamName, lastStreamPosition + 1, e) }
             }
             .getOrNull()?.getOrNull()?.right() ?: StreamNotFound<FAILURE>(streamName).left()
+
+    private fun ResolvedEvent.asClass(): KClass<EVENT> = Class.forName(event.eventType).kotlin as KClass<EVENT>
 }
