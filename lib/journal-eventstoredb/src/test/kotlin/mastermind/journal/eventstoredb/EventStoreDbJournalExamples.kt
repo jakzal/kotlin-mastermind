@@ -50,7 +50,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
             .execute(onStream)
             .append()
     } catch (e: WrongExpectedVersionException) {
-        VersionConflict<FAILURE>(streamName).left()
+        VersionConflict<FAILURE>(streamName, e.nextExpectedRevision.toRawLong() + 1, e.actualVersion.toRawLong() + 1).left()
     }
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =

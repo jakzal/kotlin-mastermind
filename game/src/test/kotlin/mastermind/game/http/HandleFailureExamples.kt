@@ -24,7 +24,7 @@ class HandleFailureExamples {
 
     @Test
     fun `it returns a 500 response for VersionConflict`() {
-        VersionConflict<GameError>("stream:b")
+        VersionConflict<GameError>("stream:b", 1L, 4L)
             .response() shouldReturn Response(Status.INTERNAL_SERVER_ERROR).with(Error("Internal server error."))
     }
 

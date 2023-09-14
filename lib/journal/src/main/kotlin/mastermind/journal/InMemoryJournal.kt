@@ -19,18 +19,18 @@ class InMemoryJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
         stream(streamName)
             .onStream()
-            .map { stream -> stream.toLoadedStream() }
             .mapLeft { ExecutionFailure(it) }
             .onRight { streamToWrite ->
                 events.update {
                     it[streamName]?.let { writtenStream ->
-                        if (writtenStream.streamVersion >= streamToWrite.streamVersion) {
-                            return VersionConflict<FAILURE>(streamName).left()
+                        if (writtenStream.streamVersion != streamToWrite.streamVersion) {
+                            return VersionConflict<FAILURE>(streamName, streamToWrite.streamVersion, writtenStream.streamVersion).left()
                         }
                     }
-                    it + mapOf(streamName to streamToWrite)
+                    it + mapOf(streamName to streamToWrite.toLoadedStream())
                 }
             }
+            .map { it.toLoadedStream() }
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> = either {
         events.get()[streamName] ?: raise(StreamNotFound(streamName))

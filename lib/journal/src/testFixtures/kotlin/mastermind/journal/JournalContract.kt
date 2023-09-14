@@ -125,7 +125,7 @@ abstract class JournalContract {
             4L,
             nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"), Event1("DEF"), Event1("GHI"))
         )
-        result2 shouldBeFailureOf VersionConflict<TestFailure>(streamName)
+        result2 shouldBeFailureOf VersionConflict(streamName, 2, 4)
         loadEvents(streamName) shouldReturn listOf(
             Event1("ABC"),
             Event2("ABC", "Event 2"),
