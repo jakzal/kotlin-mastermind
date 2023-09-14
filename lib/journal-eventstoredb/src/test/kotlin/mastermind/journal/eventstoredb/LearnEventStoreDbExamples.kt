@@ -14,6 +14,7 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 
 @Testcontainers(disabledWithoutDocker = true)
+@Tag("learning")
 @Tag("io")
 class LearnEventStoreDbExamples {
     companion object {
