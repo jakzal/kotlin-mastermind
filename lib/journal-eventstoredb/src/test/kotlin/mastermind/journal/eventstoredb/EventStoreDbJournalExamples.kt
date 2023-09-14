@@ -129,7 +129,6 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
                     .asEvent(Class.forName(resolvedEvent.event.eventType).kotlin as KClass<EVENT>)
                     .bind()
             }
-            .mapLeft { _ -> StreamNotFound<FAILURE>(streamName) }
             .map { events ->
                 events
                     .toNonEmptyListOrNone()
