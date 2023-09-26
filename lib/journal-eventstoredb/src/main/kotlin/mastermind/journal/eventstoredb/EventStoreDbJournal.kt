@@ -19,6 +19,23 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     private val asEvent: ByteArray.(KClass<EVENT>) -> Either<ReadFailure, EVENT> = createReader(),
     private val asBytes: EVENT.() -> Either<WriteFailure, ByteArray> = createWriter()
 ) : Journal<EVENT, FAILURE> {
+    val loadStream: suspend (streamName: StreamName) -> Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+        { streamName: StreamName ->
+            try {
+                eventStore.readStream(streamName)
+                    .mapToEvents(streamName)
+            } catch (e: StreamNotFoundException) {
+                StreamNotFound<FAILURE>(streamName).left()
+            }
+        }
+    val append: suspend (UpdatedStream<EVENT>) -> Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> = { stream: UpdatedStream<EVENT> ->
+        with(stream) {
+            eventsToAppend
+                .asBytesList()
+                .append()
+        }
+    }
+
     override suspend fun stream(
         streamName: StreamName,
         onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
@@ -36,12 +53,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     }
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
-        try {
-            eventStore.readStream(streamName)
-                .mapToEvents(streamName)
-        } catch (e: StreamNotFoundException) {
-            StreamNotFound<FAILURE>(streamName).left()
-        }
+        loadStream(streamName)
 
     private fun Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
         recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
@@ -64,13 +76,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     }
 
     private suspend fun Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> {
-        return flatMap { stream ->
-            with(stream) {
-                eventsToAppend
-                    .asBytesList()
-                    .append()
-            }
-        }
+        return flatMap { stream -> append(stream) }
     }
 
     context(UpdatedStream<EVENT>)

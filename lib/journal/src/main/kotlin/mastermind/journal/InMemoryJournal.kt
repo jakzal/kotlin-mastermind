@@ -23,7 +23,7 @@ class InMemoryJournal<EVENT : Any, FAILURE : Any>(
             .append()
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
-        (eventStore::load)(streamName)
+        eventStore.load(streamName)
 
     private fun Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
         recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
