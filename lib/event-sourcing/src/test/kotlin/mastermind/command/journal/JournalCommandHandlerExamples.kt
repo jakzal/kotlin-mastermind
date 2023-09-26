@@ -21,7 +21,9 @@ import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 class JournalCommandHandlerExamples {
-    private val journal = EventStoreJournal<TestEvent, TestFailure>(InMemoryEventStore())
+    private val journal = with(InMemoryEventStore<TestEvent, TestFailure>()) {
+        EventStoreJournal()
+    }
     private val expectedEvent = TestEvent("ABC")
     private val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
 

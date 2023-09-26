@@ -9,9 +9,8 @@ import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
 
-class EventStoreJournal<EVENT : Any, FAILURE : Any>(
-    private val eventStore: EventStore<EVENT, FAILURE>
-) : Journal<EVENT, FAILURE> {
+context(EventStore<EVENT, FAILURE>)
+class EventStoreJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
 
     override suspend fun stream(
         streamName: StreamName,
@@ -23,7 +22,7 @@ class EventStoreJournal<EVENT : Any, FAILURE : Any>(
             .append()
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
-        eventStore.load(streamName)
+        this@EventStore.load(streamName)
 
     private fun Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
         recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
@@ -35,6 +34,6 @@ class EventStoreJournal<EVENT : Any, FAILURE : Any>(
         flatMap { stream -> stream.onStream().mapLeft(::ExecutionFailure) }
 
     private suspend fun Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
-        flatMap { streamToWrite -> eventStore.append(streamToWrite) }
+        flatMap { streamToWrite -> this@EventStore.append(streamToWrite) }
 }
 
