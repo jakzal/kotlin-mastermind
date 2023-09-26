@@ -3,7 +3,6 @@ package mastermind.journal
 import arrow.atomic.Atomic
 import arrow.atomic.update
 import arrow.core.*
-import arrow.core.raise.either
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
@@ -12,6 +11,10 @@ import mastermind.journal.Stream.*
 
 class InMemoryJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
     private val events = Atomic(mapOf<StreamName, LoadedStream<EVENT>>())
+    val loadStream: (StreamName) -> Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+        { streamName: StreamName ->
+            events.get()[streamName]?.right() ?: StreamNotFound<FAILURE>(streamName).left()
+        }
 
     override suspend fun stream(
         streamName: StreamName,
@@ -22,9 +25,7 @@ class InMemoryJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
             .appendTo(streamName)
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
-        either {
-            events.get()[streamName] ?: raise(StreamNotFound(streamName))
-        }
+        loadStream(streamName)
 
     private fun stream(streamName: StreamName) = events.get()[streamName] ?: EmptyStream(streamName)
 
