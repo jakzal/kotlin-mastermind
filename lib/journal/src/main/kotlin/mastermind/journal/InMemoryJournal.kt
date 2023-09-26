@@ -10,11 +10,6 @@ import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
 
-interface EventStore<EVENT : Any, FAILURE : Any> {
-    fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>
-    fun append(stream: UpdatedStream<EVENT>): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>
-}
-
 class InMemoryEventStore<EVENT : Any, FAILURE : Any>(
     private val events: Atomic<Map<StreamName, LoadedStream<EVENT>>> = Atomic(mapOf())
 ) : EventStore<EVENT, FAILURE> {
