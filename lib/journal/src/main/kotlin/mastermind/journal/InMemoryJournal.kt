@@ -20,34 +20,40 @@ class InMemoryJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
         streamName: StreamName,
         onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
     ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
-        stream(streamName)
+        load(streamName)
+            .orCreate(streamName)
             .execute(onStream)
-            .appendTo(streamName)
+            .append()
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
         loadStream(streamName)
 
-    private fun stream(streamName: StreamName) = events.get()[streamName] ?: EmptyStream(streamName)
+    private fun Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
+        recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
+            if (e is StreamNotFound) EmptyStream(streamName)
+            else raise(e)
+        }
 
-    private fun Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.appendTo(streamName: StreamName): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+
+    private fun Either<JournalFailure<FAILURE>, Stream<EVENT>>.execute(onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>): Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>> =
+        flatMap { stream -> stream.onStream().mapLeft(::ExecutionFailure) }
+
+    private fun Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
         onRight { streamToWrite ->
             events.update {
-                it[streamName]?.let { writtenStream ->
+                it[streamToWrite.streamName]?.let { writtenStream ->
                     if (writtenStream.streamVersion != streamToWrite.streamVersion) {
                         return VersionConflict<FAILURE>(
-                            streamName,
+                            streamToWrite.streamName,
                             streamToWrite.streamVersion,
                             writtenStream.streamVersion
                         ).left()
                     }
                 }
-                it + mapOf(streamName to streamToWrite.toLoadedStream())
+                it + mapOf(streamToWrite.streamName to streamToWrite.toLoadedStream())
             }
         }.map(UpdatedStream<EVENT>::toLoadedStream)
 }
-
-private fun <EVENT : Any, FAILURE : Any> Stream<EVENT>.execute(onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>) =
-    onStream().mapLeft { ExecutionFailure(it) }
 
 private fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> =
     LoadedStream(streamName, streamVersion + eventsToAppend.size, events + eventsToAppend)
