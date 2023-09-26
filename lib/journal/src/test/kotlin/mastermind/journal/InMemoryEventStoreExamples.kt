@@ -2,11 +2,13 @@ package mastermind.journal
 
 import arrow.atomic.Atomic
 import arrow.atomic.AtomicInt
+import arrow.core.getOrElse
 import arrow.core.nonEmptyListOf
 import mastermind.journal.InMemoryEventStoreExamples.TestEvent.Event1
 import mastermind.journal.InMemoryEventStoreExamples.TestEvent.Event2
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.*
+import mastermind.testkit.assertions.shouldBeSuccessOf
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
@@ -37,8 +39,49 @@ class InMemoryEventStoreExamples {
         )
     }
 
+    @Test
+    fun `it persists events to a new stream`() {
+        val result = eventStore.append(
+            updatedStream(streamName, Event1("A1"), Event2("A2", "Second event."))
+        )
+
+        val expectedStream = LoadedStream(
+            streamName,
+            2,
+            nonEmptyListOf(Event1("A1"), Event2("A2", "Second event."))
+        )
+
+        result shouldBeSuccessOf expectedStream
+        loadEvents(streamName) shouldSucceedWith expectedStream
+    }
+
+    @Test
+    fun `it appends events to an existing stream`() {
+        val existingStream = givenEventsExist(
+            streamName,
+            Event1("ABC"),
+            Event2("ABC", "Event 2")
+        )
+
+        val result = eventStore.append(
+            updatedStream(existingStream, Event1("DEF"), Event2("DEF", "Event 2 DEF."))
+        )
+
+        val expectedStream = LoadedStream(
+            streamName,
+            4,
+            nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"), Event1("DEF"), Event2("DEF", "Event 2 DEF."))
+        )
+
+        result shouldBeSuccessOf expectedStream
+        loadEvents(streamName) shouldSucceedWith expectedStream
+    }
+
+    private fun loadEvents(streamName: StreamName) = eventStore.load(streamName)
+
     private fun givenEventsExist(streamName: StreamName, event: TestEvent, vararg events: TestEvent) =
         eventStore.append(updatedStream(streamName, event, *events))
+            .getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
 
     private sealed interface TestEvent {
         val id: String
@@ -55,9 +98,15 @@ private fun <EVENT : Any> updatedStream(
     event: EVENT,
     vararg events: EVENT
 ): UpdatedStream<EVENT> =
-    EmptyStream<EVENT>(streamName).append<EVENT, Nothing>(event, *events).getOrNull()
-        ?: throw RuntimeException("Failed to create an updated stream.")
+    updatedStream(EmptyStream(streamName), event, *events)
 
+private fun <EVENT : Any> updatedStream(
+    existingStream: Stream<EVENT>,
+    event: EVENT,
+    vararg events: EVENT
+): UpdatedStream<EVENT> =
+    existingStream.append<EVENT, Nothing>(event, *events).getOrNull()
+        ?: throw RuntimeException("Failed to create an updated stream.")
 
 private class UniqueSequence<T>(
     private val nextItem: (Int) -> T
