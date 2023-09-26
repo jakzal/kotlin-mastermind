@@ -40,7 +40,7 @@ data class MastermindApp(
         }
     },
     val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(configuration) {
+        with(configuration.journal::load) {
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     }

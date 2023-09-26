@@ -9,9 +9,8 @@ import mastermind.game.*
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameEvent.*
+import mastermind.game.Guess
 import mastermind.game.testkit.anyGameId
-import mastermind.game.testkit.fake
-import mastermind.journal.Journal
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
@@ -23,7 +22,7 @@ import org.junit.jupiter.api.Test
 class DecodingBoardQueryExamples {
     @Test
     fun `it returns null if the game is not found`() = runTest {
-        with(emptyJournal()) {
+        with(noEvents()) {
             viewDecodingBoard(anyGameId()) shouldReturn null
         }
     }
@@ -35,7 +34,7 @@ class DecodingBoardQueryExamples {
         val secret = availablePegs.makeCode()
         val totalAttempts = 12
 
-        with(journalOf(gameId, GameStarted(gameId, secret, totalAttempts, availablePegs))) {
+        with(events(GameStarted(gameId, secret, totalAttempts, availablePegs))) {
             viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
@@ -55,8 +54,7 @@ class DecodingBoardQueryExamples {
         val totalAttempts = 12
 
         with(
-            journalOf(
-                gameId,
+            events(
                 GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
                     gameId,
@@ -88,8 +86,7 @@ class DecodingBoardQueryExamples {
         val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
         with(
-            journalOf(
-                gameId,
+            events(
                 GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
                     gameId,
@@ -130,8 +127,7 @@ class DecodingBoardQueryExamples {
         val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
         with(
-            journalOf(
-                gameId,
+            events(
                 GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
                     gameId,
@@ -173,8 +169,7 @@ class DecodingBoardQueryExamples {
         val totalAttempts = 12
 
         with(
-            journalOf(
-                gameId,
+            events(
                 GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
                     gameId,
@@ -197,19 +192,13 @@ class DecodingBoardQueryExamples {
     }
 }
 
-private fun emptyJournal() = object : Journal<GameEvent, GameError> by fake() {
-    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> =
-        StreamNotFound<GameError>(streamName).left()
-}
+private fun noEvents(): suspend (StreamName) -> Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> =
+    { streamName -> StreamNotFound<GameError>(streamName).left() }
 
-private fun journalOf(gameId: GameId, event: GameEvent, vararg events: GameEvent) =
-    object : Journal<GameEvent, GameError> by fake() {
-        override suspend fun load(streamName: StreamName): Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> {
-            streamName shouldBe "Mastermind:${gameId.value}"
-            return LoadedStream(
-                streamName,
-                events.size.toLong(),
-                nonEmptyListOf(event, *events)
-            ).right()
-        }
-    }
+private fun events(
+    event: GameEvent,
+    vararg events: GameEvent
+): suspend (StreamName) -> Either<EventStoreFailure<GameError>, LoadedStream<GameEvent>> = { streamName ->
+    streamName shouldBe "Mastermind:${event.gameId.value}"
+    LoadedStream(streamName, events.size.toLong(), nonEmptyListOf(event, *events)).right()
+}
