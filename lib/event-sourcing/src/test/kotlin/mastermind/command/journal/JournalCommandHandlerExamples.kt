@@ -9,7 +9,8 @@ import kotlinx.coroutines.test.runTest
 import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.Execute
 import mastermind.eventsourcing.journal.JournalCommandHandler
-import mastermind.journal.InMemoryJournal
+import mastermind.journal.EventStoreJournal
+import mastermind.journal.InMemoryEventStore
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.append
@@ -20,7 +21,7 @@ import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 class JournalCommandHandlerExamples {
-    private val journal = InMemoryJournal<TestEvent, TestFailure>()
+    private val journal = EventStoreJournal<TestEvent, TestFailure>(InMemoryEventStore())
     private val expectedEvent = TestEvent("ABC")
     private val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
 

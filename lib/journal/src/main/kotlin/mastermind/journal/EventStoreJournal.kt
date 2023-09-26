@@ -9,8 +9,8 @@ import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
 
-class InMemoryJournal<EVENT : Any, FAILURE : Any>(
-    private val eventStore: InMemoryEventStore<EVENT, FAILURE> = InMemoryEventStore()
+class EventStoreJournal<EVENT : Any, FAILURE : Any>(
+    private val eventStore: EventStore<EVENT, FAILURE>
 ) : Journal<EVENT, FAILURE> {
 
     override suspend fun stream(

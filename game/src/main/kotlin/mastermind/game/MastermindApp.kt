@@ -6,7 +6,8 @@ import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.eventsourcing.journal.JournalCommandHandler
 import mastermind.game.view.DecodingBoard
-import mastermind.journal.InMemoryJournal
+import mastermind.journal.EventStoreJournal
+import mastermind.journal.InMemoryEventStore
 import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
 
@@ -15,7 +16,7 @@ data class Configuration(
     val totalAttempts: Int = 12,
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code =  { availablePegs.makeCode() },
-    val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
+    val journal: Journal<GameEvent, GameError> = EventStoreJournal(InMemoryEventStore()),
     val gameCommandHandler: GameCommandHandler = with(journal) {
         JournalCommandHandler(
             ::execute,
