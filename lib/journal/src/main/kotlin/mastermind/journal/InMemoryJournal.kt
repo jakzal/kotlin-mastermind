@@ -9,9 +9,10 @@ import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
-class InMemoryEventStore<EVENT : Any, FAILURE : Any> {
-    private val events = Atomic(mapOf<StreamName, LoadedStream<EVENT>>())
 
+class InMemoryEventStore<EVENT : Any, FAILURE : Any>(
+    private val events: Atomic<Map<StreamName, LoadedStream<EVENT>>> = Atomic(mapOf())
+) {
     fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
         events.get()[streamName]?.right() ?: StreamNotFound<FAILURE>(streamName).left()
 
