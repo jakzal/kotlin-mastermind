@@ -2,6 +2,7 @@ package mastermind.journal
 
 import arrow.core.getOrElse
 import arrow.core.nonEmptyListOf
+import kotlinx.coroutines.test.runTest
 import mastermind.journal.EventStoreContract.TestEvent.Event1
 import mastermind.journal.EventStoreContract.TestEvent.Event2
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
@@ -19,12 +20,12 @@ abstract class EventStoreContract(
     private val streamName = UniqueSequence { index -> "stream:$index" }()
 
     @Test
-    fun `it returns StreamNotFound error if stream does not exist`() {
+    fun `it returns StreamNotFound error if stream does not exist`() = runTest {
         eventStore.load(streamName) shouldFailWith StreamNotFound(streamName)
     }
 
     @Test
-    fun `it loads events from a stream`() {
+    fun `it loads events from a stream`() = runTest {
         givenEventsExist(
             streamName,
             Event1("ABC"),
@@ -40,7 +41,7 @@ abstract class EventStoreContract(
     }
 
     @Test
-    fun `it persists events to a new stream`() {
+    fun `it persists events to a new stream`() = runTest {
         val result = eventStore.append(
             updatedStream(streamName, Event1("A1"), Event2("A2", "Second event."))
         )
@@ -56,7 +57,7 @@ abstract class EventStoreContract(
     }
 
     @Test
-    fun `it appends events to an existing stream`() {
+    fun `it appends events to an existing stream`() = runTest {
         val existingStream = givenEventsExist(
             streamName,
             Event1("ABC"),
@@ -83,7 +84,7 @@ abstract class EventStoreContract(
     }
 
     @Test
-    fun `it returns a failure if version conflict arises during the write`() {
+    fun `it returns a failure if version conflict arises during the write`() = runTest {
         val existingStream = givenEventsExist(
             streamName,
             Event1("ABC"),
@@ -115,9 +116,9 @@ abstract class EventStoreContract(
         loadEvents(streamName) shouldSucceedWith expectedStream
     }
 
-    private fun loadEvents(streamName: StreamName) = eventStore.load(streamName)
+    private suspend fun loadEvents(streamName: StreamName) = eventStore.load(streamName)
 
-    private fun givenEventsExist(streamName: StreamName, event: TestEvent, vararg events: TestEvent) =
+    private suspend fun givenEventsExist(streamName: StreamName, event: TestEvent, vararg events: TestEvent) =
         eventStore.append(updatedStream(streamName, event, *events))
             .getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
 

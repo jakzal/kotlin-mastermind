@@ -34,7 +34,7 @@ class InMemoryJournal<EVENT : Any, FAILURE : Any>(
     private fun Either<JournalFailure<FAILURE>, Stream<EVENT>>.execute(onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>): Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>> =
         flatMap { stream -> stream.onStream().mapLeft(::ExecutionFailure) }
 
-    private fun Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
-        flatMap { streamToWrite -> (eventStore::append)(streamToWrite) }
+    private suspend fun Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+        flatMap { streamToWrite -> eventStore.append(streamToWrite) }
 }
 
