@@ -1,6 +1,5 @@
 package mastermind.journal
 
-import arrow.atomic.AtomicInt
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nonEmptyListOf
