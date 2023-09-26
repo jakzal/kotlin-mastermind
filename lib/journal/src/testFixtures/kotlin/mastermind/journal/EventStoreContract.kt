@@ -15,7 +15,7 @@ import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 abstract class EventStoreContract(
-    private val eventStore: EventStore<TestEvent, TestFailure>
+    private val eventStore: EventStore<TestEvent, Nothing>
 ) {
     private val streamName = UniqueSequence { index -> "stream:$index" }()
 
@@ -128,8 +128,6 @@ abstract class EventStoreContract(
         data class Event1(override val id: String) : TestEvent
         data class Event2(override val id: String, val name: String) : TestEvent
     }
-
-    data class TestFailure(val cause: String)
 }
 
 
