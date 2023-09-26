@@ -7,7 +7,9 @@ import arrow.core.nonEmptyListOf
 import mastermind.journal.InMemoryEventStoreExamples.TestEvent.Event1
 import mastermind.journal.InMemoryEventStoreExamples.TestEvent.Event2
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
+import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.Stream.*
+import mastermind.testkit.assertions.shouldBeFailureOf
 import mastermind.testkit.assertions.shouldBeSuccessOf
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
@@ -74,6 +76,34 @@ class InMemoryEventStoreExamples {
         )
 
         result shouldBeSuccessOf expectedStream
+        loadEvents(streamName) shouldSucceedWith expectedStream
+    }
+
+    @Test
+    fun `it returns a failure if version conflict arises during the write`() {
+        val existingStream = givenEventsExist(
+            streamName,
+            Event1("ABC"),
+            Event2("ABC", "Event 2")
+        )
+
+        // We're cheating a bit here as instead of using the provided stream
+        // we're using the previously loaded one to simulate concurrent reads.
+        val result1 = eventStore.append(
+            updatedStream(existingStream, Event1("DEF"), Event2("DEF", "Event 2 DEF."))
+        )
+        val result2 = eventStore.append(
+            updatedStream(existingStream, Event1("XYZ"), Event2("XYZ", "Event 2 XYZ."))
+        )
+
+        val expectedStream = LoadedStream(
+            streamName,
+            4,
+            nonEmptyListOf(Event1("ABC"), Event2("ABC", "Event 2"), Event1("DEF"), Event2("DEF", "Event 2 DEF."))
+        )
+
+        result1 shouldBeSuccessOf expectedStream
+        result2 shouldBeFailureOf VersionConflict(streamName, 2, 4)
         loadEvents(streamName) shouldSucceedWith expectedStream
     }
 
