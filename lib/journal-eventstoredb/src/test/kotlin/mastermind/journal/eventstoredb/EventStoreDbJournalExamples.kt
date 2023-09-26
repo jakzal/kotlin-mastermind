@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Testcontainers(disabledWithoutDocker = true)
 @Tag("io")
 class EventStoreDbJournalExamples : JournalContract() {
-    private val journal = EventStoreDbJournal<TestEvent, TestFailure>(EventStoreDb(eventStoreClient()))
+    private val journal = EventStoreDbJournal(EventStoreDb<TestEvent, TestFailure>(eventStoreClient()))
 
     companion object {
         @Container
