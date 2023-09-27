@@ -11,8 +11,8 @@ import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameEvent.*
 import mastermind.game.Guess
 import mastermind.game.testkit.anyGameId
-import mastermind.journal.JournalFailure
-import mastermind.journal.JournalFailure.StreamNotFound
+import mastermind.journal.JournalError
+import mastermind.journal.JournalError.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.StreamName
 import mastermind.testkit.assertions.shouldBe
@@ -192,13 +192,13 @@ class DecodingBoardQueryExamples {
     }
 }
 
-private fun noEvents(): suspend (StreamName) -> Either<JournalFailure<GameError>, LoadedStream<GameEvent>> =
+private fun noEvents(): suspend (StreamName) -> Either<JournalError<GameError>, LoadedStream<GameEvent>> =
     { streamName -> StreamNotFound<GameError>(streamName).left() }
 
 private fun events(
     event: GameEvent,
     vararg events: GameEvent
-): suspend (StreamName) -> Either<JournalFailure<GameError>, LoadedStream<GameEvent>> = { streamName ->
+): suspend (StreamName) -> Either<JournalError<GameError>, LoadedStream<GameEvent>> = { streamName ->
     streamName shouldBe "Mastermind:${event.gameId.value}"
     LoadedStream(streamName, events.size.toLong(), nonEmptyListOf(event, *events)).right()
 }

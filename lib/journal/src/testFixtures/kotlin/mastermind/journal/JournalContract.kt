@@ -5,8 +5,8 @@ import arrow.core.nonEmptyListOf
 import kotlinx.coroutines.test.runTest
 import mastermind.journal.JournalContract.TestEvent.Event1
 import mastermind.journal.JournalContract.TestEvent.Event2
-import mastermind.journal.JournalFailure.StreamNotFound
-import mastermind.journal.JournalFailure.VersionConflict
+import mastermind.journal.JournalError.StreamNotFound
+import mastermind.journal.JournalError.VersionConflict
 import mastermind.journal.Stream.LoadedStream
 import mastermind.testkit.assertions.shouldBeFailureOf
 import mastermind.testkit.assertions.shouldBeSuccessOf
@@ -84,7 +84,7 @@ abstract class JournalContract(
     }
 
     @Test
-    fun `it returns a failure if version conflict arises during the write`() = runTest {
+    fun `it returns an error if version conflict arises during the write`() = runTest {
         val existingStream = givenEventsExist(
             streamName,
             Event1("ABC"),

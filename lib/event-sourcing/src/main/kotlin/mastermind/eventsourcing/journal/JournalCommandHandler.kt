@@ -6,26 +6,26 @@ import arrow.core.nonEmptyListOf
 import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.CommandHandler
 import mastermind.eventsourcing.Execute
-import mastermind.journal.JournalFailure
+import mastermind.journal.JournalError
 import mastermind.journal.UpdateStream
 import mastermind.journal.append
 
-context(UpdateStream<EVENT, FAILURE>)
-class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : Any, OUTCOME>(
+context(UpdateStream<EVENT, ERROR>)
+class JournalCommandHandler<COMMAND : Any, EVENT : Any, ERROR : Any, STATE : Any, OUTCOME>(
     private val applyEvent: Apply<STATE, EVENT>,
-    private val execute: Execute<COMMAND, STATE, FAILURE, EVENT>,
+    private val execute: Execute<COMMAND, STATE, ERROR, EVENT>,
     private val streamNameFor: (COMMAND) -> String,
     private val produceOutcome: (NonEmptyList<EVENT>) -> OUTCOME
-) : CommandHandler<COMMAND, JournalFailure<FAILURE>, OUTCOME> {
+) : CommandHandler<COMMAND, JournalError<ERROR>, OUTCOME> {
 
     companion object {
         /**
          * Provides a way to create the command handler with the list of events acting as state
          * without having to provide the apply function for state reconstitution.
          */
-        context(UpdateStream<EVENT, FAILURE>)
-        operator fun <COMMAND : Any, EVENT : Any, FAILURE : Any, OUTCOME> invoke(
-            execute: Execute<COMMAND, NonEmptyList<EVENT>, FAILURE, EVENT>,
+        context(UpdateStream<EVENT, ERROR>)
+        operator fun <COMMAND : Any, EVENT : Any, ERROR : Any, OUTCOME> invoke(
+            execute: Execute<COMMAND, NonEmptyList<EVENT>, ERROR, EVENT>,
             streamNameResolver: (COMMAND) -> String,
             produceOutcome: (NonEmptyList<EVENT>) -> OUTCOME
         ) = JournalCommandHandler(
@@ -36,7 +36,7 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : A
         )
     }
 
-    override suspend operator fun invoke(command: COMMAND): Either<JournalFailure<FAILURE>, OUTCOME> {
+    override suspend operator fun invoke(command: COMMAND): Either<JournalError<ERROR>, OUTCOME> {
         return this@UpdateStream(streamNameFor(command)) {
             append {
                 execute(command, events.fold(null, applyEvent))

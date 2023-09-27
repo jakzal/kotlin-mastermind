@@ -11,8 +11,8 @@ import mastermind.game.GameId
 import mastermind.game.acceptance.dsl.PlayGameAbility
 import mastermind.game.http.Error
 import mastermind.game.view.DecodingBoard
-import mastermind.journal.JournalFailure
-import mastermind.journal.JournalFailure.ExecutionFailure
+import mastermind.journal.JournalError
+import mastermind.journal.JournalError.ExecutionError
 import org.http4k.client.ApacheClient
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
@@ -41,7 +41,7 @@ class HttpPlayGameAbility(
         }
     }
 
-    override suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalFailure<GameError>, GameId> {
+    override suspend fun makeGuess(gameId: GameId, code: Code): Either<JournalError<GameError>, GameId> {
         val response = client(
             Request(Method.POST, "http://localhost:$serverPort/games/${gameId.value}/guesses")
                 .body(code.pegs)
@@ -49,16 +49,16 @@ class HttpPlayGameAbility(
         return if (response.status.successful) {
             gameId.right()
         } else {
-            response.executionFailure(gameId)
+            response.executionError(gameId)
         }
     }
 }
 
-private fun Response.executionFailure(gameId: GameId): Either<JournalFailure<GameError>, GameId> = either {
+private fun Response.executionError(gameId: GameId): Either<JournalError<GameError>, GameId> = either {
     if (body().message.matches(".*won.*".toRegex())) {
-        raise(ExecutionFailure(GameAlreadyWon(gameId)))
+        raise(ExecutionError(GameAlreadyWon(gameId)))
     } else {
-        raise(ExecutionFailure(GameAlreadyLost(gameId)))
+        raise(ExecutionError(GameAlreadyLost(gameId)))
     }
 }
 

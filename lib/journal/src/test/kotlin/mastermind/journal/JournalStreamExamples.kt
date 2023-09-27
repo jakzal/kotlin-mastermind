@@ -4,7 +4,7 @@ import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import kotlinx.coroutines.test.runTest
-import mastermind.journal.JournalFailure.*
+import mastermind.journal.JournalError.*
 import mastermind.journal.JournalStreamExamples.TestEvent.Event1
 import mastermind.journal.JournalStreamExamples.TestEvent.Event2
 import mastermind.journal.Stream.LoadedStream
@@ -16,7 +16,7 @@ import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 class JournalStreamExamples {
-    private val journal: Journal<TestEvent, TestFailure> = InMemoryJournal()
+    private val journal: Journal<TestEvent, TestError> = InMemoryJournal()
     private val updateStream = with(journal) { createUpdateStream() }
     private val loadStream = with(journal) { createLoadStream() }
     private val streamName = UniqueSequence { index -> "stream:$index" }()
@@ -51,26 +51,26 @@ class JournalStreamExamples {
     }
 
     @Test
-    fun `it returns the execution failure if stream update returns an error`() = runTest {
+    fun `it returns the execution error if stream update returns an error`() = runTest {
         val result = updateStream(streamName) {
-            TestFailure("Command failed.").left()
+            TestError("Command failed.").left()
         }
 
-        result shouldBeFailureOf ExecutionFailure(TestFailure("Command failed."))
+        result shouldBeFailureOf ExecutionError(TestError("Command failed."))
     }
 
 
     @Test
-    fun `it returns the eventstore failure if the event store fails to append events`() = runTest {
+    fun `it returns the eventstore error if the event store fails to append events`() = runTest {
         val events = nonEmptyListOf(Event1("A1"))
-        val journal: Journal<TestEvent, TestFailure> = object : Journal<TestEvent, TestFailure> {
+        val journal: Journal<TestEvent, TestError> = object : Journal<TestEvent, TestError> {
             override suspend fun load(streamName: StreamName) =
-                either<JournalFailure<TestFailure>, LoadedStream<TestEvent>> {
+                either<JournalError<TestError>, LoadedStream<TestEvent>> {
                     loadedStream(streamName, events)
                 }
 
             override suspend fun append(stream: UpdatedStream<TestEvent>) =
-                VersionConflict<TestFailure>(streamName, 1, 2).left()
+                VersionConflict<TestError>(streamName, 1, 2).left()
 
         }
         val updateStream = with(journal) { createUpdateStream() }
@@ -81,10 +81,10 @@ class JournalStreamExamples {
     }
 
     @Test
-    fun `it returns the eventstore failure if the event store fails to load events`() = runTest {
-        val journal: Journal<TestEvent, TestFailure> = object : Journal<TestEvent, TestFailure> {
+    fun `it returns the eventstore error if the event store fails to load events`() = runTest {
+        val journal: Journal<TestEvent, TestError> = object : Journal<TestEvent, TestError> {
             override suspend fun load(streamName: StreamName) =
-                VersionConflict<TestFailure>(streamName, 1, 2).left()
+                VersionConflict<TestError>(streamName, 1, 2).left()
 
             override suspend fun append(stream: UpdatedStream<TestEvent>) =
                 throw RuntimeException("Unexpected call to append events.")
@@ -120,5 +120,5 @@ class JournalStreamExamples {
         data class Event2(override val id: String, val name: String) : TestEvent
     }
 
-    private data class TestFailure(val cause: String)
+    private data class TestError(val cause: String)
 }

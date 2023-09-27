@@ -7,7 +7,7 @@ import mastermind.game.*
 import mastermind.game.Code.Peg
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
-import mastermind.journal.JournalFailure
+import mastermind.journal.JournalError
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
@@ -26,17 +26,17 @@ fun main() {
 
 fun mastermindHttpApp(
     app: MastermindApp,
-    handleFailure: (JournalFailure<GameError>) -> Response = JournalFailure<GameError>::response
+    handleError: (JournalError<GameError>) -> Response = JournalError<GameError>::response
 ): RoutingHttpHandler {
     return routes(
         "/games" bind Method.POST to app.handler {
-            joinGame() thenRespond GameId::asResponse or handleFailure
+            joinGame() thenRespond GameId::asResponse or handleError
         },
         "/games/{id}" bind Method.GET to app.handler { request ->
             viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
         },
         "games/{id}/guesses" bind Method.POST to app.handler { request ->
-            makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse or handleFailure
+            makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse or handleError
         }
     )
 }

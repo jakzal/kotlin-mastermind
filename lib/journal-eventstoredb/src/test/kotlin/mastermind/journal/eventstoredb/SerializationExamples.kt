@@ -34,8 +34,8 @@ class SerializationExamples {
         object {
             @Suppress("unused")
             val name: String get() = throw RuntimeException("Writing failed.")
-        }.asJson() shouldFailWith { failure: WriteFailure ->
-            failure.cause shouldHaveTypeOf JsonMappingException::class.java
+        }.asJson() shouldFailWith { error: WriteError ->
+            error.cause shouldHaveTypeOf JsonMappingException::class.java
         }
     }
 
@@ -52,8 +52,8 @@ class SerializationExamples {
         val asObject = createReader<TestEvent>()
         val malformedBytes = """{"id":13, "name":"Second event"""".toByteArray()
 
-        malformedBytes.asObject(Event2::class) shouldFailWith { failure: ReadFailure ->
-            failure.cause shouldHaveTypeOf JsonEOFException::class.java
+        malformedBytes.asObject(Event2::class) shouldFailWith { error: ReadError ->
+            error.cause shouldHaveTypeOf JsonEOFException::class.java
         }
     }
 
@@ -63,7 +63,7 @@ class SerializationExamples {
     }
 }
 
-private infix fun Either<WriteFailure, ByteArray>.shouldReturnJson(expected: String) {
+private infix fun Either<WriteError, ByteArray>.shouldReturnJson(expected: String) {
     this.onLeft { fail("Expected a success but g ot: `$this`.") }
         .map { bytes ->
             assertEquals(expected, bytes.decodeToString(), "`$expected` is `${bytes.decodeToString()}`")
@@ -74,10 +74,10 @@ private infix fun <T> T.shouldSucceedWith(expected: T) {
     assertEquals(expected.right(), this, "`$expected` is `$this`")
 }
 
-private infix fun <A, B> Either<A, B>.shouldFailWith(onFailure: (A) -> Unit) {
+private infix fun <A, B> Either<A, B>.shouldFailWith(onError: (A) -> Unit) {
     this
-        .onRight { fail("Expected a failure but got: `$this`.") }
-        .mapLeft(onFailure)
+        .onRight { fail("Expected an error but got: `$this`.") }
+        .mapLeft(onError)
 }
 
 private infix fun Any.shouldHaveTypeOf(type: Class<out Throwable>) {

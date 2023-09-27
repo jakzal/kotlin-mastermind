@@ -7,7 +7,7 @@ import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError
 import mastermind.game.MastermindApp
 import mastermind.game.testkit.anyGameId
-import mastermind.journal.JournalFailure.StreamNotFound
+import mastermind.journal.JournalError.StreamNotFound
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldReturn
 import org.http4k.core.Body

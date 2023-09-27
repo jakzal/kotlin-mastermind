@@ -5,35 +5,35 @@ import arrow.core.raise.either
 import com.eventstore.dbclient.*
 import kotlinx.coroutines.future.await
 import mastermind.journal.Journal
-import mastermind.journal.JournalFailure
-import mastermind.journal.JournalFailure.StreamNotFound
-import mastermind.journal.JournalFailure.VersionConflict
+import mastermind.journal.JournalError
+import mastermind.journal.JournalError.StreamNotFound
+import mastermind.journal.JournalError.VersionConflict
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 import mastermind.journal.StreamName
 import kotlin.reflect.KClass
 
-class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
+class EventStoreDbJournal<EVENT : Any, ERROR : Any>(
     private val eventStore: EventStoreDBClient,
-    private val asEvent: ByteArray.(KClass<EVENT>) -> Either<ReadFailure, EVENT> = createReader(),
-    private val asBytes: EVENT.() -> Either<WriteFailure, ByteArray> = createWriter()
-) : Journal<EVENT, FAILURE> {
-    override suspend fun load(streamName: StreamName): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+    private val asEvent: ByteArray.(KClass<EVENT>) -> Either<ReadError, EVENT> = createReader(),
+    private val asBytes: EVENT.() -> Either<WriteError, ByteArray> = createWriter()
+) : Journal<EVENT, ERROR> {
+    override suspend fun load(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         try {
             eventStore.readStream(streamName)
                 .mapToEvents(streamName)
         } catch (e: StreamNotFoundException) {
-            StreamNotFound<FAILURE>(streamName).left()
+            StreamNotFound<ERROR>(streamName).left()
         }
 
-    override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+    override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         with(stream) {
             eventsToAppend
                 .asBytesList()
                 .append()
         }
 
-    private fun ReadResult.mapToEvents(streamName: StreamName): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+    private fun ReadResult.mapToEvents(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         events
             .mapOrAccumulate { resolvedEvent ->
                 resolvedEvent
@@ -47,7 +47,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
                     .toNonEmptyListOrNone()
                     .map { e -> LoadedStream(streamName, lastStreamPosition + 1, e) }
             }
-            .getOrNull()?.getOrNull()?.right() ?: StreamNotFound<FAILURE>(streamName).left()
+            .getOrNull()?.getOrNull()?.right() ?: StreamNotFound<ERROR>(streamName).left()
 
     private fun ResolvedEvent.asClass(): KClass<EVENT> = Class.forName(event.eventType).kotlin as KClass<EVENT>
 
@@ -55,14 +55,14 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
         readStream(streamName, ReadStreamOptions.get()).await()
 
     context(UpdatedStream<EVENT>)
-    private fun NonEmptyList<EVENT>.asBytesList(): Either<JournalFailure<FAILURE>, NonEmptyList<EventData>> =
+    private fun NonEmptyList<EVENT>.asBytesList(): Either<JournalError<ERROR>, NonEmptyList<EventData>> =
         either {
             map { event ->
                 event
                     .asBytes()
                     .map { event::class.java.typeName to it }
                     .map { (type, bytes) -> EventData.builderAsBinary(type, bytes).build() }
-                    .mapLeft<JournalFailure<FAILURE>> { _ -> StreamNotFound(streamName) }
+                    .mapLeft<JournalError<ERROR>> { _ -> StreamNotFound(streamName) }
             }.bindAll()
         }
 
@@ -76,11 +76,11 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     )
 
     context(UpdatedStream<EVENT>)
-    private suspend fun Either<JournalFailure<FAILURE>, NonEmptyList<EventData>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+    private suspend fun Either<JournalError<ERROR>, NonEmptyList<EventData>>.append(): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         try {
             map { events -> eventStore.append(events).mapToLoadedStream() }
         } catch (e: WrongExpectedVersionException) {
-            VersionConflict<FAILURE>(
+            VersionConflict<ERROR>(
                 streamName,
                 e.nextExpectedRevision.toRawLong() + 1,
                 e.actualVersion.toRawLong() + 1

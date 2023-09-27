@@ -10,7 +10,7 @@ import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.Execute
 import mastermind.eventsourcing.journal.JournalCommandHandler
 import mastermind.journal.*
-import mastermind.journal.JournalFailure.ExecutionFailure
+import mastermind.journal.JournalError.ExecutionError
 import mastermind.journal.Stream.LoadedStream
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldFailWith
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 
 
 class JournalCommandHandlerExamples {
-    private val journal: Journal<TestEvent, TestFailure> = InMemoryJournal()
+    private val journal: Journal<TestEvent, TestError> = InMemoryJournal()
     private val updateStream = with(journal) { createUpdateStream() }
     private val loadStream = with(journal) { createLoadStream() }
     private val expectedEvent = TestEvent("ABC")
@@ -28,7 +28,7 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it appends events created in reaction to the command to the journal`() = runTest {
-        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestError, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? ->
                 either {
                     nonEmptyListOf(expectedEvent)
@@ -44,7 +44,7 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it makes outcome available to the command executor`() = runTest {
-        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestError, TestEvent> =
             { _: TestCommand, state: NonEmptyList<TestEvent>? ->
                 either {
                     nonEmptyListOf(expectedEvent).also {
@@ -69,7 +69,7 @@ class JournalCommandHandlerExamples {
         val applyEvent: Apply<TestState, TestEvent> = { state, event ->
             state?.let { TestState(it.history + event.id) } ?: TestState(listOf(event.id))
         }
-        val execute: Execute<TestCommand, TestState, TestFailure, TestEvent> =
+        val execute: Execute<TestCommand, TestState, TestError, TestEvent> =
             { _: TestCommand, state: TestState? ->
                 either {
                     nonEmptyListOf(expectedEvent).also {
@@ -90,18 +90,18 @@ class JournalCommandHandlerExamples {
     }
 
     @Test
-    fun `it returns journal failure in case execute fails`() = runTest {
-        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
-            { _: TestCommand, _: NonEmptyList<TestEvent>? -> TestFailure("Execution failed.").left() }
+    fun `it returns journal error in case execute fails`() = runTest {
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestError, TestEvent> =
+            { _: TestCommand, _: NonEmptyList<TestEvent>? -> TestError("Execution failed.").left() }
         val handler = with(updateStream) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
         }
 
-        handler(TestCommand("ABC")) shouldFailWith ExecutionFailure(TestFailure("Execution failed."))
+        handler(TestCommand("ABC")) shouldFailWith ExecutionError(TestError("Execution failed."))
     }
 
     private data class TestCommand(val id: String)
     private data class TestEvent(val id: String)
-    private data class TestFailure(val cause: String)
+    private data class TestError(val cause: String)
     private data class TestState(val history: List<String>)
 }

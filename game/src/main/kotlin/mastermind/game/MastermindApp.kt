@@ -27,12 +27,12 @@ data class Configuration(
 
 data class MastermindApp(
     private val configuration: Configuration = Configuration(),
-    val joinGame: suspend () -> Either<JournalFailure<GameError>, GameId> = {
+    val joinGame: suspend () -> Either<JournalError<GameError>, GameId> = {
         with(configuration) {
             gameCommandHandler(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
         }
     },
-    val makeGuess: suspend (MakeGuess) -> Either<JournalFailure<GameError>, GameId> = { command ->
+    val makeGuess: suspend (MakeGuess) -> Either<JournalError<GameError>, GameId> = { command ->
         with(configuration) {
             gameCommandHandler(command)
         }
@@ -44,4 +44,4 @@ data class MastermindApp(
     }
 )
 
-typealias GameCommandHandler = CommandHandler<GameCommand, JournalFailure<GameError>, GameId>
+typealias GameCommandHandler = CommandHandler<GameCommand, JournalError<GameError>, GameId>

@@ -7,10 +7,10 @@ import mastermind.journal.Stream.UpdatedStream
 typealias StreamName = String
 typealias StreamVersion = Long
 
-typealias OnStream<EVENT, FAILURE> = Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
-typealias UpdateStream<EVENT, FAILURE> =
-        suspend (StreamName, OnStream<EVENT, FAILURE>) -> Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
-typealias LoadStream<EVENT, FAILURE> = suspend (StreamName) -> Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
+typealias OnStream<EVENT, ERROR> = Stream<EVENT>.() -> Either<ERROR, UpdatedStream<EVENT>>
+typealias UpdateStream<EVENT, ERROR> =
+        suspend (StreamName, OnStream<EVENT, ERROR>) -> Either<JournalError<ERROR>, LoadedStream<EVENT>>
+typealias LoadStream<EVENT, ERROR> = suspend (StreamName) -> Either<JournalError<ERROR>, LoadedStream<EVENT>>
 
 sealed interface Stream<EVENT : Any> {
     val streamName: StreamName

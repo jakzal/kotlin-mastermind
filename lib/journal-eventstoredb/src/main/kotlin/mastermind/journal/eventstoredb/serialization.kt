@@ -7,23 +7,23 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlin.reflect.KClass
 
-data class WriteFailure(val cause: Throwable)
-data class ReadFailure(val cause: Throwable)
+data class WriteError(val cause: Throwable)
+data class ReadError(val cause: Throwable)
 
-fun <T : Any> createWriter(objectMapper: ObjectMapper = jacksonObjectMapper()): T.() -> Either<WriteFailure, ByteArray> =
+fun <T : Any> createWriter(objectMapper: ObjectMapper = jacksonObjectMapper()): T.() -> Either<WriteError, ByteArray> =
     {
         try {
             objectMapper.writeValueAsBytes(this).right()
         } catch (cause: Throwable) {
-            WriteFailure(cause).left()
+            WriteError(cause).left()
         }
     }
 
-fun <T : Any> createReader(objectMapper: ObjectMapper = jacksonObjectMapper()): ByteArray.(KClass<out T>) -> Either<ReadFailure, T> =
+fun <T : Any> createReader(objectMapper: ObjectMapper = jacksonObjectMapper()): ByteArray.(KClass<out T>) -> Either<ReadError, T> =
     { type ->
         try {
             objectMapper.readValue(this, type.java).right()
         } catch (cause: Throwable) {
-            ReadFailure(cause).left()
+            ReadError(cause).left()
         }
     }

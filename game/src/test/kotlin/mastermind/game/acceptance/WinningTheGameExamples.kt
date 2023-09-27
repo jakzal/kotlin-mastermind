@@ -9,7 +9,7 @@ import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
-import mastermind.journal.JournalFailure.ExecutionFailure
+import mastermind.journal.JournalError.ExecutionError
 import mastermind.testkit.assertions.shouldReturn
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -50,7 +50,7 @@ class WinningTheGameExamples {
                 "Won"
             )
             // And I should no longer be able to make guesses
-            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn ExecutionFailure(
+            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn ExecutionError(
                 GameAlreadyWon(gameId)
             ).left()
         }
