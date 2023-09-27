@@ -2,9 +2,10 @@ package mastermind.game.view
 
 import mastermind.game.*
 import mastermind.game.GameEvent.*
+import mastermind.journal.JournalError
 import mastermind.journal.LoadStream
 
-context(LoadStream<GameEvent, GameError>)
+context(LoadStream<GameEvent, JournalError<GameError>>)
 suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = this@LoadStream("Mastermind:${gameId.value}")
     .fold(
         { null },

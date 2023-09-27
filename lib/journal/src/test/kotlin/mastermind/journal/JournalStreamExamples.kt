@@ -53,7 +53,7 @@ class JournalStreamExamples {
     @Test
     fun `it returns the execution error if stream update returns an error`() = runTest {
         val result = updateStream(streamName) {
-            TestError("Command failed.").left()
+            ExecutionError(TestError("Command failed.")).left()
         }
 
         result shouldBeFailureOf ExecutionError(TestError("Command failed."))

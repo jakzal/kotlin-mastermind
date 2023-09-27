@@ -14,8 +14,8 @@ data class Configuration(
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code = { availablePegs.makeCode() },
     val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
-    val updateStream: UpdateStream<GameEvent, GameError> = with(journal) { createUpdateStream() },
-    val loadStream: LoadStream<GameEvent, GameError> = with(journal) { createLoadStream() },
+    val updateStream: UpdateStream<GameEvent, JournalError<GameError>> = with(journal) { createUpdateStream() },
+    val loadStream: LoadStream<GameEvent, JournalError<GameError>> = with(journal) { createLoadStream() },
     val gameCommandHandler: GameCommandHandler = with(updateStream) {
         JournalCommandHandler(
             ::execute,

@@ -7,10 +7,11 @@ import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.CommandHandler
 import mastermind.eventsourcing.Execute
 import mastermind.journal.JournalError
+import mastermind.journal.JournalError.ExecutionError
 import mastermind.journal.UpdateStream
 import mastermind.journal.append
 
-context(UpdateStream<EVENT, ERROR>)
+context(UpdateStream<EVENT, JournalError<ERROR>>)
 class JournalCommandHandler<COMMAND : Any, EVENT : Any, ERROR : Any, STATE : Any, OUTCOME>(
     private val applyEvent: Apply<STATE, EVENT>,
     private val execute: Execute<COMMAND, STATE, ERROR, EVENT>,
@@ -23,7 +24,7 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, ERROR : Any, STATE : Any
          * Provides a way to create the command handler with the list of events acting as state
          * without having to provide the apply function for state reconstitution.
          */
-        context(UpdateStream<EVENT, ERROR>)
+        context(UpdateStream<EVENT, JournalError<ERROR>>)
         operator fun <COMMAND : Any, EVENT : Any, ERROR : Any, OUTCOME> invoke(
             execute: Execute<COMMAND, NonEmptyList<EVENT>, ERROR, EVENT>,
             streamNameResolver: (COMMAND) -> String,
@@ -40,6 +41,7 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, ERROR : Any, STATE : Any
         return this@UpdateStream(streamNameFor(command)) {
             append {
                 execute(command, events.fold(null, applyEvent))
+                    .mapLeft(::ExecutionError)
             }
         }.map {
             produceOutcome(it.events)

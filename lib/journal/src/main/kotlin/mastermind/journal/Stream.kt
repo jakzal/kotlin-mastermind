@@ -9,8 +9,8 @@ typealias StreamVersion = Long
 
 typealias OnStream<EVENT, ERROR> = Stream<EVENT>.() -> Either<ERROR, UpdatedStream<EVENT>>
 typealias UpdateStream<EVENT, ERROR> =
-        suspend (StreamName, OnStream<EVENT, ERROR>) -> Either<JournalError<ERROR>, LoadedStream<EVENT>>
-typealias LoadStream<EVENT, ERROR> = suspend (StreamName) -> Either<JournalError<ERROR>, LoadedStream<EVENT>>
+        suspend (StreamName, OnStream<EVENT, ERROR>) -> Either<ERROR, LoadedStream<EVENT>>
+typealias LoadStream<EVENT, ERROR> = suspend (StreamName) -> Either<ERROR, LoadedStream<EVENT>>
 
 sealed interface Stream<EVENT : Any> {
     val streamName: StreamName
