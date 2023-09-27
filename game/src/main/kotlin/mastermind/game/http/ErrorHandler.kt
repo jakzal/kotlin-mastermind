@@ -16,7 +16,7 @@ import org.http4k.format.Jackson.auto
 data class Error(val message: String)
 
 fun JournalError<GameError>.response(): Response = when (this) {
-    is StreamNotFound<GameError> -> Response(Status.NOT_FOUND).with(Error("Game not found."))
+    is StreamNotFound -> Response(Status.NOT_FOUND).with(Error("Game not found."))
     is VersionConflict -> Response(Status.INTERNAL_SERVER_ERROR).with(Error("Internal server error."))
     is ExecutionError<GameError> -> this.cause.response()
 }

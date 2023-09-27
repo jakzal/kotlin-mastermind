@@ -193,7 +193,7 @@ class DecodingBoardQueryExamples {
 }
 
 private fun noEvents(): suspend (StreamName) -> Either<JournalError<GameError>, LoadedStream<GameEvent>> =
-    { streamName -> StreamNotFound<GameError>(streamName).left() }
+    { streamName -> StreamNotFound(streamName).left() }
 
 private fun events(
     event: GameEvent,

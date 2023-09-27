@@ -10,8 +10,9 @@ import mastermind.journal.Stream.UpdatedStream
 class InMemoryJournal<EVENT : Any, ERROR : Any>(
     private val events: Atomic<Map<StreamName, LoadedStream<EVENT>>> = Atomic(mapOf())
 ) : Journal<EVENT, ERROR> {
-    override suspend fun load(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
-        events.get()[streamName]?.right() ?: StreamNotFound<ERROR>(streamName).left()
+    override suspend fun load(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> = either {
+        events.get()[streamName] ?: raise(StreamNotFound(streamName))
+    }
 
     override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         either {

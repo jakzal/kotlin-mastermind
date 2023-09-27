@@ -23,7 +23,7 @@ class EventStoreDbJournal<EVENT : Any, ERROR : Any>(
             eventStore.readStream(streamName)
                 .mapToEvents(streamName)
         } catch (e: StreamNotFoundException) {
-            StreamNotFound<ERROR>(streamName).left()
+            StreamNotFound(streamName).left()
         }
 
     override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
@@ -47,7 +47,7 @@ class EventStoreDbJournal<EVENT : Any, ERROR : Any>(
                     .toNonEmptyListOrNone()
                     .map { e -> LoadedStream(streamName, lastStreamPosition + 1, e) }
             }
-            .getOrNull()?.getOrNull()?.right() ?: StreamNotFound<ERROR>(streamName).left()
+            .getOrNull()?.getOrNull()?.right() ?: StreamNotFound(streamName).left()
 
     private fun ResolvedEvent.asClass(): KClass<EVENT> = Class.forName(event.eventType).kotlin as KClass<EVENT>
 
@@ -80,7 +80,7 @@ class EventStoreDbJournal<EVENT : Any, ERROR : Any>(
         try {
             map { events -> eventStore.append(events).mapToLoadedStream() }
         } catch (e: WrongExpectedVersionException) {
-            VersionConflict<ERROR>(
+            VersionConflict(
                 streamName,
                 e.nextExpectedRevision.toRawLong() + 1,
                 e.actualVersion.toRawLong() + 1

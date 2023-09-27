@@ -70,7 +70,7 @@ class JournalStreamExamples {
                 }
 
             override suspend fun append(stream: UpdatedStream<TestEvent>) =
-                VersionConflict<TestError>(streamName, 1, 2).left()
+                VersionConflict(streamName, 1, 2).left()
 
         }
         val updateStream = with(journal) { createUpdateStream() }
@@ -84,7 +84,7 @@ class JournalStreamExamples {
     fun `it returns the eventstore error if the event store fails to load events`() = runTest {
         val journal: Journal<TestEvent, TestError> = object : Journal<TestEvent, TestError> {
             override suspend fun load(streamName: StreamName) =
-                VersionConflict<TestError>(streamName, 1, 2).left()
+                VersionConflict(streamName, 1, 2).left()
 
             override suspend fun append(stream: UpdatedStream<TestEvent>) =
                 throw RuntimeException("Unexpected call to append events.")

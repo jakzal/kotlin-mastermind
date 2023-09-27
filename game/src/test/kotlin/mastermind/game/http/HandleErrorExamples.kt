@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Test
 class HandleErrorExamples {
     @Test
     fun `it returns a 404 response for StreamNotFound`() {
-        StreamNotFound<GameError>("stream:a")
+        StreamNotFound("stream:a")
             .response() shouldReturn Response(Status.NOT_FOUND).with(Error("Game not found."))
     }
 
     @Test
     fun `it returns a 500 response for VersionConflict`() {
-        VersionConflict<GameError>("stream:b", 1L, 4L)
+        VersionConflict("stream:b", 1L, 4L)
             .response() shouldReturn Response(Status.INTERNAL_SERVER_ERROR).with(Error("Internal server error."))
     }
 

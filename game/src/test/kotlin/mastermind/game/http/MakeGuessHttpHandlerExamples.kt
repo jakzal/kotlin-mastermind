@@ -4,7 +4,6 @@ import arrow.core.left
 import arrow.core.right
 import mastermind.game.Code
 import mastermind.game.GameCommand.MakeGuess
-import mastermind.game.GameError
 import mastermind.game.MastermindApp
 import mastermind.game.testkit.anyGameId
 import mastermind.journal.JournalError.StreamNotFound
@@ -41,7 +40,7 @@ class MakeGuessHttpHandlerExamples {
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
             makeGuess = { _: MakeGuess ->
-                StreamNotFound<GameError>("my-stream").left()
+                StreamNotFound("my-stream").left()
             }
         ))
 
