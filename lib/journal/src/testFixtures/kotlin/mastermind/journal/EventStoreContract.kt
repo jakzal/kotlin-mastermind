@@ -129,20 +129,3 @@ abstract class EventStoreContract(
         data class Event2(override val id: String, val name: String) : TestEvent
     }
 }
-
-
-private fun <EVENT : Any> updatedStream(
-    streamName: StreamName,
-    event: EVENT,
-    vararg events: EVENT
-): Stream.UpdatedStream<EVENT> =
-    updatedStream(Stream.EmptyStream(streamName), event, *events)
-
-private fun <EVENT : Any> updatedStream(
-    existingStream: Stream<EVENT>,
-    event: EVENT,
-    vararg events: EVENT
-): Stream.UpdatedStream<EVENT> =
-    existingStream.append<EVENT, Nothing>(event, *events).getOrNull()
-        ?: throw RuntimeException("Failed to create an updated stream.")
-
