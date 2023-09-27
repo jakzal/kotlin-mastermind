@@ -15,6 +15,7 @@ data class Configuration(
     val makeCode: () -> Code = { availablePegs.makeCode() },
     val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
     val updateStream: UpdateStream<GameEvent, GameError> = with(journal) { createUpdateStream() },
+    val loadStream: LoadStream<GameEvent, GameError> = with(journal) { createLoadStream() },
     val gameCommandHandler: GameCommandHandler = with(updateStream) {
         JournalCommandHandler(
             ::execute,
@@ -37,7 +38,7 @@ data class MastermindApp(
         }
     },
     val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(configuration.journal::load) {
+        with(configuration.loadStream) {
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     }

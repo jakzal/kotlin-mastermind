@@ -1,6 +1,8 @@
 package mastermind.journal
 
 import arrow.core.*
+import mastermind.journal.JournalFailure.EventStoreFailure
+import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 
 typealias StreamName = String
@@ -8,7 +10,8 @@ typealias StreamVersion = Long
 
 typealias OnStream<EVENT, FAILURE> = Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
 typealias UpdateStream<EVENT, FAILURE> =
-        suspend (StreamName, OnStream<EVENT, FAILURE>) -> Either<JournalFailure<FAILURE>, Stream.LoadedStream<EVENT>>
+        suspend (StreamName, OnStream<EVENT, FAILURE>) -> Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
+typealias LoadStream<EVENT, FAILURE> = suspend (StreamName) -> Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>
 
 sealed interface Stream<EVENT : Any> {
     val streamName: StreamName

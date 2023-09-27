@@ -18,6 +18,11 @@ fun <EVENT : Any, FAILURE : Any> createUpdateStream(): UpdateStream<EVENT, FAILU
     }
 }
 
+context(Journal<EVENT, FAILURE>)
+fun <EVENT : Any, FAILURE : Any> createLoadStream(): LoadStream<EVENT, FAILURE> = { streamName ->
+    load(streamName)
+}
+
 private fun <EVENT : Any, FAILURE : Any> Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
     recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
         if (e is StreamNotFound) EmptyStream(streamName)

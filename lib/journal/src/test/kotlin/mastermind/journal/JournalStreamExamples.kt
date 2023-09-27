@@ -5,10 +5,13 @@ import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import kotlinx.coroutines.test.runTest
 import mastermind.journal.JournalFailure.EventStoreFailure
+import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
+import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.JournalStreamExamples.TestEvent.Event1
 import mastermind.journal.JournalStreamExamples.TestEvent.Event2
+import mastermind.journal.Stream.UpdatedStream
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldBeFailureOf
 import mastermind.testkit.assertions.shouldFailWith
@@ -18,6 +21,7 @@ import org.junit.jupiter.api.Test
 class JournalStreamExamples {
     private val journal: Journal<TestEvent, TestFailure> = InMemoryJournal()
     private val updateStream = with(journal) { createUpdateStream() }
+    private val loadStream = with(journal) { createLoadStream() }
     private val streamName = UniqueSequence { index -> "stream:$index" }()
 
     @Test
@@ -55,7 +59,7 @@ class JournalStreamExamples {
             TestFailure("Command failed.").left()
         }
 
-        result shouldBeFailureOf JournalFailure.ExecutionFailure(TestFailure("Command failed."))
+        result shouldBeFailureOf ExecutionFailure(TestFailure("Command failed."))
     }
 
 
@@ -68,7 +72,7 @@ class JournalStreamExamples {
                     loadedStream(streamName, events)
                 }
 
-            override suspend fun append(stream: Stream.UpdatedStream<TestEvent>) =
+            override suspend fun append(stream: UpdatedStream<TestEvent>) =
                 VersionConflict<TestFailure>(streamName, 1, 2).left()
 
         }
@@ -85,7 +89,7 @@ class JournalStreamExamples {
             override suspend fun load(streamName: StreamName) =
                 VersionConflict<TestFailure>(streamName, 1, 2).left()
 
-            override suspend fun append(stream: Stream.UpdatedStream<TestEvent>) =
+            override suspend fun append(stream: UpdatedStream<TestEvent>) =
                 throw RuntimeException("Unexpected call to append events.")
 
         }
@@ -94,6 +98,22 @@ class JournalStreamExamples {
         updateStream(streamName) {
             append(Event1("B1"))
         } shouldFailWith VersionConflict(streamName, 1, 2)
+    }
+
+    @Test
+    fun `it loads a stream from the event store`() = runTest {
+        journal.append(updatedStream(streamName, Event1("A1"), Event2("A2", "Event two.")))
+
+        loadStream(streamName) shouldSucceedWith loadedStream(
+            streamName,
+            Event1("A1"),
+            Event2("A2", "Event two.")
+        )
+    }
+
+    @Test
+    fun `it returns an error if the stream is not found in the event store`() = runTest {
+        loadStream(streamName) shouldFailWith StreamNotFound(streamName)
     }
 
     private sealed interface TestEvent {
