@@ -3,8 +3,8 @@ package mastermind.journal
 import arrow.core.getOrElse
 import arrow.core.nonEmptyListOf
 import kotlinx.coroutines.test.runTest
-import mastermind.journal.EventStoreContract.TestEvent.Event1
-import mastermind.journal.EventStoreContract.TestEvent.Event2
+import mastermind.journal.JournalContract.TestEvent.Event1
+import mastermind.journal.JournalContract.TestEvent.Event2
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
 import mastermind.journal.Stream.LoadedStream
@@ -14,14 +14,14 @@ import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
-abstract class EventStoreContract(
-    private val eventStore: EventStore<TestEvent, Nothing>
+abstract class JournalContract(
+    private val journal: Journal<TestEvent, Nothing>
 ) {
     private val streamName = UniqueSequence { index -> "stream:$index" }()
 
     @Test
     fun `it returns StreamNotFound error if stream does not exist`() = runTest {
-        eventStore.load(streamName) shouldFailWith StreamNotFound(streamName)
+        journal.load(streamName) shouldFailWith StreamNotFound(streamName)
     }
 
     @Test
@@ -32,7 +32,7 @@ abstract class EventStoreContract(
             Event2("ABC", "Event 2")
         )
 
-        eventStore.load(streamName) shouldSucceedWith LoadedStream(
+        journal.load(streamName) shouldSucceedWith LoadedStream(
             streamName, 2, nonEmptyListOf(
                 Event1("ABC"),
                 Event2("ABC", "Event 2")
@@ -42,7 +42,7 @@ abstract class EventStoreContract(
 
     @Test
     fun `it persists events to a new stream`() = runTest {
-        val result = eventStore.append(
+        val result = journal.append(
             updatedStream(streamName, Event1("A1"), Event2("A2", "Second event."))
         )
 
@@ -64,7 +64,7 @@ abstract class EventStoreContract(
             Event2("ABC", "Event 2")
         )
 
-        val result = eventStore.append(
+        val result = journal.append(
             updatedStream(existingStream, Event1("DEF"), Event2("DEF", "Event 2 DEF."))
         )
 
@@ -93,10 +93,10 @@ abstract class EventStoreContract(
 
         // We're cheating a bit here as instead of using the provided stream
         // we're using the previously loaded one to simulate concurrent reads.
-        val result1 = eventStore.append(
+        val result1 = journal.append(
             updatedStream(existingStream, Event1("DEF"), Event2("DEF", "Event 2 DEF."))
         )
-        val result2 = eventStore.append(
+        val result2 = journal.append(
             updatedStream(existingStream, Event1("XYZ"), Event2("XYZ", "Event 2 XYZ."))
         )
 
@@ -116,10 +116,10 @@ abstract class EventStoreContract(
         loadEvents(streamName) shouldSucceedWith expectedStream
     }
 
-    private suspend fun loadEvents(streamName: StreamName) = eventStore.load(streamName)
+    private suspend fun loadEvents(streamName: StreamName) = journal.load(streamName)
 
     private suspend fun givenEventsExist(streamName: StreamName, event: TestEvent, vararg events: TestEvent) =
-        eventStore.append(updatedStream(streamName, event, *events))
+        journal.append(updatedStream(streamName, event, *events))
             .getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
 
     sealed interface TestEvent {

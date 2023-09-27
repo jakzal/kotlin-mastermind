@@ -8,9 +8,9 @@ import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 
-class InMemoryEventStore<EVENT : Any, FAILURE : Any>(
+class InMemoryJournal<EVENT : Any, FAILURE : Any>(
     private val events: Atomic<Map<StreamName, LoadedStream<EVENT>>> = Atomic(mapOf())
-) : EventStore<EVENT, FAILURE> {
+) : Journal<EVENT, FAILURE> {
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
         events.get()[streamName]?.right() ?: StreamNotFound<FAILURE>(streamName).left()
 

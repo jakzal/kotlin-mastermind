@@ -20,8 +20,8 @@ import org.junit.jupiter.api.Test
 
 
 class JournalCommandHandlerExamples {
-    private val eventStore: EventStore<TestEvent, TestFailure> = InMemoryEventStore()
-    private val updateStream = with(eventStore) { createUpdateStream() }
+    private val journal: Journal<TestEvent, TestFailure> = InMemoryJournal()
+    private val updateStream = with(journal) { createUpdateStream() }
     private val expectedEvent = TestEvent("ABC")
     private val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
 
@@ -38,7 +38,7 @@ class JournalCommandHandlerExamples {
         }
 
         handler(TestCommand("ABC")) shouldReturn "ABC".right()
-        eventStore.load("Stream:ABC") shouldSucceedWith LoadedStream("Stream:ABC", 1L, nonEmptyListOf(expectedEvent))
+        journal.load("Stream:ABC") shouldSucceedWith LoadedStream("Stream:ABC", 1L, nonEmptyListOf(expectedEvent))
     }
 
     @Test

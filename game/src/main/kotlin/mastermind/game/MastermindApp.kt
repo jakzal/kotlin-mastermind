@@ -13,8 +13,8 @@ data class Configuration(
     val totalAttempts: Int = 12,
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code = { availablePegs.makeCode() },
-    val eventStore: EventStore<GameEvent, GameError> = InMemoryEventStore(),
-    val updateStream: UpdateStream<GameEvent, GameError> = with(eventStore) { createUpdateStream() },
+    val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
+    val updateStream: UpdateStream<GameEvent, GameError> = with(journal) { createUpdateStream() },
     val gameCommandHandler: GameCommandHandler = with(updateStream) {
         JournalCommandHandler(
             ::execute,
@@ -37,7 +37,7 @@ data class MastermindApp(
         }
     },
     val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(configuration.eventStore::load) {
+        with(configuration.journal::load) {
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     }

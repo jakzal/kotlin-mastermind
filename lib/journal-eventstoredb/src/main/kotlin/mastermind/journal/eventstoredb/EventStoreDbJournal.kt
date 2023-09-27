@@ -4,7 +4,7 @@ import arrow.core.*
 import arrow.core.raise.either
 import com.eventstore.dbclient.*
 import kotlinx.coroutines.future.await
-import mastermind.journal.EventStore
+import mastermind.journal.Journal
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
@@ -13,11 +13,11 @@ import mastermind.journal.Stream.UpdatedStream
 import mastermind.journal.StreamName
 import kotlin.reflect.KClass
 
-class EventStoreDb<EVENT : Any, FAILURE : Any>(
+class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     private val eventStore: EventStoreDBClient,
     private val asEvent: ByteArray.(KClass<EVENT>) -> Either<ReadFailure, EVENT> = createReader(),
     private val asBytes: EVENT.() -> Either<WriteFailure, ByteArray> = createWriter()
-) : EventStore<EVENT, FAILURE> {
+) : Journal<EVENT, FAILURE> {
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
         try {
             eventStore.readStream(streamName)

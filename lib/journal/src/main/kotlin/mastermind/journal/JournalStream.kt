@@ -8,8 +8,8 @@ import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
-context(EventStore<EVENT, FAILURE>)
-fun <EVENT : Any, FAILURE : Any> createUpdateStream(): UpdateStream<EVENT, FAILURE> = with(this@EventStore) {
+context(Journal<EVENT, FAILURE>)
+fun <EVENT : Any, FAILURE : Any> createUpdateStream(): UpdateStream<EVENT, FAILURE> = with(this@Journal) {
     { streamName, onStream ->
         load(streamName)
             .orCreate(streamName)
@@ -27,6 +27,6 @@ private fun <EVENT : Any, FAILURE : Any> Either<EventStoreFailure<FAILURE>, Load
 private fun <EVENT : Any, FAILURE : Any> Either<JournalFailure<FAILURE>, Stream<EVENT>>.execute(onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>): Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>> =
     flatMap { stream -> stream.onStream().mapLeft(::ExecutionFailure) }
 
-context(EventStore<EVENT, FAILURE>)
+context(Journal<EVENT, FAILURE>)
 private suspend fun <EVENT : Any, FAILURE : Any> Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
-    flatMap { streamToWrite -> this@EventStore.append(streamToWrite) }
+    flatMap { streamToWrite -> this@Journal.append(streamToWrite) }
