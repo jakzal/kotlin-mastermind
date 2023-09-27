@@ -8,7 +8,6 @@ import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
-
 context(EventStore<EVENT, FAILURE>)
 class EventStoreJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
 
