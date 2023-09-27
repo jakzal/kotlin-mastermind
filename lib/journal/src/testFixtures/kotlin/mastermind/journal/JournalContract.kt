@@ -5,8 +5,8 @@ import arrow.core.nonEmptyListOf
 import kotlinx.coroutines.test.runTest
 import mastermind.journal.JournalContract.TestEvent.Event1
 import mastermind.journal.JournalContract.TestEvent.Event2
-import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
-import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
+import mastermind.journal.JournalFailure.StreamNotFound
+import mastermind.journal.JournalFailure.VersionConflict
 import mastermind.journal.Stream.LoadedStream
 import mastermind.testkit.assertions.shouldBeFailureOf
 import mastermind.testkit.assertions.shouldBeSuccessOf

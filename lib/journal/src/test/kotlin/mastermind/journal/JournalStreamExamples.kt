@@ -4,13 +4,10 @@ import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.raise.either
 import kotlinx.coroutines.test.runTest
-import mastermind.journal.JournalFailure.EventStoreFailure
-import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
-import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
-import mastermind.journal.JournalFailure.ExecutionFailure
-import mastermind.journal.Stream.LoadedStream
+import mastermind.journal.JournalFailure.*
 import mastermind.journal.JournalStreamExamples.TestEvent.Event1
 import mastermind.journal.JournalStreamExamples.TestEvent.Event2
+import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldBeFailureOf
@@ -68,7 +65,7 @@ class JournalStreamExamples {
         val events = nonEmptyListOf(Event1("A1"))
         val journal: Journal<TestEvent, TestFailure> = object : Journal<TestEvent, TestFailure> {
             override suspend fun load(streamName: StreamName) =
-                either<EventStoreFailure<TestFailure>, LoadedStream<TestEvent>> {
+                either<JournalFailure<TestFailure>, LoadedStream<TestEvent>> {
                     loadedStream(streamName, events)
                 }
 

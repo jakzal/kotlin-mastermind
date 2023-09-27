@@ -3,8 +3,7 @@ package mastermind.journal
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.recover
-import mastermind.journal.JournalFailure.EventStoreFailure
-import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
+import mastermind.journal.JournalFailure.StreamNotFound
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
@@ -23,7 +22,7 @@ fun <EVENT : Any, FAILURE : Any> createLoadStream(): LoadStream<EVENT, FAILURE> 
     load(streamName)
 }
 
-private fun <EVENT : Any, FAILURE : Any> Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
+private fun <EVENT : Any, FAILURE : Any> Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
     recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
         if (e is StreamNotFound) EmptyStream(streamName)
         else raise(e)

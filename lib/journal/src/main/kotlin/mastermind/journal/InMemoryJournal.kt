@@ -3,24 +3,23 @@ package mastermind.journal
 import arrow.atomic.Atomic
 import arrow.core.*
 import arrow.core.raise.either
-import mastermind.journal.JournalFailure.EventStoreFailure
-import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
+import mastermind.journal.JournalFailure.StreamNotFound
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 
 class InMemoryJournal<EVENT : Any, FAILURE : Any>(
     private val events: Atomic<Map<StreamName, LoadedStream<EVENT>>> = Atomic(mapOf())
 ) : Journal<EVENT, FAILURE> {
-    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+    override suspend fun load(streamName: StreamName): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
         events.get()[streamName]?.right() ?: StreamNotFound<FAILURE>(streamName).left()
 
-    override suspend fun append(stream: UpdatedStream<EVENT>): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+    override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
         either {
             events.updateAndGet {
                 it[stream.streamName]?.let { writtenStream ->
                     if (writtenStream.streamVersion != stream.streamVersion) {
                         raise(
-                            EventStoreFailure.VersionConflict(
+                            JournalFailure.VersionConflict(
                                 stream.streamName,
                                 stream.streamVersion,
                                 writtenStream.streamVersion

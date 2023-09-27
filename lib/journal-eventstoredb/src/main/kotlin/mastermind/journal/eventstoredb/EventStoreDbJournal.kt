@@ -5,9 +5,9 @@ import arrow.core.raise.either
 import com.eventstore.dbclient.*
 import kotlinx.coroutines.future.await
 import mastermind.journal.Journal
-import mastermind.journal.JournalFailure.EventStoreFailure
-import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
-import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
+import mastermind.journal.JournalFailure
+import mastermind.journal.JournalFailure.StreamNotFound
+import mastermind.journal.JournalFailure.VersionConflict
 import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.Stream.UpdatedStream
 import mastermind.journal.StreamName
@@ -18,7 +18,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     private val asEvent: ByteArray.(KClass<EVENT>) -> Either<ReadFailure, EVENT> = createReader(),
     private val asBytes: EVENT.() -> Either<WriteFailure, ByteArray> = createWriter()
 ) : Journal<EVENT, FAILURE> {
-    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+    override suspend fun load(streamName: StreamName): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
         try {
             eventStore.readStream(streamName)
                 .mapToEvents(streamName)
@@ -26,14 +26,14 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
             StreamNotFound<FAILURE>(streamName).left()
         }
 
-    override suspend fun append(stream: UpdatedStream<EVENT>): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+    override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
         with(stream) {
             eventsToAppend
                 .asBytesList()
                 .append()
         }
 
-    private fun ReadResult.mapToEvents(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+    private fun ReadResult.mapToEvents(streamName: StreamName): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
         events
             .mapOrAccumulate { resolvedEvent ->
                 resolvedEvent
@@ -55,14 +55,14 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
         readStream(streamName, ReadStreamOptions.get()).await()
 
     context(UpdatedStream<EVENT>)
-    private fun NonEmptyList<EVENT>.asBytesList(): Either<EventStoreFailure<FAILURE>, NonEmptyList<EventData>> =
+    private fun NonEmptyList<EVENT>.asBytesList(): Either<JournalFailure<FAILURE>, NonEmptyList<EventData>> =
         either {
             map { event ->
                 event
                     .asBytes()
                     .map { event::class.java.typeName to it }
                     .map { (type, bytes) -> EventData.builderAsBinary(type, bytes).build() }
-                    .mapLeft<EventStoreFailure<FAILURE>> { _ -> StreamNotFound(streamName) }
+                    .mapLeft<JournalFailure<FAILURE>> { _ -> StreamNotFound(streamName) }
             }.bindAll()
         }
 
@@ -76,7 +76,7 @@ class EventStoreDbJournal<EVENT : Any, FAILURE : Any>(
     )
 
     context(UpdatedStream<EVENT>)
-    private suspend fun Either<EventStoreFailure<FAILURE>, NonEmptyList<EventData>>.append(): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+    private suspend fun Either<JournalFailure<FAILURE>, NonEmptyList<EventData>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
         try {
             map { events -> eventStore.append(events).mapToLoadedStream() }
         } catch (e: WrongExpectedVersionException) {
