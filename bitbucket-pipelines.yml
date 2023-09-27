@@ -1,0 +1,31 @@
+image: openjdk:19
+
+pipelines:
+  default:
+    - parallel:
+        - step:
+            name: Build and Test
+            caches:
+              - gradle
+              - gradlewrapper
+            script:
+              - export TESTCONTAINERS_RYUK_DISABLED=true
+              - microdnf install findutils
+              - ./gradlew build
+            after-script:
+              - pipe: atlassian/checkstyle-report:0.4.0
+            artifacts:
+              - '**/build/reports/**'
+              - '**/build/test-results/**'
+            services:
+              - docker
+        - step:
+            name: Security Scan
+            script:
+              - pipe: atlassian/git-secrets-scan:1.4.0
+definitions:
+  services:
+    docker:
+      memory: 2048
+  caches:
+    gradlewrapper: ~/.gradle/wrapper
