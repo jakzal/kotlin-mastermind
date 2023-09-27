@@ -9,30 +9,32 @@ import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.*
 
 context(EventStore<EVENT, FAILURE>)
-class EventStoreJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
-
-    override suspend fun stream(
-        streamName: StreamName,
-        onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
-    ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+fun <EVENT : Any, FAILURE : Any> createUpdateStream(): UpdateStream<EVENT, FAILURE> = with(this@EventStore) {
+    { streamName, onStream ->
         load(streamName)
             .orCreate(streamName)
             .execute(onStream)
             .append()
+    }
+}
+
+private fun <EVENT : Any, FAILURE : Any> Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
+    recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
+        if (e is StreamNotFound) EmptyStream(streamName)
+        else raise(e)
+    }
+
+private fun <EVENT : Any, FAILURE : Any> Either<JournalFailure<FAILURE>, Stream<EVENT>>.execute(onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>): Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>> =
+    flatMap { stream -> stream.onStream().mapLeft(::ExecutionFailure) }
+
+context(EventStore<EVENT, FAILURE>)
+private suspend fun <EVENT : Any, FAILURE : Any> Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
+    flatMap { streamToWrite -> this@EventStore.append(streamToWrite) }
+
+context(EventStore<EVENT, FAILURE>)
+class EventStoreJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
 
     override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
         this@EventStore.load(streamName)
-
-    private fun Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>.orCreate(streamName: StreamName): Either<JournalFailure<FAILURE>, Stream<EVENT>> =
-        recover<JournalFailure<FAILURE>, JournalFailure<FAILURE>, Stream<EVENT>> { e ->
-            if (e is StreamNotFound) EmptyStream(streamName)
-            else raise(e)
-        }
-
-    private fun Either<JournalFailure<FAILURE>, Stream<EVENT>>.execute(onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>): Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>> =
-        flatMap { stream -> stream.onStream().mapLeft(::ExecutionFailure) }
-
-    private suspend fun Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
-        flatMap { streamToWrite -> this@EventStore.append(streamToWrite) }
 }
 

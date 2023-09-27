@@ -8,10 +8,6 @@ import mastermind.journal.Stream.UpdatedStream
 typealias UpdateStream<EVENT, FAILURE> = suspend (StreamName, Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>) -> Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
 
 interface Journal<EVENT : Any, FAILURE : Any> {
-    suspend fun stream(
-        streamName: StreamName,
-        onStream: Stream<EVENT>.() -> Either<FAILURE, UpdatedStream<EVENT>>
-    ): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>>
 
     suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>>
 }

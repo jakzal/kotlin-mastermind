@@ -17,7 +17,8 @@ data class Configuration(
     val journal: Journal<GameEvent, GameError> = with(eventStore) {
         EventStoreJournal()
     },
-    val gameCommandHandler: GameCommandHandler = with(journal::stream) {
+    val updateStream: UpdateStream<GameEvent, GameError> = with(eventStore) { createUpdateStream() },
+    val gameCommandHandler: GameCommandHandler = with(updateStream) {
         JournalCommandHandler(
             ::execute,
             { command -> "Mastermind:${command.gameId.value}" },

@@ -9,21 +9,19 @@ import kotlinx.coroutines.test.runTest
 import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.Execute
 import mastermind.eventsourcing.journal.JournalCommandHandler
-import mastermind.journal.EventStoreJournal
-import mastermind.journal.InMemoryEventStore
+import mastermind.journal.*
 import mastermind.journal.JournalFailure.ExecutionFailure
 import mastermind.journal.Stream.LoadedStream
-import mastermind.journal.append
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldReturn
 import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
+
 class JournalCommandHandlerExamples {
-    private val journal = with(InMemoryEventStore<TestEvent, TestFailure>()) {
-        EventStoreJournal()
-    }
+    private val eventStore: EventStore<TestEvent, TestFailure> = InMemoryEventStore()
+    private val updateStream = with(eventStore) { createUpdateStream() }
     private val expectedEvent = TestEvent("ABC")
     private val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
 
@@ -35,12 +33,12 @@ class JournalCommandHandlerExamples {
                     nonEmptyListOf(expectedEvent)
                 }
             }
-        val handler = with(journal::stream) {
+        val handler = with(updateStream) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
         }
 
         handler(TestCommand("ABC")) shouldReturn "ABC".right()
-        journal.load("Stream:ABC") shouldSucceedWith LoadedStream("Stream:ABC", 1L, nonEmptyListOf(expectedEvent))
+        eventStore.load("Stream:ABC") shouldSucceedWith LoadedStream("Stream:ABC", 1L, nonEmptyListOf(expectedEvent))
     }
 
     @Test
@@ -54,11 +52,11 @@ class JournalCommandHandlerExamples {
                 }
             }
 
-        journal.stream("Stream:ABC") {
+        updateStream("Stream:ABC") {
             append(TestEvent("123"), TestEvent("456"))
         }
 
-        val handler = with(journal::stream) {
+        val handler = with(updateStream) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.map { it.id }.joinToString(",") }
         }
 
@@ -79,11 +77,11 @@ class JournalCommandHandlerExamples {
                 }
             }
 
-        journal.stream("Stream:ABC") {
+        updateStream("Stream:ABC") {
             append(TestEvent("987"), TestEvent("654"))
         }
 
-        val handler = with(journal::stream) {
+        val handler = with(updateStream) {
             JournalCommandHandler(applyEvent, execute, streamNameResolver) { events -> events }
         }
 
@@ -94,7 +92,7 @@ class JournalCommandHandlerExamples {
     fun `it returns journal failure in case execute fails`() = runTest {
         val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? -> TestFailure("Execution failed.").left() }
-        val handler = with(journal::stream) {
+        val handler = with(updateStream) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
         }
 
