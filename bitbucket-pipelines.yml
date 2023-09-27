@@ -11,6 +11,7 @@ pipelines:
             script:
               - export TESTCONTAINERS_RYUK_DISABLED=true
               - microdnf install findutils
+              - docker pull ghcr.io/eventstore/eventstore:23.6.0-alpine
               - ./gradlew build
             after-script:
               - pipe: atlassian/checkstyle-report:0.4.0
