@@ -41,8 +41,8 @@ class EventStoreDbJournal<EVENT : Any, ERROR : Any>(
                     .asEvent(resolvedEvent.asClass())
             }
             .toNonEmptyListOrNone()
-            .map { e -> LoadedStream(streamName, lastStreamPosition + 1, e) }
-            .getOrNull()?.right() ?: StreamNotFound(streamName).left()
+            .map { e -> LoadedStream(streamName, lastStreamPosition + 1, e).right() }
+            .getOrElse { StreamNotFound(streamName).left() }
 
     private fun ResolvedEvent.asClass(): KClass<EVENT> = Class.forName(event.eventType).kotlin as KClass<EVENT>
 
