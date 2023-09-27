@@ -5,7 +5,6 @@ import arrow.core.raise.either
 import com.eventstore.dbclient.*
 import kotlinx.coroutines.future.await
 import mastermind.journal.EventStore
-import mastermind.journal.JournalFailure
 import mastermind.journal.JournalFailure.EventStoreFailure
 import mastermind.journal.JournalFailure.EventStoreFailure.StreamNotFound
 import mastermind.journal.JournalFailure.EventStoreFailure.VersionConflict
@@ -67,7 +66,6 @@ class EventStoreDb<EVENT : Any, FAILURE : Any>(
             }.bindAll()
         }
 
-
     context(UpdatedStream<EVENT>)
     private fun WriteResult.mapToLoadedStream() = LoadedStream(
         streamName,
@@ -78,11 +76,9 @@ class EventStoreDb<EVENT : Any, FAILURE : Any>(
     )
 
     context(UpdatedStream<EVENT>)
-    private suspend fun Either<JournalFailure<FAILURE>, NonEmptyList<EventData>>.append(): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
+    private suspend fun Either<EventStoreFailure<FAILURE>, NonEmptyList<EventData>>.append(): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
         try {
-            map { events -> eventStore.append(events).mapToLoadedStream() }.mapLeft { _ ->
-                StreamNotFound(streamName)
-            }
+            map { events -> eventStore.append(events).mapToLoadedStream() }
         } catch (e: WrongExpectedVersionException) {
             VersionConflict<FAILURE>(
                 streamName,
@@ -90,7 +86,6 @@ class EventStoreDb<EVENT : Any, FAILURE : Any>(
                 e.actualVersion.toRawLong() + 1
             ).left()
         }
-
 
     context(UpdatedStream<EVENT>)
     private suspend fun EventStoreDBClient.append(events: NonEmptyList<EventData>): WriteResult =
