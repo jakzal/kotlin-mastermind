@@ -24,8 +24,5 @@ pipelines:
             script:
               - pipe: atlassian/git-secrets-scan:1.4.0
 definitions:
-  services:
-    docker:
-      memory: 2048
   caches:
     gradlewrapper: ~/.gradle/wrapper
