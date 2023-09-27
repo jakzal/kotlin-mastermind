@@ -30,11 +30,3 @@ private fun <EVENT : Any, FAILURE : Any> Either<JournalFailure<FAILURE>, Stream<
 context(EventStore<EVENT, FAILURE>)
 private suspend fun <EVENT : Any, FAILURE : Any> Either<JournalFailure<FAILURE>, UpdatedStream<EVENT>>.append(): Either<JournalFailure<FAILURE>, LoadedStream<EVENT>> =
     flatMap { streamToWrite -> this@EventStore.append(streamToWrite) }
-
-context(EventStore<EVENT, FAILURE>)
-class EventStoreJournal<EVENT : Any, FAILURE : Any> : Journal<EVENT, FAILURE> {
-
-    override suspend fun load(streamName: StreamName): Either<EventStoreFailure<FAILURE>, LoadedStream<EVENT>> =
-        this@EventStore.load(streamName)
-}
-

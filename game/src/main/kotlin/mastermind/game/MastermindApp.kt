@@ -14,9 +14,6 @@ data class Configuration(
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code = { availablePegs.makeCode() },
     val eventStore: EventStore<GameEvent, GameError> = InMemoryEventStore(),
-    val journal: Journal<GameEvent, GameError> = with(eventStore) {
-        EventStoreJournal()
-    },
     val updateStream: UpdateStream<GameEvent, GameError> = with(eventStore) { createUpdateStream() },
     val gameCommandHandler: GameCommandHandler = with(updateStream) {
         JournalCommandHandler(
@@ -25,8 +22,7 @@ data class Configuration(
             { events -> events.head.gameId }
         )
     }
-) : GameCommandHandler by gameCommandHandler,
-    Journal<GameEvent, GameError> by journal
+) : GameCommandHandler by gameCommandHandler
 
 data class MastermindApp(
     private val configuration: Configuration = Configuration(),
