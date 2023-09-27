@@ -6,11 +6,11 @@ import arrow.core.nonEmptyListOf
 import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.CommandHandler
 import mastermind.eventsourcing.Execute
-import mastermind.journal.Journal
 import mastermind.journal.JournalFailure
+import mastermind.journal.UpdateStream
 import mastermind.journal.append
 
-context(Journal<EVENT, FAILURE>)
+context(UpdateStream<EVENT, FAILURE>)
 class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : Any, OUTCOME>(
     private val applyEvent: Apply<STATE, EVENT>,
     private val execute: Execute<COMMAND, STATE, FAILURE, EVENT>,
@@ -23,7 +23,7 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : A
          * Provides a way to create the command handler with the list of events acting as state
          * without having to provide the apply function for state reconstitution.
          */
-        context(Journal<EVENT, FAILURE>)
+        context(UpdateStream<EVENT, FAILURE>)
         operator fun <COMMAND : Any, EVENT : Any, FAILURE : Any, OUTCOME> invoke(
             execute: Execute<COMMAND, NonEmptyList<EVENT>, FAILURE, EVENT>,
             streamNameResolver: (COMMAND) -> String,
@@ -37,7 +37,7 @@ class JournalCommandHandler<COMMAND : Any, EVENT : Any, FAILURE : Any, STATE : A
     }
 
     override suspend operator fun invoke(command: COMMAND): Either<JournalFailure<FAILURE>, OUTCOME> {
-        return stream(streamNameFor(command)) {
+        return this@UpdateStream(streamNameFor(command)) {
             append {
                 execute(command, events.fold(null, applyEvent))
             }

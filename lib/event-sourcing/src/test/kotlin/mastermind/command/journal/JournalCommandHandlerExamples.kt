@@ -35,7 +35,7 @@ class JournalCommandHandlerExamples {
                     nonEmptyListOf(expectedEvent)
                 }
             }
-        val handler = with(journal) {
+        val handler = with(journal::stream) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
         }
 
@@ -58,11 +58,11 @@ class JournalCommandHandlerExamples {
             append(TestEvent("123"), TestEvent("456"))
         }
 
-        val handler = with(journal) {
+        val handler = with(journal::stream) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.map { it.id }.joinToString(",") }
         }
 
-        handler(TestCommand("ABC")) shouldSucceedWith  "123,456,ABC"
+        handler(TestCommand("ABC")) shouldSucceedWith "123,456,ABC"
     }
 
     @Test
@@ -83,7 +83,7 @@ class JournalCommandHandlerExamples {
             append(TestEvent("987"), TestEvent("654"))
         }
 
-        val handler = with(journal) {
+        val handler = with(journal::stream) {
             JournalCommandHandler(applyEvent, execute, streamNameResolver) { events -> events }
         }
 
@@ -94,7 +94,7 @@ class JournalCommandHandlerExamples {
     fun `it returns journal failure in case execute fails`() = runTest {
         val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestFailure, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? -> TestFailure("Execution failed.").left() }
-        val handler = with(journal) {
+        val handler = with(journal::stream) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
         }
 

@@ -2,9 +2,9 @@ package mastermind.game
 
 import arrow.core.Either
 import mastermind.eventsourcing.CommandHandler
+import mastermind.eventsourcing.journal.JournalCommandHandler
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
-import mastermind.eventsourcing.journal.JournalCommandHandler
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.*
 
@@ -12,12 +12,12 @@ data class Configuration(
     val availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     val totalAttempts: Int = 12,
     val generateGameId: () -> GameId = ::generateGameId,
-    val makeCode: () -> Code =  { availablePegs.makeCode() },
+    val makeCode: () -> Code = { availablePegs.makeCode() },
     val eventStore: EventStore<GameEvent, GameError> = InMemoryEventStore(),
     val journal: Journal<GameEvent, GameError> = with(eventStore) {
         EventStoreJournal()
     },
-    val gameCommandHandler: GameCommandHandler = with(journal) {
+    val gameCommandHandler: GameCommandHandler = with(journal::stream) {
         JournalCommandHandler(
             ::execute,
             { command -> "Mastermind:${command.gameId.value}" },
@@ -40,7 +40,7 @@ data class MastermindApp(
         }
     },
     val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(configuration.journal::load) {
+        with(configuration.eventStore::load) {
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     }
