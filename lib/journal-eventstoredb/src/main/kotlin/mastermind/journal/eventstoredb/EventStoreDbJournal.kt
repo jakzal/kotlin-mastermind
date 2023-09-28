@@ -26,66 +26,55 @@ class EventStoreDbJournal<EVENT : Any, ERROR : Any>(
         }
 
     override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
-        with(stream) {
-            eventsToAppend
-                .asBytesList()
-                .append()
-        }
-
-    private fun ReadResult.mapToEvents(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
-        events
-            .map { resolvedEvent ->
-                resolvedEvent
-                    .event
-                    .eventData
-                    .asEvent(resolvedEvent.asClass())
-            }
-            .toNonEmptyListOrNone()
-            .map { e -> LoadedStream(streamName, lastStreamPosition + 1, e).right() }
-            .getOrElse { StreamNotFound(streamName).left() }
-
-    private fun ResolvedEvent.asClass(): KClass<EVENT> = Class.forName(event.eventType).kotlin as KClass<EVENT>
-
-    private suspend fun EventStoreDBClient.readStream(streamName: StreamName) =
-        readStream(streamName, ReadStreamOptions.get()).await()
-
-    context(UpdatedStream<EVENT>)
-    private fun NonEmptyList<EVENT>.asBytesList(): NonEmptyList<EventData> =
-        map { event ->
-            EventData.builderAsBinary(event::class.java.typeName, event.asBytes()).build()
-        }
-
-    context(UpdatedStream<EVENT>)
-    private fun WriteResult.mapToLoadedStream() = LoadedStream(
-        streamName,
-        nextExpectedRevision.toRawLong() + 1,
-        events.toNonEmptyListOrNone()
-            .map { it + eventsToAppend }
-            .getOrElse { eventsToAppend }
-    )
-
-    context(UpdatedStream<EVENT>)
-    private suspend fun NonEmptyList<EventData>.append(): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         try {
-            eventStore.append(this).mapToLoadedStream().right()
+            eventStore.append(stream)
+                .mapToLoadedStream(stream)
         } catch (e: WrongExpectedVersionException) {
             VersionConflict(
-                streamName,
+                stream.streamName,
                 e.nextExpectedRevision.toRawLong() + 1,
                 e.actualVersion.toRawLong() + 1
             ).left()
         }
 
-    context(UpdatedStream<EVENT>)
-    private suspend fun EventStoreDBClient.append(events: NonEmptyList<EventData>): WriteResult =
+    private suspend fun EventStoreDBClient.readStream(streamName: StreamName) =
+        readStream(streamName, ReadStreamOptions.get()).await()
+
+    private suspend fun EventStoreDBClient.append(stream: UpdatedStream<EVENT>): WriteResult =
         appendToStream(
-            streamName,
-            AppendToStreamOptions.get().expectedRevision(expectedRevision),
-            events.iterator()
+            stream.streamName,
+            AppendToStreamOptions.get().expectedRevision(stream.expectedRevision),
+            stream.eventsToAppend.asBytesList().iterator()
         ).await()
+
+    private fun ReadResult.mapToEvents(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
+        events
+            .map { resolvedEvent -> resolvedEvent.mapToEvent() }
+            .toNonEmptyListOrNone()
+            .map { events -> LoadedStream(streamName, lastStreamPosition + 1, events).right() }
+            .getOrElse { StreamNotFound(streamName).left() }
+
+    private fun ResolvedEvent.mapToEvent(): EVENT = event.eventData.asEvent(this.asClass())
+
+    private fun ResolvedEvent.asClass(): KClass<EVENT> = Class.forName(event.eventType).kotlin as KClass<EVENT>
+
+    private fun WriteResult.mapToLoadedStream(stream: UpdatedStream<EVENT>) = with(stream) {
+        LoadedStream(
+            streamName,
+            nextExpectedRevision.toRawLong() + 1,
+            events.toNonEmptyListOrNone()
+                .map { it + eventsToAppend }
+                .getOrElse { eventsToAppend }
+        ).right()
+    }
 
     private val UpdatedStream<EVENT>.expectedRevision: ExpectedRevision
         get() = if (streamVersion == 0L) ExpectedRevision.noStream() else ExpectedRevision.expectedRevision(
             streamVersion - 1
         )
+
+    private fun NonEmptyList<EVENT>.asBytesList(): NonEmptyList<EventData> =
+        map { event ->
+            EventData.builderAsBinary(event::class.java.typeName, event.asBytes()).build()
+        }
 }
