@@ -18,7 +18,7 @@ class JoinGameHttpHandlerExamples {
         val gameId = anyGameId()
         val app = MastermindApp(
             gameModule = GameModule(
-                gameCommandHandler = { command ->
+                execute = { command ->
                     when (command) {
                         is JoinGame -> gameId.right()
                         else -> throw RuntimeException("Unexpected command: $command")

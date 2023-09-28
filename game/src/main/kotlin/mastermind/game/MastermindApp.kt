@@ -42,7 +42,7 @@ data class GameModule(
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     },
-    val gameCommandHandler: GameCommandHandler = with(journalModule) {
+    val execute: GameCommandHandler = with(journalModule) {
         JournalCommandHandler(
             ::execute,
             { command -> "Mastermind:${command.gameId.value}" },
@@ -56,11 +56,11 @@ data class MastermindApp(
     private val gameModule: GameModule = GameModule(journalModule = journalModule)
 ) {
     suspend fun joinGame(): Either<JournalError<GameError>, GameId> = with(gameModule) {
-        gameCommandHandler(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
+        execute(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
     }
 
     suspend fun makeGuess(command: MakeGuess): Either<JournalError<GameError>, GameId> = with(gameModule) {
-        gameCommandHandler(command)
+        execute(command)
     }
 
     suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = with(gameModule) {
