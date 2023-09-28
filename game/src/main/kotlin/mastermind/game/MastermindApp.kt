@@ -7,32 +7,16 @@ import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.*
-import mastermind.journal.eventstoredb.EventStoreDbJournal
 
 data class JournalModule<EVENT : Any, ERROR : Any>(
-    private val journal: Journal<EVENT, ERROR>,
+    private val journal: Journal<EVENT, ERROR> = InMemoryJournal(),
     private val updateStream: UpdateStream<EVENT, JournalError<ERROR>> = with(journal) { createUpdateStream() },
     private val loadStream: LoadStream<EVENT, JournalError<ERROR>> = with(journal) { createLoadStream() }
 ) : UpdateStream<EVENT, JournalError<ERROR>> by updateStream,
-    LoadStream<EVENT, JournalError<ERROR>> by loadStream {
-    companion object {
-        fun <EVENT : Any, ERROR : Any> detect() = with(System.getenv("EVENTSTOREDB_URL")) {
-            when (this) {
-                null -> inMemory<EVENT, ERROR>()
-                else -> eventStoreDb(this)
-            }
-        }
-
-        private fun <EVENT : Any, ERROR : Any> inMemory() =
-            JournalModule(InMemoryJournal<EVENT, ERROR>())
-
-        private fun <EVENT : Any, ERROR : Any> eventStoreDb(connectionString: String) =
-            JournalModule(EventStoreDbJournal<EVENT, ERROR>(connectionString))
-    }
-}
+    LoadStream<EVENT, JournalError<ERROR>> by loadStream
 
 data class GameModule(
-    val journalModule: JournalModule<GameEvent, GameError> = JournalModule.detect(),
+    val journalModule: JournalModule<GameEvent, GameError> = JournalModule(),
     val availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     val totalAttempts: Int = 12,
     val generateGameId: () -> GameId = ::generateGameId,
@@ -52,9 +36,10 @@ data class GameModule(
 )
 
 data class MastermindApp(
-    private val journalModule: JournalModule<GameEvent, GameError> = JournalModule.detect(),
-    private val gameModule: GameModule = GameModule(journalModule = journalModule)
+    private val gameModule: GameModule
 ) {
+    constructor(journalModule: JournalModule<GameEvent, GameError>) : this(GameModule(journalModule))
+
     suspend fun joinGame(): Either<JournalError<GameError>, GameId> = with(gameModule) {
         execute(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
     }

@@ -6,8 +6,10 @@ import kotlinx.coroutines.runBlocking
 import mastermind.game.*
 import mastermind.game.Code.Peg
 import mastermind.game.GameCommand.MakeGuess
+import mastermind.game.config.asJournalModule
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.JournalError
+import org.http4k.cloudnative.env.Environment
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
@@ -18,7 +20,13 @@ import org.http4k.server.Undertow
 import org.http4k.server.asServer
 
 fun main() {
-    val app = MastermindApp()
+    val environment = Environment.JVM_PROPERTIES overrides
+            Environment.ENV overrides
+            Environment.from()
+
+    val app = MastermindApp(
+        journalModule = environment.asJournalModule()
+    )
     serverFor(8080, app.routes).start()
 }
 
