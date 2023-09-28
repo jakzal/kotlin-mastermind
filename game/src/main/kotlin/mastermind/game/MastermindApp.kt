@@ -7,16 +7,36 @@ import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.*
+import mastermind.journal.eventstoredb.EventStoreDbJournal
+
+data class JournalModule<EVENT : Any, ERROR : Any>(
+    private val journal: Journal<EVENT, ERROR>,
+    val updateStream: UpdateStream<EVENT, JournalError<ERROR>> = with(journal) { createUpdateStream() },
+    val loadStream: LoadStream<EVENT, JournalError<ERROR>> = with(journal) { createLoadStream() }
+) {
+    companion object {
+        fun <EVENT : Any, ERROR : Any> detect() = with(System.getenv("EVENTSTOREDB_URL")) {
+            when(this) {
+                null -> inMemory<EVENT, ERROR>()
+                else -> eventStoreDb(this)
+            }
+        }
+
+        private fun <EVENT : Any, ERROR : Any> inMemory() =
+            JournalModule(InMemoryJournal<EVENT, ERROR>())
+
+        private fun <EVENT : Any, ERROR : Any> eventStoreDb(connectionString: String) =
+            JournalModule(EventStoreDbJournal<EVENT, ERROR>(connectionString))
+    }
+}
 
 data class Configuration(
     val availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     val totalAttempts: Int = 12,
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code = { availablePegs.makeCode() },
-    val journal: Journal<GameEvent, GameError> = InMemoryJournal(),
-    val updateStream: UpdateStream<GameEvent, JournalError<GameError>> = with(journal) { createUpdateStream() },
-    val loadStream: LoadStream<GameEvent, JournalError<GameError>> = with(journal) { createLoadStream() },
-    val gameCommandHandler: GameCommandHandler = with(updateStream) {
+    val journalModule: JournalModule<GameEvent, GameError> = JournalModule.detect(),
+    val gameCommandHandler: GameCommandHandler = with(journalModule.updateStream) {
         JournalCommandHandler(
             ::execute,
             { command -> "Mastermind:${command.gameId.value}" },
@@ -38,7 +58,7 @@ data class MastermindApp(
         }
     },
     val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(configuration.loadStream) {
+        with(configuration.journalModule.loadStream) {
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     }
