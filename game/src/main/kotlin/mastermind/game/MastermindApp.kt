@@ -16,7 +16,7 @@ data class JournalModule<EVENT : Any, ERROR : Any>(
 ) {
     companion object {
         fun <EVENT : Any, ERROR : Any> detect() = with(System.getenv("EVENTSTOREDB_URL")) {
-            when(this) {
+            when (this) {
                 null -> inMemory<EVENT, ERROR>()
                 else -> eventStoreDb(this)
             }
@@ -36,6 +36,11 @@ data class Configuration(
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code = { availablePegs.makeCode() },
     val journalModule: JournalModule<GameEvent, GameError> = JournalModule.detect(),
+    val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
+        with(journalModule.loadStream) {
+            mastermind.game.view.viewDecodingBoard(gameId)
+        }
+    },
     val gameCommandHandler: GameCommandHandler = with(journalModule.updateStream) {
         JournalCommandHandler(
             ::execute,
@@ -43,25 +48,20 @@ data class Configuration(
             { events -> events.head.gameId }
         )
     }
-) : GameCommandHandler by gameCommandHandler
+)
 
 data class MastermindApp(
     private val configuration: Configuration = Configuration(),
-    val joinGame: suspend () -> Either<JournalError<GameError>, GameId> = {
-        with(configuration) {
-            gameCommandHandler(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
-        }
-    },
-    val makeGuess: suspend (MakeGuess) -> Either<JournalError<GameError>, GameId> = { command ->
-        with(configuration) {
-            gameCommandHandler(command)
-        }
-    },
-    val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(configuration.journalModule.loadStream) {
-            mastermind.game.view.viewDecodingBoard(gameId)
-        }
+) {
+    suspend fun joinGame(): Either<JournalError<GameError>, GameId> = with(configuration) {
+        gameCommandHandler(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
     }
-)
+
+    suspend fun makeGuess(command: MakeGuess): Either<JournalError<GameError>, GameId> = with(configuration) {
+        gameCommandHandler(command)
+    }
+
+    suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = configuration.viewDecodingBoard(gameId)
+}
 
 typealias GameCommandHandler = CommandHandler<GameCommand, JournalError<GameError>, GameId>

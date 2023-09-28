@@ -3,6 +3,7 @@ package mastermind.game.http
 import arrow.core.left
 import arrow.core.right
 import mastermind.game.Code
+import mastermind.game.Configuration
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.MastermindApp
 import mastermind.game.testkit.anyGameId
@@ -22,10 +23,12 @@ class MakeGuessHttpHandlerExamples {
         val gameId = anyGameId()
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
-            makeGuess = { command: MakeGuess ->
-                command shouldBe MakeGuess(gameId, guess)
-                gameId.right()
-            }
+            configuration = Configuration(
+                gameCommandHandler = { command ->
+                    command shouldBe MakeGuess(gameId, guess)
+                    command.gameId.right()
+                }
+            )
         ))
 
         val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
@@ -39,9 +42,9 @@ class MakeGuessHttpHandlerExamples {
         val gameId = anyGameId()
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = mastermindHttpApp(MastermindApp(
-            makeGuess = { _: MakeGuess ->
-                StreamNotFound("my-stream").left()
-            }
+            configuration = Configuration(
+                gameCommandHandler = { _ -> StreamNotFound("my-stream").left() }
+            ),
         ))
 
         val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
