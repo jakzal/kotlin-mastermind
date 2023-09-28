@@ -17,6 +17,10 @@ class EventStoreDbJournal<EVENT : Any, ERROR : Any>(
     private val asEvent: ByteArray.(KClass<EVENT>) -> EVENT = createReader(),
     private val asBytes: EVENT.() -> ByteArray = createWriter()
 ) : Journal<EVENT, ERROR> {
+    constructor(connectionString: String) : this(EventStoreDBClient.create(
+        EventStoreDBConnectionString.parseOrThrow(connectionString)
+    ))
+
     override suspend fun load(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         try {
             eventStore.readStream(streamName)
