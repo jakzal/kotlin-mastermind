@@ -27,26 +27,26 @@ fun mastermindHttpApp(app: MastermindApp): HttpHandler = app.routes
 
 private val MastermindApp.routes: HttpHandler
     get() = routes(
-        "/games" bind Method.POST to ::joinGameHandler,
-        "/games/{id}" bind Method.GET to ::viewBoardHandler,
-        "/games/{id}/guesses" bind Method.POST to ::makeGuessHandler
+        "/games" bind Method.POST to handler {
+            joinGame()
+                .asResponse()
+                .orHandleError()
+        },
+        "/games/{id}" bind Method.GET to handler { request: Request ->
+            viewDecodingBoard(request.gameId)
+                .asResponse()
+        },
+        "/games/{id}/guesses" bind Method.POST to handler { request: Request ->
+            makeGuess(request.makeGuessCommand)
+                .asResponse()
+                .orHandleError()
+        }
     )
 
-private fun MastermindApp.joinGameHandler(@Suppress("UNUSED_PARAMETER") request: Request) = runBlocking {
-    joinGame()
-        .asResponse()
-        .orHandleError()
-}
-
-private fun MastermindApp.viewBoardHandler(request: Request) = runBlocking {
-    viewDecodingBoard(request.gameId)
-        .asResponse()
-}
-
-private fun MastermindApp.makeGuessHandler(request: Request) = runBlocking {
-    makeGuess(request.makeGuessCommand)
-        .asResponse()
-        .orHandleError()
+private fun MastermindApp.handler(handle: suspend MastermindApp.(Request) -> Response) = { request: Request ->
+    runBlocking {
+        handle(request)
+    }
 }
 
 private val Request.makeGuessCommand: MakeGuess
