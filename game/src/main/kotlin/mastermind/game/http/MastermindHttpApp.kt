@@ -25,7 +25,7 @@ fun main() {
 
 fun mastermindHttpApp(app: MastermindApp): HttpHandler = app.routes
 
-val MastermindApp.routes: HttpHandler
+private val MastermindApp.routes: HttpHandler
     get() = routes(
         "/games" bind Method.POST to ::joinGameHandler,
         "/games/{id}" bind Method.GET to ::viewBoardHandler,
@@ -33,19 +33,21 @@ val MastermindApp.routes: HttpHandler
     )
 
 private fun MastermindApp.joinGameHandler(@Suppress("UNUSED_PARAMETER") request: Request) = runBlocking {
-    joinGame() thenRespond GameId::asResponse or handleError
+    joinGame()
+        .asResponse()
+        .orHandleError()
 }
 
 private fun MastermindApp.viewBoardHandler(request: Request) = runBlocking {
-    viewDecodingBoard(request.gameId) thenRespond DecodingBoard?::asResponse
+    viewDecodingBoard(request.gameId)
+        .asResponse()
 }
 
 private fun MastermindApp.makeGuessHandler(request: Request) = runBlocking {
-    makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse or handleError
+    makeGuess(request.makeGuessCommand)
+        .asResponse()
+        .orHandleError()
 }
-
-private val handleError
-    get() = JournalError<GameError>::response
 
 private val Request.makeGuessCommand: MakeGuess
     get() = MakeGuess(gameId, guess)
@@ -54,9 +56,9 @@ private val Request.gameId: GameId
     get() = Path.of("id")(this).asGameId()
 
 private val Request.guess: Code
-    get() = Code(Body.auto<List<String>>().toLens().invoke(this).toCodePegs())
+    get() = Code(Body.auto<List<String>>().toLens().invoke(this).asCodePegs())
 
-private fun List<String>.toCodePegs(): List<Peg> = map(::Peg)
+private fun List<String>.asCodePegs(): List<Peg> = map(::Peg)
 
 private fun String.asGameId(): GameId = GameId(this)
 
@@ -69,13 +71,9 @@ private fun DecodingBoard?.asResponse() = this?.let { decodingBoard ->
 private fun DecodingBoard.asResponseBody(): (Response) -> Response =
     Body.auto<DecodingBoard>().toLens() of this
 
-private fun GameId.asResponse() = Response(Status.CREATED).with(this.asLocationHeader())
+private fun <ERROR> Either<ERROR, GameId>.asResponse() = map { gameId ->
+    Response(Status.CREATED).with(gameId.asLocationHeader())
+}
 
-private infix fun <T> T.thenRespond(responder: (T) -> Response): Response =
-    this.let(responder)
-
-private infix fun <ERROR, RESULT> Either<ERROR, RESULT>.thenRespond(responder: (RESULT) -> Response): Either<ERROR, Response> =
-    map(responder)
-
-private infix fun <ERROR> Either<ERROR, Response>.or(errorHandler: (ERROR) -> Response): Response =
-    getOrElse(errorHandler)
+private fun Either<JournalError<GameError>, Response>.orHandleError() =
+    getOrElse(JournalError<GameError>::response)
