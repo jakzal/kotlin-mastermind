@@ -12,7 +12,6 @@ import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header
 import org.http4k.lens.Path
-import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.server.Undertow
@@ -24,36 +23,35 @@ fun main() {
         .start()
 }
 
-fun mastermindHttpApp(
-    app: MastermindApp,
-    handleError: (JournalError<GameError>) -> Response = JournalError<GameError>::response
-): RoutingHttpHandler {
-    return routes(
-        "/games" bind Method.POST to app.handler {
-            joinGame() thenRespond GameId::asResponse or handleError
-        },
-        "/games/{id}" bind Method.GET to app.handler { request ->
-            viewDecodingBoard(request.id.asGameId()) thenRespond DecodingBoard?::asResponse
-        },
-        "games/{id}/guesses" bind Method.POST to app.handler { request ->
-            makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse or handleError
-        }
+fun mastermindHttpApp(app: MastermindApp): HttpHandler = app.routes
+
+val MastermindApp.routes: HttpHandler
+    get() = routes(
+        "/games" bind Method.POST to ::joinGameHandler,
+        "/games/{id}" bind Method.GET to ::viewBoardHandler,
+        "/games/{id}/guesses" bind Method.POST to ::makeGuessHandler
     )
+
+private fun MastermindApp.joinGameHandler(@Suppress("UNUSED_PARAMETER") request: Request) = runBlocking {
+    joinGame() thenRespond GameId::asResponse or handleError
 }
 
-private fun MastermindApp.handler(handle: suspend MastermindApp.(Request) -> Response) = { request: Request ->
-    run {
-        runBlocking {
-            handle(request)
-        }
-    }
+private fun MastermindApp.viewBoardHandler(request: Request) = runBlocking {
+    viewDecodingBoard(request.gameId) thenRespond DecodingBoard?::asResponse
 }
+
+private fun MastermindApp.makeGuessHandler(request: Request) = runBlocking {
+    makeGuess(request.makeGuessCommand) thenRespond GameId::asResponse or handleError
+}
+
+private val handleError
+    get() = JournalError<GameError>::response
 
 private val Request.makeGuessCommand: MakeGuess
-    get() = MakeGuess(id.asGameId(), guess)
+    get() = MakeGuess(gameId, guess)
 
-private val Request.id: String
-    get() = Path.of("id")(this)
+private val Request.gameId: GameId
+    get() = Path.of("id")(this).asGameId()
 
 private val Request.guess: Code
     get() = Code(Body.auto<List<String>>().toLens().invoke(this).toCodePegs())

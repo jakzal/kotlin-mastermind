@@ -21,7 +21,7 @@ class JoinGameHttpHandlerExamples {
                 gameCommandHandler = { command ->
                     when (command) {
                         is JoinGame -> gameId.right()
-                        else -> throw RuntimeException("Unexpected command: $command");
+                        else -> throw RuntimeException("Unexpected command: $command")
                     }
                 }
             )
