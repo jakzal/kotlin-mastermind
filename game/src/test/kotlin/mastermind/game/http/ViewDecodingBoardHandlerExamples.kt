@@ -1,6 +1,6 @@
 package mastermind.game.http
 
-import mastermind.game.Configuration
+import mastermind.game.GameModule
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
 import mastermind.game.view.DecodingBoard
@@ -15,7 +15,7 @@ class ViewDecodingBoardHandlerExamples {
     fun `it returns the decoding board view if found`() {
         val codePegs = listOf("Red", "Green", "Blue", "Yellow", "Purple")
         val app = MastermindApp(
-            configuration = Configuration(
+            gameModule = GameModule(
                 viewDecodingBoard = { gameId: GameId ->
                     DecodingBoard(gameId.value, 4, 8, codePegs, emptyList(), "In progress")
                 }
@@ -38,7 +38,7 @@ class ViewDecodingBoardHandlerExamples {
     @Test
     fun `it returns a 404 response if the decoding board is not found`() {
         val app = MastermindApp(
-            configuration = Configuration(
+            gameModule = GameModule(
                 viewDecodingBoard = { null }
             )
         ).routes

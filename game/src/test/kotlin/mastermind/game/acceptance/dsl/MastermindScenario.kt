@@ -2,7 +2,7 @@ package mastermind.game.acceptance.dsl
 
 import kotlinx.coroutines.runBlocking
 import mastermind.game.Code
-import mastermind.game.Configuration
+import mastermind.game.GameModule
 import mastermind.game.MastermindApp
 import mastermind.game.acceptance.dsl.direct.DirectApplicationRunner
 import mastermind.game.acceptance.dsl.http.HttpApplicationRunner
@@ -23,7 +23,7 @@ class MastermindScenario(
             scenario: suspend MastermindScenario.() -> Unit
         ) {
             val app = MastermindApp(
-                configuration = Configuration(
+                gameModule = GameModule(
                     makeCode = { secret }
                 )
             )

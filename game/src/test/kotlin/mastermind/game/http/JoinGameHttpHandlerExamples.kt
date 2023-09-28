@@ -1,7 +1,7 @@
 package mastermind.game.http
 
 import arrow.core.right
-import mastermind.game.Configuration
+import mastermind.game.GameModule
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.MastermindApp
 import mastermind.game.testkit.anyGameId
@@ -17,7 +17,7 @@ class JoinGameHttpHandlerExamples {
     fun `it returns the location of the joined game`() {
         val gameId = anyGameId()
         val app = MastermindApp(
-            configuration = Configuration(
+            gameModule = GameModule(
                 gameCommandHandler = { command ->
                     when (command) {
                         is JoinGame -> gameId.right()
