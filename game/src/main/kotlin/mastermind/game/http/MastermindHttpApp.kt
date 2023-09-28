@@ -18,14 +18,16 @@ import org.http4k.server.Undertow
 import org.http4k.server.asServer
 
 fun main() {
-    mastermindHttpApp(MastermindApp())
-        .asServer(Undertow(8080))
-        .start()
+    val app = MastermindApp()
+    serverFor(8080, app.routes).start()
 }
 
-fun mastermindHttpApp(app: MastermindApp): HttpHandler = app.routes
+fun serverFor(
+    port: Int,
+    routes: HttpHandler
+) = routes.asServer(Undertow(port))
 
-private val MastermindApp.routes: HttpHandler
+val MastermindApp.routes: HttpHandler
     get() = routes(
         "/games" bind Method.POST to handler {
             joinGame()

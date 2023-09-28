@@ -16,7 +16,7 @@ class JoinGameHttpHandlerExamples {
     @Test
     fun `it returns the location of the joined game`() {
         val gameId = anyGameId()
-        val app = mastermindHttpApp(MastermindApp(
+        val app = MastermindApp(
             configuration = Configuration(
                 gameCommandHandler = { command ->
                     when (command) {
@@ -25,7 +25,7 @@ class JoinGameHttpHandlerExamples {
                     }
                 }
             )
-        ))
+        ).routes
 
         val response = app(Request(POST, "/games"))
 

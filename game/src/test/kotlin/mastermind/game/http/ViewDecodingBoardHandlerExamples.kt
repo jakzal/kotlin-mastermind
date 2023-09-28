@@ -14,13 +14,13 @@ class ViewDecodingBoardHandlerExamples {
     @Test
     fun `it returns the decoding board view if found`() {
         val codePegs = listOf("Red", "Green", "Blue", "Yellow", "Purple")
-        val app = mastermindHttpApp(MastermindApp(
+        val app = MastermindApp(
             configuration = Configuration(
                 viewDecodingBoard = { gameId: GameId ->
                     DecodingBoard(gameId.value, 4, 8, codePegs, emptyList(), "In progress")
                 }
             )
-        ))
+        ).routes
 
         val response = app(Request(Method.GET, "/games/60693d0a-152c-4c4e-a11e-35fd8176df53"))
 
@@ -37,11 +37,11 @@ class ViewDecodingBoardHandlerExamples {
 
     @Test
     fun `it returns a 404 response if the decoding board is not found`() {
-        val app = mastermindHttpApp(MastermindApp(
+        val app = MastermindApp(
             configuration = Configuration(
                 viewDecodingBoard = { null }
             )
-        ))
+        ).routes
 
         val response = app(Request(Method.GET, "/games/60693d0a-152c-4c4e-a11e-35fd8176df53"))
 

@@ -22,14 +22,14 @@ class MakeGuessHttpHandlerExamples {
     fun `it returns the location of the game after making a guess`() {
         val gameId = anyGameId()
         val guess = Code("Red", "Green", "Green", "Yellow")
-        val app = mastermindHttpApp(MastermindApp(
+        val app = MastermindApp(
             configuration = Configuration(
                 gameCommandHandler = { command ->
                     command shouldBe MakeGuess(gameId, guess)
                     command.gameId.right()
                 }
             )
-        ))
+        ).routes
 
         val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
 
@@ -41,11 +41,11 @@ class MakeGuessHttpHandlerExamples {
     fun `it returns an error response if the guess does not succeed`() {
         val gameId = anyGameId()
         val guess = Code("Red", "Green", "Green", "Yellow")
-        val app = mastermindHttpApp(MastermindApp(
+        val app = MastermindApp(
             configuration = Configuration(
                 gameCommandHandler = { _ -> StreamNotFound("my-stream").left() }
             ),
-        ))
+        ).routes
 
         val response = app(Request(Method.POST, "/games/${gameId.value}/guesses").body(guess.pegs))
 
@@ -53,4 +53,5 @@ class MakeGuessHttpHandlerExamples {
     }
 }
 
-private fun Request.body(pegs: List<Code.Peg>): Request = Body.auto<List<String>>().toLens().invoke(pegs.map(Code.Peg::name), this)
+private fun Request.body(pegs: List<Code.Peg>): Request =
+    Body.auto<List<String>>().toLens().invoke(pegs.map(Code.Peg::name), this)
