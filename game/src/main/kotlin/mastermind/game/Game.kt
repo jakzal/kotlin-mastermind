@@ -2,6 +2,7 @@ package mastermind.game
 
 import arrow.core.*
 import arrow.core.raise.either
+import com.fasterxml.jackson.annotation.JsonIgnore
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameCommand.JoinGame
@@ -49,6 +50,7 @@ data class Code(val pegs: List<Peg>) {
 
     data class Peg(val name: String)
 
+    @get:JsonIgnore
     val length: Int get() = pegs.size
 }
 

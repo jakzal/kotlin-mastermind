@@ -1,12 +1,11 @@
 package mastermind.game.acceptance.dsl
 
 import kotlinx.coroutines.runBlocking
-import mastermind.game.Code
-import mastermind.game.GameModule
-import mastermind.game.MastermindApp
-import mastermind.game.acceptance.dsl.direct.DirectApplicationRunner
-import mastermind.game.acceptance.dsl.http.HttpApplicationRunner
-import mastermind.game.setOfPegs
+import mastermind.game.*
+import mastermind.game.acceptance.dsl.direct.DirectPlayGameAbility
+import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
+import mastermind.game.http.ServerRunnerModule
+import mastermind.game.testkit.DirectRunnerModule
 
 class MastermindScenario(
     private val ability: PlayGameAbility,
@@ -24,14 +23,16 @@ class MastermindScenario(
         ) {
             val app = MastermindApp(
                 gameModule = GameModule(
-                    makeCode = { secret }
-                )
+                    makeCode = { secret },
+                    totalAttempts = totalAttempts,
+                    availablePegs = availablePegs
+                ),
+                runnerModule = runnerModule()
             )
-            runBlocking {
-                val runner = applicationRunnerFor(app)
-                runner.start()
-                runner.use {
-                    MastermindScenario(runner.playGameAbility(), secret, totalAttempts, availablePegs)
+            app.start()
+            app.use {
+                runBlocking {
+                    MastermindScenario(app.playGameAbility(), secret, totalAttempts, availablePegs)
                         .scenario()
                 }
             }
@@ -47,7 +48,12 @@ data class ScenarioContext(val mode: ExecutionMode) {
 
 }
 
-private fun ScenarioContext.applicationRunnerFor(app: MastermindApp): ApplicationRunner = when (mode) {
-    ScenarioContext.ExecutionMode.HTTP -> HttpApplicationRunner(app)
-    ScenarioContext.ExecutionMode.DIRECT -> DirectApplicationRunner(app)
+private fun ScenarioContext.runnerModule(): RunnerModule = when (mode) {
+    ScenarioContext.ExecutionMode.HTTP -> ServerRunnerModule(0)
+    ScenarioContext.ExecutionMode.DIRECT -> DirectRunnerModule()
+}
+
+private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModule) {
+    is ServerRunnerModule -> HttpPlayGameAbility((runnerModule as ServerRunnerModule).port)
+    else -> DirectPlayGameAbility(this)
 }

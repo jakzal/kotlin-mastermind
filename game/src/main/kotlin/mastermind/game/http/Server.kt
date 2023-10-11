@@ -16,6 +16,7 @@ import org.http4k.lens.Header
 import org.http4k.lens.Path
 import org.http4k.routing.bind
 import org.http4k.routing.routes
+import org.http4k.server.Http4kServer
 import org.http4k.server.Undertow
 import org.http4k.server.asServer
 
@@ -25,9 +26,25 @@ fun main() {
             Environment.from()
 
     val app = MastermindApp(
-        journalModule = environment.asJournalModule()
+        journalModule = environment.asJournalModule(),
+        runnerModule = ServerRunnerModule(8080)
     )
-    serverFor(8080, app.routes).start()
+    app.start()
+}
+
+data class ServerRunnerModule(private val initPort: Int) : RunnerModule {
+    private var server: Http4kServer? = null
+
+    val port get() = server?.port() ?: initPort
+
+    context(MastermindApp) override fun start() {
+        server = serverFor(initPort, routes).start()
+    }
+
+    override fun shutdown() {
+        server?.stop()
+        server = null
+    }
 }
 
 fun serverFor(

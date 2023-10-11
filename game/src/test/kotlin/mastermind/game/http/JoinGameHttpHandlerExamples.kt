@@ -1,6 +1,7 @@
 package mastermind.game.http
 
 import arrow.core.right
+import mastermind.game.testkit.DirectRunnerModule
 import mastermind.game.GameModule
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.MastermindApp
@@ -24,7 +25,8 @@ class JoinGameHttpHandlerExamples {
                         else -> throw RuntimeException("Unexpected command: $command")
                     }
                 }
-            )
+            ),
+            runnerModule = DirectRunnerModule()
         ).routes
 
         val response = app(Request(POST, "/games"))

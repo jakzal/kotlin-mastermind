@@ -35,10 +35,30 @@ data class GameModule(
     }
 )
 
+interface RunnerModule {
+    context(MastermindApp)
+    fun start()
+
+    context(MastermindApp)
+    fun shutdown()
+}
+
 data class MastermindApp(
-    private val gameModule: GameModule
-) {
-    constructor(journalModule: JournalModule<GameEvent, GameError>) : this(GameModule(journalModule))
+    val gameModule: GameModule,
+    val runnerModule: RunnerModule
+) : AutoCloseable {
+    constructor(
+        journalModule: JournalModule<GameEvent, GameError>,
+        runnerModule: RunnerModule
+    ) : this(GameModule(journalModule), runnerModule)
+
+    fun start() {
+        runnerModule.start()
+    }
+
+    override fun close() {
+        runnerModule.shutdown()
+    }
 
     suspend fun joinGame(): Either<JournalError<GameError>, GameId> = with(gameModule) {
         execute(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
