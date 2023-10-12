@@ -1,6 +1,6 @@
 package mastermind.game.acceptance.dsl
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import mastermind.game.*
 import mastermind.game.acceptance.dsl.direct.DirectPlayGameAbility
 import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
@@ -8,6 +8,8 @@ import mastermind.game.acceptance.dsl.junit.dynamicContainer
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
 import org.junit.jupiter.api.DynamicContainer
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.DynamicTest.dynamicTest
 
 class MastermindScenario(
     private val ability: PlayGameAbility,
@@ -49,17 +51,14 @@ fun mastermindScenario(
     totalAttempts: Int = 12,
     availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     scenario: suspend MastermindScenario.() -> Unit
-): DynamicContainer =
-    dynamicContainer(
-        "secret=${secret.pegs}",
-        this@ExecutionPlan.contexts.map { context ->
-            context.mode.name to {
-                with(ScenarioContext(context.mode)) {
-                    MastermindScenario(secret, totalAttempts, availablePegs, scenario)
-                }
+): List<DynamicTest> =
+    contexts.map { context ->
+        dynamicTest(context.mode.name) {
+            with(ScenarioContext(context.mode)) {
+                MastermindScenario(secret, totalAttempts, availablePegs, scenario)
             }
         }
-    )
+    }
 
 context(ExecutionPlan)
 fun mastermindScenarios(
