@@ -1,18 +1,22 @@
 package mastermind.game.acceptance.dsl.junit
 
+import mastermind.game.acceptance.dsl.ExecutionPlan
 import mastermind.game.acceptance.dsl.ScenarioContext
+import mastermind.game.acceptance.dsl.ScenarioContext.ExecutionMode
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 
-class ScenarioContextResolver : ParameterResolver {
+class ExecutionPlanResolver : ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext) =
-        parameterContext.parameter.type.isAssignableFrom(ScenarioContext::class.java)
+        parameterContext.parameter.type.isAssignableFrom(ExecutionPlan::class.java)
 
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext) =
-        ScenarioContext(
-            if (extensionContext.isHttpTest()) ScenarioContext.ExecutionMode.HTTP
-            else ScenarioContext.ExecutionMode.DIRECT
+        ExecutionPlan(
+            listOfNotNull(
+                ScenarioContext(ExecutionMode.DIRECT),
+                if (extensionContext.isHttpTest()) ScenarioContext(ExecutionMode.HTTP) else null,
+            )
         )
 }
 

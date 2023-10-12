@@ -3,6 +3,7 @@ package mastermind.game.acceptance
 import arrow.core.left
 import mastermind.game.Code
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
+import mastermind.game.acceptance.dsl.ExecutionPlan
 import mastermind.game.acceptance.dsl.junit.Scenario
 import mastermind.game.acceptance.dsl.mastermindScenario
 import mastermind.game.setOfPegs
@@ -11,6 +12,7 @@ import mastermind.game.view.Guess
 import mastermind.journal.JournalError.ExecutionError
 import mastermind.testkit.assertions.shouldReturn
 
+context(ExecutionPlan)
 class WinningTheGameExamples {
     @Scenario
     fun `code breaker wins the game`() = mastermindScenario(

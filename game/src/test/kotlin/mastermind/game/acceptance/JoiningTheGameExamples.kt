@@ -1,6 +1,7 @@
 package mastermind.game.acceptance
 
 import mastermind.game.Code
+import mastermind.game.acceptance.dsl.ExecutionPlan
 import mastermind.game.acceptance.dsl.junit.Scenario
 import mastermind.game.acceptance.dsl.mastermindScenario
 import mastermind.game.setOfPegs
@@ -8,6 +9,7 @@ import mastermind.game.view.DecodingBoard
 import mastermind.testkit.assertions.shouldReturn
 import org.junit.jupiter.api.Tag
 
+context(ExecutionPlan)
 @Tag("http")
 class JoiningTheGameExamples {
     @Scenario

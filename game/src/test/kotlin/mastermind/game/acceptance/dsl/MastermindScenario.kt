@@ -42,6 +42,8 @@ class MastermindScenario(
     }
 }
 
+
+context(ExecutionPlan)
 fun mastermindScenario(
     secret: Code,
     totalAttempts: Int = 12,
@@ -50,15 +52,16 @@ fun mastermindScenario(
 ): DynamicContainer =
     dynamicContainer(
         "secret=${secret.pegs}",
-        ScenarioContext.ExecutionMode.entries.map { executionMode ->
-            executionMode.name to {
-                with(ScenarioContext(executionMode)) {
+        this@ExecutionPlan.contexts.map { context ->
+            context.mode.name to {
+                with(ScenarioContext(context.mode)) {
                     MastermindScenario(secret, totalAttempts, availablePegs, scenario)
                 }
             }
         }
     )
 
+context(ExecutionPlan)
 fun mastermindScenarios(
     scenarios: List<Pair<String, context(ScenarioContext) () -> Unit>>
 ): List<DynamicContainer> =
@@ -66,9 +69,9 @@ fun mastermindScenarios(
         .map { (displayName, scenario) ->
             dynamicContainer(
                 displayName,
-                ScenarioContext.ExecutionMode.entries.map { executionMode ->
-                    "$executionMode" to {
-                        with(ScenarioContext(executionMode)) {
+                this@ExecutionPlan.contexts.map { context ->
+                    "${context.mode}" to {
+                        with(ScenarioContext(context.mode)) {
                             scenario(this)
                         }
                     }
@@ -81,8 +84,9 @@ data class ScenarioContext(val mode: ExecutionMode) {
         HTTP,
         DIRECT
     }
-
 }
+
+data class ExecutionPlan(val contexts: List<ScenarioContext>)
 
 private fun ScenarioContext.runnerModule(): RunnerModule = when (mode) {
     ScenarioContext.ExecutionMode.HTTP -> ServerRunnerModule(0)
