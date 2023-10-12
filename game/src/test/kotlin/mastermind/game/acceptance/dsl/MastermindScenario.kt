@@ -35,7 +35,7 @@ class MastermindScenario(
             )
             app.start()
             app.use {
-                runBlocking {
+                runTest {
                     MastermindScenario(app.playGameAbility(), secret, totalAttempts, availablePegs)
                         .scenario()
                 }
