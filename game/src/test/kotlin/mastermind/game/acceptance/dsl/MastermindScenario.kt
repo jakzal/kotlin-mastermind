@@ -4,8 +4,10 @@ import kotlinx.coroutines.runBlocking
 import mastermind.game.*
 import mastermind.game.acceptance.dsl.direct.DirectPlayGameAbility
 import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
+import mastermind.game.acceptance.dsl.junit.dynamicContainer
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
+import org.junit.jupiter.api.DynamicContainer
 
 class MastermindScenario(
     private val ability: PlayGameAbility,
@@ -39,6 +41,40 @@ class MastermindScenario(
         }
     }
 }
+
+fun mastermindScenario(
+    secret: Code,
+    totalAttempts: Int = 12,
+    availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
+    scenario: suspend MastermindScenario.() -> Unit
+): DynamicContainer =
+    dynamicContainer(
+        "secret=${secret.pegs}",
+        ScenarioContext.ExecutionMode.entries.map { executionMode ->
+            executionMode.name to {
+                with(ScenarioContext(executionMode)) {
+                    MastermindScenario(secret, totalAttempts, availablePegs, scenario)
+                }
+            }
+        }
+    )
+
+fun mastermindScenarios(
+    scenarios: List<Pair<String, context(ScenarioContext) () -> Unit>>
+): List<DynamicContainer> =
+    scenarios
+        .map { (displayName, scenario) ->
+            dynamicContainer(
+                displayName,
+                ScenarioContext.ExecutionMode.entries.map { executionMode ->
+                    "$executionMode" to {
+                        with(ScenarioContext(executionMode)) {
+                            scenario(this)
+                        }
+                    }
+                }
+            )
+        }
 
 data class ScenarioContext(val mode: ExecutionMode) {
     enum class ExecutionMode {
