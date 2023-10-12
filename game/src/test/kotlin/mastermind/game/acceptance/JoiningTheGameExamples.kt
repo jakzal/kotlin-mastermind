@@ -3,19 +3,16 @@ package mastermind.game.acceptance
 import mastermind.game.Code
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
-import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
+import mastermind.game.acceptance.dsl.junit.Scenario
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.testkit.assertions.shouldReturn
 import org.junit.jupiter.api.Tag
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
 context(ScenarioContext)
-@ExtendWith(ScenarioContextResolver::class)
 @Tag("http")
 class JoiningTheGameExamples {
-    @Test
+    @Scenario
     fun `code breaker joins the game`() = MastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,

@@ -3,22 +3,19 @@ package mastermind.game.acceptance
 import mastermind.game.Code
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
-import mastermind.game.acceptance.dsl.junit.ScenarioContextResolver
+import mastermind.game.acceptance.dsl.junit.ParametrisedScenario
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
 context(ScenarioContext)
-@ExtendWith(ScenarioContextResolver::class)
 class PlayingTheGameExamples {
-    @ParameterizedTest(name = "secret={0} guess={1} feedback={2}")
     @MethodSource("guessExamples")
+    @ParametrisedScenario
     fun `code breaker gets feedback on their guess`(secret: Code, guess: Code, feedback: List<String>) =
         MastermindScenario(
             // Given a decoding board of 12 attempts
