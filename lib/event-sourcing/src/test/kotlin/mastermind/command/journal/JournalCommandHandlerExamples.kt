@@ -28,7 +28,7 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it appends events created in reaction to the command to the journal`() = runTest {
-        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestError, TestEvent> =
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>?, TestError, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? ->
                 either {
                     nonEmptyListOf(expectedEvent)
@@ -44,7 +44,7 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it makes outcome available to the command executor`() = runTest {
-        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestError, TestEvent> =
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>?, TestError, TestEvent> =
             { _: TestCommand, state: NonEmptyList<TestEvent>? ->
                 either {
                     nonEmptyListOf(expectedEvent).also {
@@ -66,10 +66,10 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it reconstitutes any state from the loaded list of events`() = runTest {
-        val applyEvent: Apply<TestState, TestEvent> = { state, event ->
+        val applyEvent: Apply<TestState?, TestEvent> = { state, event ->
             state?.let { TestState(it.history + event.id) } ?: TestState(listOf(event.id))
         }
-        val execute: Execute<TestCommand, TestState, TestError, TestEvent> =
+        val execute: Execute<TestCommand, TestState?, TestError, TestEvent> =
             { _: TestCommand, state: TestState? ->
                 either {
                     nonEmptyListOf(expectedEvent).also {
@@ -83,7 +83,7 @@ class JournalCommandHandlerExamples {
         }
 
         val handler = with(updateStream) {
-            JournalCommandHandler(applyEvent, execute, streamNameResolver) { events -> events }
+            JournalCommandHandler(applyEvent, execute, { null }, streamNameResolver) { events -> events }
         }
 
         handler(TestCommand("ABC")) shouldSucceedWith listOf(TestEvent("987"), TestEvent("654"), expectedEvent)
@@ -91,7 +91,7 @@ class JournalCommandHandlerExamples {
 
     @Test
     fun `it returns journal error in case execute fails`() = runTest {
-        val execute: Execute<TestCommand, NonEmptyList<TestEvent>, TestError, TestEvent> =
+        val execute: Execute<TestCommand, NonEmptyList<TestEvent>?, TestError, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? -> TestError("Execution failed.").left() }
         val handler = with(updateStream) {
             JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
