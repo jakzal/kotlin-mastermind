@@ -10,6 +10,7 @@ import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.Execute
 import mastermind.eventsourcing.journal.Invoker
 import mastermind.eventsourcing.journal.JournalCommandHandler
+import mastermind.eventsourcing.journal.NoStateInvoker
 import mastermind.journal.*
 import mastermind.journal.JournalError.ExecutionError
 import mastermind.journal.Stream.LoadedStream
@@ -36,7 +37,10 @@ class JournalCommandHandlerExamples {
                 }
             }
         val handler = with(updateStream) {
-            JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
+            JournalCommandHandler(
+                NoStateInvoker(execute),
+                streamNameResolver
+            ) { events -> events.head.id }
         }
 
         handler(TestCommand("ABC")) shouldReturn "ABC".right()
@@ -59,7 +63,10 @@ class JournalCommandHandlerExamples {
         }
 
         val handler = with(updateStream) {
-            JournalCommandHandler(execute, streamNameResolver) { events -> events.map { it.id }.joinToString(",") }
+            JournalCommandHandler(
+                NoStateInvoker(execute),
+                streamNameResolver
+            ) { events -> events.map { it.id }.joinToString(",") }
         }
 
         handler(TestCommand("ABC")) shouldSucceedWith "123,456,ABC"
@@ -98,7 +105,10 @@ class JournalCommandHandlerExamples {
         val execute: Execute<TestCommand, NonEmptyList<TestEvent>?, TestError, TestEvent> =
             { _: TestCommand, _: NonEmptyList<TestEvent>? -> TestError("Execution failed.").left() }
         val handler = with(updateStream) {
-            JournalCommandHandler(execute, streamNameResolver) { events -> events.head.id }
+            JournalCommandHandler(
+                NoStateInvoker(execute),
+                streamNameResolver
+            ) { events -> events.head.id }
         }
 
         handler(TestCommand("ABC")) shouldFailWith ExecutionError(TestError("Execution failed."))
