@@ -8,6 +8,7 @@ import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.Execute
+import mastermind.eventsourcing.journal.Invoker
 import mastermind.eventsourcing.journal.JournalCommandHandler
 import mastermind.journal.*
 import mastermind.journal.JournalError.ExecutionError
@@ -83,7 +84,10 @@ class JournalCommandHandlerExamples {
         }
 
         val handler = with(updateStream) {
-            JournalCommandHandler(applyEvent, execute, { null }, streamNameResolver) { events -> events }
+            JournalCommandHandler(
+                Invoker(applyEvent, execute, { null }),
+                streamNameResolver
+            ) { events -> events }
         }
 
         handler(TestCommand("ABC")) shouldSucceedWith listOf(TestEvent("987"), TestEvent("654"), expectedEvent)
