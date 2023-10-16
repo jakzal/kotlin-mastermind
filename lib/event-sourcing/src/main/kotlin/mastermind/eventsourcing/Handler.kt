@@ -3,7 +3,7 @@ package mastermind.eventsourcing
 import arrow.core.Either
 import arrow.core.NonEmptyList
 
-class Invoker<COMMAND : Any, EVENT : Any, ERROR : Any, STATE>(
+class Handler<COMMAND : Any, EVENT : Any, ERROR : Any, STATE>(
     private val applyEvent: Apply<STATE, EVENT>,
     private val execute: Execute<COMMAND, STATE, ERROR, EVENT>,
     private val initialState: GetInitialState<STATE>,

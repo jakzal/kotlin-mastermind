@@ -8,13 +8,13 @@ import mastermind.command.fixtures.TestCommand
 import mastermind.command.fixtures.TestError
 import mastermind.command.fixtures.TestEvent
 import mastermind.eventsourcing.Execute
-import mastermind.eventsourcing.NoStateInvoker
+import mastermind.eventsourcing.NoStateHandler
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
-class NoStateInvokerExamples {
+class NoStateHandlerExamples {
     @Test
     fun `it executes the command with no state if there is no events`() {
         val expectedEvent = TestEvent("Event 1")
@@ -27,9 +27,9 @@ class NoStateInvokerExamples {
                 }
             }
 
-        val invoker = NoStateInvoker(execute)
+        val handler = NoStateHandler(execute)
 
-        invoker(invokedCommand, emptyList()) shouldSucceedWith nonEmptyListOf(expectedEvent)
+        handler(invokedCommand, emptyList()) shouldSucceedWith nonEmptyListOf(expectedEvent)
     }
 
     @Test
@@ -45,9 +45,9 @@ class NoStateInvokerExamples {
                 }
             }
 
-        val invoker = NoStateInvoker(execute)
+        val handler = NoStateHandler(execute)
 
-        invoker(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
+        handler(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
     }
 
     @Test
@@ -56,8 +56,8 @@ class NoStateInvokerExamples {
         val execute: Execute<TestCommand, NonEmptyList<TestEvent>?, TestError, TestEvent> =
             { _, _ -> expectedError.left() }
 
-        val invoker = NoStateInvoker(execute)
+        val handler = NoStateHandler(execute)
 
-        invoker(TestCommand("Command 1"), emptyList()) shouldFailWith expectedError
+        handler(TestCommand("Command 1"), emptyList()) shouldFailWith expectedError
     }
 }

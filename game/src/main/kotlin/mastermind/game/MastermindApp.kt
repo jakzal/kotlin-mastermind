@@ -3,7 +3,7 @@ package mastermind.game
 import arrow.core.Either
 import mastermind.eventsourcing.CommandHandler
 import mastermind.eventsourcing.journal.JournalCommandHandler
-import mastermind.eventsourcing.NoStateInvoker
+import mastermind.eventsourcing.NoStateHandler
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
@@ -29,7 +29,7 @@ data class GameModule(
     },
     val execute: GameCommandHandler = with(journalModule) {
         JournalCommandHandler(
-            NoStateInvoker(::execute),
+            NoStateHandler(::execute),
             { command -> "Mastermind:${command.gameId.value}" },
             { events -> events.head.gameId }
         )

@@ -9,13 +9,13 @@ import mastermind.command.fixtures.TestEvent
 import mastermind.command.fixtures.TestState
 import mastermind.eventsourcing.Apply
 import mastermind.eventsourcing.Execute
-import mastermind.eventsourcing.Invoker
+import mastermind.eventsourcing.Handler
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
-class InvokerExamples {
+class HandlerExamples {
     @Test
     fun `it reconstructs a nullable state from history of events`() {
         val expectedEvent = TestEvent("Event 1")
@@ -33,9 +33,9 @@ class InvokerExamples {
                 }
             }
 
-        val invoker = Invoker(applyEvent, execute) { null }
+        val handler = Handler(applyEvent, execute) { null }
 
-        invoker(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
+        handler(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
     }
 
     @Test
@@ -55,9 +55,9 @@ class InvokerExamples {
                 }
             }
 
-        val invoker = Invoker(applyEvent, execute) { TestState(emptyList()) }
+        val handler = Handler(applyEvent, execute) { TestState(emptyList()) }
 
-        invoker(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
+        handler(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
     }
 
     @Test
@@ -67,8 +67,8 @@ class InvokerExamples {
         val applyEvent: Apply<TestState, TestEvent> = { state, event -> TestState(state.history + event.id) }
         val execute: Execute<TestCommand, TestState, TestError, TestEvent> = { _, _ -> expectedError.left() }
 
-        val invoker = Invoker(applyEvent, execute) { TestState(emptyList()) }
+        val handler = Handler(applyEvent, execute) { TestState(emptyList()) }
 
-        invoker(TestCommand("Command 1"), emptyList()) shouldFailWith expectedError
+        handler(TestCommand("Command 1"), emptyList()) shouldFailWith expectedError
     }
 }
