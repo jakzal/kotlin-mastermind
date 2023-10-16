@@ -8,7 +8,7 @@ import mastermind.command.fixtures.TestCommand
 import mastermind.command.fixtures.TestError
 import mastermind.command.fixtures.TestEvent
 import mastermind.eventsourcing.Execute
-import mastermind.eventsourcing.NoStateHandler
+import mastermind.eventsourcing.handlerFor
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
@@ -27,7 +27,7 @@ class NoStateHandlerExamples {
                 }
             }
 
-        val handler = NoStateHandler(execute)
+        val handler = handlerFor(execute)
 
         handler(invokedCommand, emptyList()) shouldSucceedWith nonEmptyListOf(expectedEvent)
     }
@@ -45,7 +45,7 @@ class NoStateHandlerExamples {
                 }
             }
 
-        val handler = NoStateHandler(execute)
+        val handler = handlerFor(execute)
 
         handler(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
     }
@@ -56,7 +56,7 @@ class NoStateHandlerExamples {
         val execute: Execute<TestCommand, NonEmptyList<TestEvent>?, TestError, TestEvent> =
             { _, _ -> expectedError.left() }
 
-        val handler = NoStateHandler(execute)
+        val handler = handlerFor(execute)
 
         handler(TestCommand("Command 1"), emptyList()) shouldFailWith expectedError
     }
