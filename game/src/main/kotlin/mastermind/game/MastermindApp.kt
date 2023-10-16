@@ -1,7 +1,7 @@
 package mastermind.game
 
 import arrow.core.Either
-import mastermind.eventsourcing.CommandDispatcher
+import mastermind.eventsourcing.Dispatch
 import mastermind.eventsourcing.journal.JournalCommandDispatcher
 import mastermind.eventsourcing.NoStateHandler
 import mastermind.game.GameCommand.JoinGame
@@ -74,4 +74,4 @@ data class MastermindApp(
     }
 }
 
-typealias GameCommandDispatcher = CommandDispatcher<GameCommand, JournalError<GameError>, GameId>
+typealias GameCommandDispatcher = Dispatch<GameCommand, JournalError<GameError>, GameId>
