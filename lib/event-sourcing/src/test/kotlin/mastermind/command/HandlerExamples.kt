@@ -33,7 +33,7 @@ class HandlerExamples {
                 }
             }
 
-        val handler = handlerFor(applyEvent, execute) { null }
+        val handler = handlerFor(execute, applyEvent) { null }
 
         handler(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
     }
@@ -55,7 +55,7 @@ class HandlerExamples {
                 }
             }
 
-        val handler = handlerFor(applyEvent, execute) { TestState(emptyList()) }
+        val handler = handlerFor(execute, applyEvent) { TestState(emptyList()) }
 
         handler(invokedCommand, eventHistory) shouldSucceedWith nonEmptyListOf(expectedEvent)
     }
@@ -67,7 +67,7 @@ class HandlerExamples {
         val applyEvent: Apply<TestState, TestEvent> = { state, event -> TestState(state.history + event.id) }
         val execute: Execute<TestCommand, TestState, TestError, TestEvent> = { _, _ -> expectedError.left() }
 
-        val handler = handlerFor(applyEvent, execute) { TestState(emptyList()) }
+        val handler = handlerFor(execute, applyEvent) { TestState(emptyList()) }
 
         handler(TestCommand("Command 1"), emptyList()) shouldFailWith expectedError
     }
