@@ -9,4 +9,4 @@ typealias Apply<STATE, EVENT> = (STATE, EVENT) -> STATE
 
 typealias GetInitialState<STATE> = () -> STATE
 
-typealias CommandHandler<COMMAND, ERROR, OUTCOME> = suspend (COMMAND) -> Either<ERROR, OUTCOME>
+typealias CommandDispatcher<COMMAND, ERROR, OUTCOME> = suspend (COMMAND) -> Either<ERROR, OUTCOME>

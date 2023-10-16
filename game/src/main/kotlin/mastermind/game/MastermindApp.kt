@@ -1,8 +1,8 @@
 package mastermind.game
 
 import arrow.core.Either
-import mastermind.eventsourcing.CommandHandler
-import mastermind.eventsourcing.journal.JournalCommandHandler
+import mastermind.eventsourcing.CommandDispatcher
+import mastermind.eventsourcing.journal.JournalCommandDispatcher
 import mastermind.eventsourcing.NoStateHandler
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
@@ -27,8 +27,8 @@ data class GameModule(
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     },
-    val execute: GameCommandHandler = with(journalModule) {
-        JournalCommandHandler(
+    val execute: GameCommandDispatcher = with(journalModule) {
+        JournalCommandDispatcher(
             NoStateHandler(::execute),
             { command -> "Mastermind:${command.gameId.value}" },
             { events -> events.head.gameId }
@@ -74,4 +74,4 @@ data class MastermindApp(
     }
 }
 
-typealias GameCommandHandler = CommandHandler<GameCommand, JournalError<GameError>, GameId>
+typealias GameCommandDispatcher = CommandDispatcher<GameCommand, JournalError<GameError>, GameId>
