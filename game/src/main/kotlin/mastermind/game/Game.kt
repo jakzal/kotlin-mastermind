@@ -83,16 +83,16 @@ sealed interface GameError {
     }
 }
 
-typealias Game = NonEmptyList<GameEvent>
+typealias Game = List<GameEvent>
 
 private val Game.secret: Code?
     get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
 
 private val Game.secretLength: Int
-    get() = this.secret?.length ?: 0
+    get() = secret?.length ?: 0
 
 private val Game.secretPegs: List<Code.Peg>
-    get() = this.secret?.pegs ?: emptyList()
+    get() = secret?.pegs ?: emptyList()
 
 private val Game.attempts: Int
     get() = filterIsInstance<GuessMade>().size
@@ -101,16 +101,16 @@ private val Game.totalAttempts: Int
     get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
 
 private val Game.availablePegs: Set<Code.Peg>
-    get() = this.filterIsInstance<GameStarted>().firstOrNull()?.availablePegs ?: emptySet()
+    get() = filterIsInstance<GameStarted>().firstOrNull()?.availablePegs ?: emptySet()
 
 private fun Game.isWon(): Boolean =
-    this.filterIsInstance<GameWon>().isNotEmpty()
+    filterIsInstance<GameWon>().isNotEmpty()
 
 private fun Game.isLost(): Boolean =
-    this.filterIsInstance<GameLost>().isNotEmpty()
+    filterIsInstance<GameLost>().isNotEmpty()
 
 private fun Game.isStarted(): Boolean =
-    this.filterIsInstance<GameStarted>().isNotEmpty()
+    filterIsInstance<GameStarted>().isNotEmpty()
 
 private fun Game.isGuessTooShort(guess: Code): Boolean =
     guess.length < this.secretLength
@@ -145,7 +145,7 @@ private fun <T> List<T>.remove(item: T): List<T>? = indexOf(item).let { index ->
     else null
 }
 
-fun execute(command: GameCommand, game: Game? = null): Either<GameError, NonEmptyList<GameEvent>> = when (command) {
+fun execute(command: GameCommand, game: Game = emptyList()): Either<GameError, NonEmptyList<GameEvent>> = when (command) {
     is JoinGame -> joinGame(command)
     is MakeGuess -> makeGuess(command, game).withOutcome()
 }
@@ -153,7 +153,7 @@ fun execute(command: GameCommand, game: Game? = null): Either<GameError, NonEmpt
 private fun joinGame(command: JoinGame): Either<Nothing, NonEmptyList<GameStarted>> =
     nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts, command.availablePegs)).right()
 
-private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessMade> = either {
+private fun makeGuess(command: MakeGuess, game: Game): Either<GameError, GuessMade> = either {
     return startedNotFinishedGame(command, game).flatMap { game ->
         validGuess(command, game).map { guess ->
             GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(guess)))
@@ -161,8 +161,8 @@ private fun makeGuess(command: MakeGuess, game: Game?): Either<GameError, GuessM
     }
 }
 
-private fun startedNotFinishedGame(command: MakeGuess, game: Game?): Either<GameError, Game> {
-    if (game == null || !game.isStarted()) {
+private fun startedNotFinishedGame(command: MakeGuess, game: Game): Either<GameError, Game> {
+    if (!game.isStarted()) {
         return GameNotStarted(command.gameId).left()
     }
     if (game.isWon()) {
