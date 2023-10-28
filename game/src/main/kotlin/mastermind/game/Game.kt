@@ -56,7 +56,8 @@ data class Code(val pegs: List<Peg>) {
 
 data class Guess(val code: Code, val feedback: Feedback)
 
-data class Feedback(val pegs: List<Peg>, val outcome: Outcome) {
+data class Feedback(val outcome: Outcome, val pegs: List<Peg>) {
+    constructor(outcome: Outcome, vararg pegs: Peg) : this(outcome, pegs.toList())
 
     enum class Peg {
         BLACK, WHITE;
@@ -202,12 +203,12 @@ private fun Game.feedbackOn(guess: Code): Feedback =
     (exactHits(guess).map { BLACK } to colourHits(guess).map { WHITE })
         .let { (exactHits, colourHits) ->
             Feedback(
-                exactHits + colourHits,
                 when {
                     exactHits.size == this.secretLength -> Feedback.Outcome.WON
                     this.attempts + 1 == this.totalAttempts -> Feedback.Outcome.LOST
                     else -> Feedback.Outcome.IN_PROGRESS
-                }
+                },
+                exactHits + colourHits
             )
         }
 

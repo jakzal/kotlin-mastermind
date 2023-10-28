@@ -1,6 +1,7 @@
 package mastermind.game
 
 import arrow.core.getOrElse
+import mastermind.game.Feedback.Outcome.*
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameCommand.JoinGame
@@ -44,7 +45,7 @@ class GameExamples {
                 gameId,
                 Guess(
                     Code("Purple", "Purple", "Purple", "Purple"),
-                    Feedback(emptyList(), Feedback.Outcome.IN_PROGRESS)
+                    Feedback(IN_PROGRESS)
                 )
             )
         )
@@ -65,31 +66,31 @@ class GameExamples {
                 "it gives a black peg for each code peg on the correct position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Red", "Purple", "Blue", "Purple"),
-                Feedback(listOf(BLACK, BLACK), Feedback.Outcome.IN_PROGRESS)
+                Feedback(IN_PROGRESS, BLACK, BLACK)
             ),
             Arguments.of(
                 "it gives no black peg for code peg duplicated on a wrong position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Red", "Red", "Purple", "Purple"),
-                Feedback(listOf(BLACK), Feedback.Outcome.IN_PROGRESS)
+                Feedback(IN_PROGRESS, BLACK)
             ),
             Arguments.of(
                 "it gives a white peg for code peg that is part of the code but is placed on a wrong position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Purple", "Red", "Purple", "Purple"),
-                Feedback(listOf(WHITE), Feedback.Outcome.IN_PROGRESS)
+                Feedback(IN_PROGRESS, WHITE)
             ),
             Arguments.of(
                 "it gives no white peg for code peg duplicated on a wrong position",
                 Code("Red", "Green", "Blue", "Yellow"),
                 Code("Purple", "Red", "Red", "Purple"),
-                Feedback(listOf(WHITE), Feedback.Outcome.IN_PROGRESS)
+                Feedback(IN_PROGRESS, WHITE)
             ),
             Arguments.of(
                 "it gives a white peg for each code peg on a wrong position",
                 Code("Red", "Green", "Blue", "Red"),
                 Code("Purple", "Red", "Red", "Purple"),
-                Feedback(listOf(WHITE, WHITE), Feedback.Outcome.IN_PROGRESS)
+                Feedback(IN_PROGRESS, WHITE, WHITE)
             )
         )
     }
@@ -102,7 +103,7 @@ class GameExamples {
             GuessMade(
                 gameId, Guess(
                     secret, Feedback(
-                        listOf(BLACK, BLACK, BLACK, BLACK), Feedback.Outcome.WON
+                        WON, BLACK, BLACK, BLACK, BLACK
                     )
                 )
             ),
@@ -126,11 +127,11 @@ class GameExamples {
         val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
         val game = gameOf(
             GameStarted(gameId, secret, 3, availablePegs),
-            GuessMade(gameId, Guess(wrongCode, Feedback(listOf(), Feedback.Outcome.IN_PROGRESS))),
-            GuessMade(gameId, Guess(wrongCode, Feedback(listOf(), Feedback.Outcome.IN_PROGRESS))),
+            GuessMade(gameId, Guess(wrongCode, Feedback(IN_PROGRESS))),
+            GuessMade(gameId, Guess(wrongCode, Feedback(IN_PROGRESS))),
         )
         execute(MakeGuess(gameId, wrongCode), game) shouldSucceedWith listOf(
-            GuessMade(gameId, Guess(wrongCode, Feedback(listOf(), Feedback.Outcome.LOST))),
+            GuessMade(gameId, Guess(wrongCode, Feedback(LOST))),
             GameLost(gameId)
         )
     }

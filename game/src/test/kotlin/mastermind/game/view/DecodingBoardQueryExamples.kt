@@ -6,6 +6,8 @@ import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.game.*
+import mastermind.game.Feedback.Outcome
+import mastermind.game.Feedback.Outcome.IN_PROGRESS
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameEvent.*
@@ -60,7 +62,7 @@ class DecodingBoardQueryExamples {
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Yellow"),
-                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(IN_PROGRESS, BLACK, WHITE)
                     )
                 )
             )
@@ -92,14 +94,14 @@ class DecodingBoardQueryExamples {
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Blue"),
-                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(IN_PROGRESS, BLACK, WHITE)
                     )
                 ),
                 GuessMade(
                     gameId,
                     Guess(
                         Code("Purple", "Purple", "Purple", "Purple"),
-                        Feedback(listOf(), Feedback.Outcome.LOST)
+                        Feedback(Outcome.LOST)
                     )
                 ),
                 GameLost(gameId)
@@ -133,14 +135,14 @@ class DecodingBoardQueryExamples {
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Blue"),
-                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(IN_PROGRESS, BLACK, WHITE)
                     )
                 ),
                 GuessMade(
                     gameId,
                     Guess(
                         Code("Purple", "Purple", "Purple", "Purple"),
-                        Feedback(listOf(), Feedback.Outcome.LOST)
+                        Feedback(Outcome.LOST)
                     )
                 ),
                 GameLost(gameId)
@@ -175,14 +177,14 @@ class DecodingBoardQueryExamples {
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Yellow"),
-                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(IN_PROGRESS, BLACK, WHITE)
                     )
                 ),
                 GuessMade(
                     gameId,
                     Guess(
                         Code("Red", "Green", "Blue", "Yellow"),
-                        Feedback(listOf(BLACK, WHITE), Feedback.Outcome.IN_PROGRESS)
+                        Feedback(IN_PROGRESS, BLACK, WHITE)
                     )
                 )
             )
