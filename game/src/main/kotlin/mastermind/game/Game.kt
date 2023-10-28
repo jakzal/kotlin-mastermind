@@ -145,7 +145,7 @@ private fun <T> List<T>.remove(item: T): List<T>? = indexOf(item).let { index ->
     else null
 }
 
-fun execute(command: GameCommand, game: Game = emptyList()): Either<GameError, NonEmptyList<GameEvent>> = when (command) {
+fun execute(command: GameCommand, game: Game = notStartedGame()): Either<GameError, NonEmptyList<GameEvent>> = when (command) {
     is JoinGame -> joinGame(command)
     is MakeGuess -> makeGuess(command, game).withOutcome()
 }
@@ -208,5 +208,7 @@ private fun Game.feedbackOn(guess: Code): Feedback =
                 }
             )
         }
+
+private fun notStartedGame(): Game = emptyList()
 
 fun setOfPegs(vararg pegs: String): Set<Code.Peg> = pegs.map(Code::Peg).toSet()
