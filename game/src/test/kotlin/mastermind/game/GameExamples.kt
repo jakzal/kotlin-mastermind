@@ -13,7 +13,7 @@ import mastermind.game.GameEvent.*
 import mastermind.game.testkit.anyGameId
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
-import org.junit.jupiter.api.DynamicTest
+import mastermind.testkit.dynamictest.dynamicTestsFor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 
@@ -84,9 +84,6 @@ class GameExamples {
             Feedback(IN_PROGRESS, WHITE, WHITE)
         )
     ).dynamicTestsFor(block)
-
-    private fun <T : Any> Map<String, T>.dynamicTestsFor(block: (T) -> Unit) =
-        map { (message, example: T) -> DynamicTest.dynamicTest(message) { block(example) } }
 
     @Test
     fun `the game is won if the secret is guessed`() {

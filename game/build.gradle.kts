@@ -13,4 +13,5 @@ dependencies {
     implementation("org.http4k:http4k-cloudnative")
     testImplementation("org.http4k:http4k-client-apache")
     testImplementation(project(":lib:testkit:assertions"))
+    testImplementation(project(":lib:testkit:dynamic-test"))
 }
