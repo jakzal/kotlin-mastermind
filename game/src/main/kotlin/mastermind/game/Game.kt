@@ -211,6 +211,6 @@ private fun Game.feedbackOn(guess: Code): Feedback =
             )
         }
 
-private fun notStartedGame(): Game = emptyList()
+fun notStartedGame(): Game = emptyList()
 
 fun setOfPegs(vararg pegs: String): Set<Code.Peg> = pegs.map(Code::Peg).toSet()
