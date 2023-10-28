@@ -70,16 +70,18 @@ data class Feedback(val pegs: List<Peg>, val outcome: Outcome) {
 }
 
 sealed interface GameError {
+    val gameId: GameId
+
     sealed interface GameFinishedError : GameError {
-        data class GameAlreadyWon(val gameId: GameId) : GameFinishedError
-        data class GameAlreadyLost(val gameId: GameId) : GameFinishedError
+        data class GameAlreadyWon(override val gameId: GameId) : GameFinishedError
+        data class GameAlreadyLost(override val gameId: GameId) : GameFinishedError
     }
 
     sealed interface GuessError : GameError {
-        data class GameNotStarted(val gameId: GameId) : GuessError
-        data class GuessTooShort(val gameId: GameId, val guess: Code, val requiredLength: Int) : GuessError
-        data class GuessTooLong(val gameId: GameId, val guess: Code, val requiredLength: Int) : GuessError
-        data class InvalidPegInGuess(val gameId: GameId, val guess: Code, val availablePegs: Set<Code.Peg>) : GuessError
+        data class GameNotStarted(override val gameId: GameId) : GuessError
+        data class GuessTooShort(override val gameId: GameId, val guess: Code, val requiredLength: Int) : GuessError
+        data class GuessTooLong(override val gameId: GameId, val guess: Code, val requiredLength: Int) : GuessError
+        data class InvalidPegInGuess(override val gameId: GameId, val guess: Code, val availablePegs: Set<Code.Peg>) : GuessError
     }
 }
 
