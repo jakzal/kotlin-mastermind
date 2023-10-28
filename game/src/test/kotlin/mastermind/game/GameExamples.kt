@@ -13,10 +13,9 @@ import mastermind.game.GameEvent.*
 import mastermind.game.testkit.anyGameId
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
+import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.api.TestFactory
 
 class GameExamples {
     private val gameId = anyGameId()
@@ -51,49 +50,43 @@ class GameExamples {
         )
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("guessExamples")
-    fun `it gives feedback on the guess`(message: String, secret: Code, guess: Code, feedback: Feedback) {
+    @TestFactory
+    fun `it gives feedback on the guess`() = guessExamples { (secret: Code, guess: Code, feedback: Feedback) ->
         val game = gameOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
         execute(MakeGuess(gameId, guess), game) shouldSucceedWith listOf(GuessMade(gameId, Guess(guess, feedback)))
     }
 
-    companion object {
-        @JvmStatic
-        fun guessExamples(): List<Arguments> = listOf(
-            Arguments.of(
-                "it gives a black peg for each code peg on the correct position",
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Red", "Purple", "Blue", "Purple"),
-                Feedback(IN_PROGRESS, BLACK, BLACK)
-            ),
-            Arguments.of(
-                "it gives no black peg for code peg duplicated on a wrong position",
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Red", "Red", "Purple", "Purple"),
-                Feedback(IN_PROGRESS, BLACK)
-            ),
-            Arguments.of(
-                "it gives a white peg for code peg that is part of the code but is placed on a wrong position",
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Purple", "Red", "Purple", "Purple"),
-                Feedback(IN_PROGRESS, WHITE)
-            ),
-            Arguments.of(
-                "it gives no white peg for code peg duplicated on a wrong position",
-                Code("Red", "Green", "Blue", "Yellow"),
-                Code("Purple", "Red", "Red", "Purple"),
-                Feedback(IN_PROGRESS, WHITE)
-            ),
-            Arguments.of(
-                "it gives a white peg for each code peg on a wrong position",
-                Code("Red", "Green", "Blue", "Red"),
-                Code("Purple", "Red", "Red", "Purple"),
-                Feedback(IN_PROGRESS, WHITE, WHITE)
-            )
+    private fun guessExamples(block: (Triple<Code, Code, Feedback>) -> Unit) = mapOf(
+        "it gives a black peg for each code peg on the correct position" to Triple(
+            Code("Red", "Green", "Blue", "Yellow"),
+            Code("Red", "Purple", "Blue", "Purple"),
+            Feedback(IN_PROGRESS, BLACK, BLACK)
+        ),
+        "it gives no black peg for code peg duplicated on a wrong position" to Triple(
+            Code("Red", "Green", "Blue", "Yellow"),
+            Code("Red", "Red", "Purple", "Purple"),
+            Feedback(IN_PROGRESS, BLACK)
+        ),
+        "it gives a white peg for code peg that is part of the code but is placed on a wrong position" to Triple(
+            Code("Red", "Green", "Blue", "Yellow"),
+            Code("Purple", "Red", "Purple", "Purple"),
+            Feedback(IN_PROGRESS, WHITE)
+        ),
+        "it gives no white peg for code peg duplicated on a wrong position" to Triple(
+            Code("Red", "Green", "Blue", "Yellow"),
+            Code("Purple", "Red", "Red", "Purple"),
+            Feedback(IN_PROGRESS, WHITE)
+        ),
+        "it gives a white peg for each code peg on a wrong position" to Triple(
+            Code("Red", "Green", "Blue", "Red"),
+            Code("Purple", "Red", "Red", "Purple"),
+            Feedback(IN_PROGRESS, WHITE, WHITE)
         )
-    }
+    ).dynamicTestsFor(block)
+
+    private fun <T : Any> Map<String, T>.dynamicTestsFor(block: (T) -> Unit) =
+        map { (message, example: T) -> DynamicTest.dynamicTest(message) { block(example) } }
 
     @Test
     fun `the game is won if the secret is guessed`() {
