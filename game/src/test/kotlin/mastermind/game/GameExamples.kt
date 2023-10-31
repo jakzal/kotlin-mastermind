@@ -24,7 +24,7 @@ class GameExamples {
     private val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple", "Pink")
 
     @Test
-    fun `it executes the JoinGame command`() {
+    fun `it starts the game`() {
         execute(JoinGame(gameId, secret, totalAttempts, availablePegs)) shouldSucceedWith listOf(
             GameStarted(
                 gameId,
@@ -36,7 +36,7 @@ class GameExamples {
     }
 
     @Test
-    fun `it executes the MakeGuess command`() {
+    fun `it makes a guess`() {
         val game = gameOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
         execute(MakeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple")), game) shouldSucceedWith listOf(
@@ -147,7 +147,7 @@ class GameExamples {
     }
 
     @Test
-    fun `the guess size cannot be shorter than the secret`() {
+    fun `the guess length cannot be shorter than the secret`() {
         val code = Code("Purple", "Purple", "Purple")
         val game = gameOf(GameStarted(gameId, secret, 12, availablePegs))
 
@@ -155,7 +155,7 @@ class GameExamples {
     }
 
     @Test
-    fun `the guess size cannot be longer than the secret`() {
+    fun `the guess length cannot be longer than the secret`() {
         val code = Code("Purple", "Purple", "Purple", "Purple", "Purple")
         val game = gameOf(GameStarted(gameId, secret, 12, availablePegs))
 
