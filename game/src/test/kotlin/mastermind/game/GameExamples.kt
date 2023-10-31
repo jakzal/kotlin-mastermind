@@ -1,5 +1,6 @@
 package mastermind.game
 
+import arrow.core.Either
 import arrow.core.getOrElse
 import mastermind.game.Feedback.Outcome.*
 import mastermind.game.Feedback.Peg.BLACK
@@ -106,7 +107,7 @@ class GameExamples {
         val game = gameOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
         val update = execute(MakeGuess(gameId, secret), game)
-        val updatedGame = game + update.getOrElse { emptyList() }
+        val updatedGame = game.updated(update)
 
         execute(MakeGuess(gameId, secret), updatedGame) shouldFailWith
                 GameAlreadyWon(gameId)
@@ -132,7 +133,7 @@ class GameExamples {
         val game = gameOf(GameStarted(gameId, secret, 1, availablePegs))
 
         val update = execute(MakeGuess(gameId, wrongCode), game)
-        val updatedGame = game + update.getOrElse { emptyList() }
+        val updatedGame = game.updated(update)
 
         execute(MakeGuess(gameId, secret), updatedGame) shouldFailWith
                 GameAlreadyLost(gameId)
@@ -172,4 +173,6 @@ class GameExamples {
     }
 
     private fun gameOf(vararg events: GameEvent): Game = listOf(*events)
+
+    private fun Game.updated(update: Either<GameError, Game>): Game = this + update.getOrElse { emptyList() }
 }
