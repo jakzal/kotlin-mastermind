@@ -200,17 +200,19 @@ private fun Either<GameError, GuessMade>.withOutcome(): Either<GameError, NonEmp
 }
 
 private fun Game.feedbackOn(guess: Code): Feedback =
-    (exactHits(guess).map { BLACK } to colourHits(guess).map { WHITE })
+    feedbackPegsOn(guess)
         .let { (exactHits, colourHits) ->
-            Feedback(
-                when {
-                    exactHits.size == this.secretLength -> Feedback.Outcome.WON
-                    this.attempts + 1 == this.totalAttempts -> Feedback.Outcome.LOST
-                    else -> Feedback.Outcome.IN_PROGRESS
-                },
-                exactHits + colourHits
-            )
+            Feedback(outcomeFor(exactHits), exactHits + colourHits)
         }
+
+private fun Game.feedbackPegsOn(guess: Code) =
+    exactHits(guess).map { BLACK } to colourHits(guess).map { WHITE }
+
+private fun Game.outcomeFor(exactHits: List<Feedback.Peg>) = when {
+    exactHits.size == this.secretLength -> Feedback.Outcome.WON
+    this.attempts + 1 == this.totalAttempts -> Feedback.Outcome.LOST
+    else -> Feedback.Outcome.IN_PROGRESS
+}
 
 fun notStartedGame(): Game = emptyList()
 
