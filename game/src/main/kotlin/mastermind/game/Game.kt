@@ -156,7 +156,7 @@ private fun Game.outcomeFor(exactHits: List<Feedback.Peg>) = when {
 
 private fun Game.exactHits(guess: Code): List<Code.Peg> = this.secretPegs
     .zip(guess.pegs)
-    .filter { it.first == it.second }
+    .filter { (secretColour, guessColour) -> secretColour == guessColour }
     .unzip()
     .second
 
