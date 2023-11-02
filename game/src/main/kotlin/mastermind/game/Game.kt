@@ -88,6 +88,42 @@ sealed interface GameError {
 
 typealias Game = List<GameEvent>
 
+private val Game.secret: Code?
+    get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
+
+private val Game.secretLength: Int
+    get() = secret?.length ?: 0
+
+private val Game.secretPegs: List<Code.Peg>
+    get() = secret?.pegs ?: emptyList()
+
+private val Game.attempts: Int
+    get() = filterIsInstance<GuessMade>().size
+
+private val Game.totalAttempts: Int
+    get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
+
+private val Game.availablePegs: Set<Code.Peg>
+    get() = filterIsInstance<GameStarted>().firstOrNull()?.availablePegs ?: emptySet()
+
+private fun Game.isWon(): Boolean =
+    filterIsInstance<GameWon>().isNotEmpty()
+
+private fun Game.isLost(): Boolean =
+    filterIsInstance<GameLost>().isNotEmpty()
+
+private fun Game.isStarted(): Boolean =
+    filterIsInstance<GameStarted>().isNotEmpty()
+
+private fun Game.isGuessTooShort(guess: Code): Boolean =
+    guess.length < this.secretLength
+
+private fun Game.isGuessTooLong(guess: Code): Boolean =
+    guess.length > this.secretLength
+
+private fun Game.isGuessValid(guess: Code): Boolean =
+    availablePegs.containsAll(guess.pegs)
+
 fun execute(command: GameCommand, game: Game = notStartedGame()): Either<GameError, NonEmptyList<GameEvent>> = when (command) {
     is JoinGame -> joinGame(command)
     is MakeGuess -> makeGuess(command, game).withOutcome()
@@ -169,42 +205,6 @@ private fun Game.colourHits(guess: Code): List<Code.Peg> = this.secretPegs
             secretPegs.remove(guessPeg)?.let { it to colourHits + guessPeg } ?: (secretPegs to colourHits)
         }.second
     }
-
-private val Game.secret: Code?
-    get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
-
-private val Game.secretLength: Int
-    get() = secret?.length ?: 0
-
-private val Game.secretPegs: List<Code.Peg>
-    get() = secret?.pegs ?: emptyList()
-
-private val Game.attempts: Int
-    get() = filterIsInstance<GuessMade>().size
-
-private val Game.totalAttempts: Int
-    get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
-
-private val Game.availablePegs: Set<Code.Peg>
-    get() = filterIsInstance<GameStarted>().firstOrNull()?.availablePegs ?: emptySet()
-
-private fun Game.isWon(): Boolean =
-    filterIsInstance<GameWon>().isNotEmpty()
-
-private fun Game.isLost(): Boolean =
-    filterIsInstance<GameLost>().isNotEmpty()
-
-private fun Game.isStarted(): Boolean =
-    filterIsInstance<GameStarted>().isNotEmpty()
-
-private fun Game.isGuessTooShort(guess: Code): Boolean =
-    guess.length < this.secretLength
-
-private fun Game.isGuessTooLong(guess: Code): Boolean =
-    guess.length > this.secretLength
-
-private fun Game.isGuessValid(guess: Code): Boolean =
-    availablePegs.containsAll(guess.pegs)
 
 /**
  * Removes an element from the list and returns the new list, or null if the element wasn't found.
