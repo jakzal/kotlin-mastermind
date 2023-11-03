@@ -165,11 +165,13 @@ class GameExamples {
 
     @Test
     fun `it rejects pegs that the game was not started with`() {
-        val secret = Code("Red", "Green", "Blue", "Yellow")
+        val secret = Code("Red", "Green", "Blue", "Blue")
         val availablePegs = setOfPegs("Red", "Green", "Blue")
         val game = gameOf(GameStarted(gameId, secret, 12, availablePegs))
+        val guess = Code("Red", "Green", "Blue", "Yellow")
 
-        execute(MakeGuess(gameId, secret), game) shouldFailWith InvalidPegInGuess(gameId, secret, availablePegs)
+        execute(MakeGuess(gameId, guess), game) shouldFailWith
+                InvalidPegInGuess(gameId, guess, availablePegs)
     }
 
     private fun gameOf(vararg events: GameEvent): Game = listOf(*events)
