@@ -115,6 +115,7 @@ class GameExamples {
 
     @Test
     fun `the game is lost if the secret is not guessed within the number of attempts`() {
+        val secret = Code("Red", "Green", "Blue", "Yellow")
         val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
         val game = gameOf(
             GameStarted(gameId, secret, 3, availablePegs),
@@ -129,6 +130,7 @@ class GameExamples {
 
     @Test
     fun `the game can no longer be played once it's lost`() {
+        val secret = Code("Red", "Green", "Blue", "Yellow")
         val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
         val game = gameOf(GameStarted(gameId, secret, 1, availablePegs))
 
@@ -149,6 +151,7 @@ class GameExamples {
 
     @Test
     fun `the guess length cannot be shorter than the secret`() {
+        val secret = Code("Red", "Green", "Blue", "Yellow")
         val code = Code("Purple", "Purple", "Purple")
         val game = gameOf(GameStarted(gameId, secret, 12, availablePegs))
 
@@ -157,6 +160,7 @@ class GameExamples {
 
     @Test
     fun `the guess length cannot be longer than the secret`() {
+        val secret = Code("Red", "Green", "Blue", "Yellow")
         val code = Code("Purple", "Purple", "Purple", "Purple", "Purple")
         val game = gameOf(GameStarted(gameId, secret, 12, availablePegs))
 
