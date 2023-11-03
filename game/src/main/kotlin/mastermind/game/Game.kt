@@ -43,7 +43,8 @@ sealed interface GameEvent {
     data class GameLost(override val gameId: GameId) : GameEvent
 }
 
-data class GameId(val value: String)
+@JvmInline
+value class GameId(val value: String)
 
 data class Code(val pegs: List<Peg>) {
     constructor(vararg pegs: Peg) : this(pegs.toList())
