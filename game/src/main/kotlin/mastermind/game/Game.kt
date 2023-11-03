@@ -136,16 +136,16 @@ fun execute(
         is MakeGuess -> makeGuess(command, game).withOutcome()
     }
 
-private fun joinGame(command: JoinGame): Either<Nothing, NonEmptyList<GameStarted>> =
-    nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts, command.availablePegs)).right()
+private fun joinGame(command: JoinGame) = either<Nothing, NonEmptyList<GameStarted>> {
+    nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts, command.availablePegs))
+}
 
-private fun makeGuess(command: MakeGuess, game: Game): Either<GameError, GuessMade> = either {
-    return startedNotFinishedGame(command, game).flatMap { game ->
-        validGuess(command, game).map { guess ->
-            GuessMade(command.gameId, Guess(command.guess, game.feedbackOn(guess)))
+private fun makeGuess(command: MakeGuess, game: Game) =
+    startedNotFinishedGame(command, game).flatMap { startedGame ->
+        validGuess(command, startedGame).map { guess ->
+            GuessMade(command.gameId, Guess(command.guess, startedGame.feedbackOn(guess)))
         }
     }
-}
 
 private fun startedNotFinishedGame(command: MakeGuess, game: Game): Either<GameError, Game> {
     if (!game.isStarted()) {
