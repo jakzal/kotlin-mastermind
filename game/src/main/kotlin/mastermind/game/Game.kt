@@ -129,7 +129,6 @@ fun applyEvent(
     is GuessMade -> game?.copy(attempts = game.attempts + 1)
     is GameWon -> game?.copy(outcome = WON)
     is GameLost -> game?.copy(outcome = LOST)
-    else -> game?.copy(events = game.events + event)
 }
 
 fun execute(
