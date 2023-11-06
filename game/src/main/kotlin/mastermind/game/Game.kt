@@ -90,7 +90,6 @@ sealed interface GameError {
 }
 
 data class Game(
-    val events: List<GameEvent>,
     val secret: Code,
     val attempts: Int,
     val totalAttempts: Int,
@@ -122,7 +121,7 @@ fun applyEvent(
     game: Game?,
     event: GameEvent
 ): Game? = when (event) {
-    is GameStarted -> Game(listOf(event), event.secret, 0, event.totalAttempts, event.availablePegs, IN_PROGRESS)
+    is GameStarted -> Game(event.secret, 0, event.totalAttempts, event.availablePegs, IN_PROGRESS)
     is GuessMade -> game?.copy(attempts = game.attempts + 1)
     is GameWon -> game?.copy(outcome = WON)
     is GameLost -> game?.copy(outcome = LOST)
