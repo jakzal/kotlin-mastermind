@@ -108,9 +108,6 @@ data class Game(
 
     fun isLost(): Boolean = outcome == LOST
 
-    fun isStarted(): Boolean =
-        filterIsInstance<GameStarted>().isNotEmpty()
-
     fun isGuessTooShort(guess: Code): Boolean =
         guess.length < secretLength
 
@@ -152,7 +149,7 @@ private fun makeGuess(command: MakeGuess, game: Game?) =
     }
 
 private fun startedNotFinishedGame(command: MakeGuess, game: Game?): Either<GameError, Game> {
-    if (game == null || !game.isStarted()) {
+    if (game == null) {
         return GameNotStarted(command.gameId).left()
     }
     if (game.isWon()) {
