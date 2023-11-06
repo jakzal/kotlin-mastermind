@@ -181,5 +181,8 @@ class GameExamples {
 
     private fun gameOf(vararg events: GameEvent): Game? = events.fold(null, ::applyEvent)
 
-    private fun Game?.updated(update: Either<GameError, NonEmptyList<GameEvent>>): Game = Game((this?.events ?: emptyList()) + update.getOrElse { emptyList() })
+    private fun Game?.updated(update: Either<GameError, NonEmptyList<GameEvent>>): Game? =
+        update
+            .map { events -> events.fold(this, ::applyEvent) }
+            .getOrElse { e -> throw RuntimeException("Expected a list of events but got `$e`.") }
 }

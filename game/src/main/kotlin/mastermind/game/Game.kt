@@ -91,14 +91,14 @@ sealed interface GameError {
 
 data class Game(
     val events: List<GameEvent>,
-    val secret: Code? = null
+    val secret: Code
 ) : List<GameEvent> by events {
 
     val secretLength: Int
-        get() = secret?.length ?: 0
+        get() = secret.length
 
     val secretPegs: List<Code.Peg>
-        get() = secret?.pegs ?: emptyList()
+        get() = secret.pegs
 
     val attempts: Int
         get() = filterIsInstance<GuessMade>().size
