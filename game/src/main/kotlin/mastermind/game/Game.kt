@@ -89,43 +89,43 @@ sealed interface GameError {
     }
 }
 
-data class Game(val events: List<GameEvent>): List<GameEvent> by events
+data class Game(val events: List<GameEvent>) : List<GameEvent> by events {
+    private val secret: Code?
+        get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
 
-private val Game.secret: Code?
-    get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
+    val secretLength: Int
+        get() = secret?.length ?: 0
 
-private val Game.secretLength: Int
-    get() = secret?.length ?: 0
+    val secretPegs: List<Code.Peg>
+        get() = secret?.pegs ?: emptyList()
 
-private val Game.secretPegs: List<Code.Peg>
-    get() = secret?.pegs ?: emptyList()
+    val attempts: Int
+        get() = filterIsInstance<GuessMade>().size
 
-private val Game.attempts: Int
-    get() = filterIsInstance<GuessMade>().size
+    val totalAttempts: Int
+        get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
 
-private val Game.totalAttempts: Int
-    get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
+    val availablePegs: Set<Code.Peg>
+        get() = filterIsInstance<GameStarted>().firstOrNull()?.availablePegs ?: emptySet()
 
-private val Game.availablePegs: Set<Code.Peg>
-    get() = filterIsInstance<GameStarted>().firstOrNull()?.availablePegs ?: emptySet()
+    fun isWon(): Boolean =
+        filterIsInstance<GameWon>().isNotEmpty()
 
-private fun Game.isWon(): Boolean =
-    filterIsInstance<GameWon>().isNotEmpty()
+    fun isLost(): Boolean =
+        filterIsInstance<GameLost>().isNotEmpty()
 
-private fun Game.isLost(): Boolean =
-    filterIsInstance<GameLost>().isNotEmpty()
+    fun isStarted(): Boolean =
+        filterIsInstance<GameStarted>().isNotEmpty()
 
-private fun Game.isStarted(): Boolean =
-    filterIsInstance<GameStarted>().isNotEmpty()
+    fun isGuessTooShort(guess: Code): Boolean =
+        guess.length < secretLength
 
-private fun Game.isGuessTooShort(guess: Code): Boolean =
-    guess.length < secretLength
+    fun isGuessTooLong(guess: Code): Boolean =
+        guess.length > secretLength
 
-private fun Game.isGuessTooLong(guess: Code): Boolean =
-    guess.length > secretLength
-
-private fun Game.isGuessValid(guess: Code): Boolean =
-    availablePegs.containsAll(guess.pegs)
+    fun isGuessValid(guess: Code): Boolean =
+        availablePegs.containsAll(guess.pegs)
+}
 
 fun applyEvent(
     game: Game?,
