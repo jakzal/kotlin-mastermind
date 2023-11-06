@@ -179,7 +179,7 @@ class GameExamples {
                 InvalidPegInGuess(gameId, guess, availablePegs)
     }
 
-    private fun gameOf(vararg events: GameEvent): Game = Game(listOf(*events))
+    private fun gameOf(vararg events: GameEvent): Game? = events.fold(null, ::applyEvent)
 
-    private fun Game.updated(update: Either<GameError, NonEmptyList<GameEvent>>): Game = Game(this.events + update.getOrElse { emptyList() })
+    private fun Game?.updated(update: Either<GameError, NonEmptyList<GameEvent>>): Game = Game((this?.events ?: emptyList()) + update.getOrElse { emptyList() })
 }

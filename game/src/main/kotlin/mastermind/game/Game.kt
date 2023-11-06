@@ -89,9 +89,10 @@ sealed interface GameError {
     }
 }
 
-data class Game(val events: List<GameEvent>) : List<GameEvent> by events {
-    private val secret: Code?
-        get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
+data class Game(
+    val events: List<GameEvent>,
+    val secret: Code? = null
+) : List<GameEvent> by events {
 
     val secretLength: Int
         get() = secret?.length ?: 0
@@ -130,7 +131,10 @@ data class Game(val events: List<GameEvent>) : List<GameEvent> by events {
 fun applyEvent(
     game: Game?,
     event: GameEvent
-): Game = Game((game?.events ?: emptyList()) + event)
+): Game? = when (event) {
+    is GameStarted -> Game(listOf(event), event.secret)
+    else -> game?.copy(events = game.events + event)
+}
 
 fun execute(
     command: GameCommand,
