@@ -91,7 +91,8 @@ sealed interface GameError {
 
 data class Game(
     val events: List<GameEvent>,
-    val secret: Code
+    val secret: Code,
+    val attempts: Int
 ) : List<GameEvent> by events {
 
     val secretLength: Int
@@ -99,9 +100,6 @@ data class Game(
 
     val secretPegs: List<Code.Peg>
         get() = secret.pegs
-
-    val attempts: Int
-        get() = filterIsInstance<GuessMade>().size
 
     val totalAttempts: Int
         get() = filterIsInstance<GameStarted>().firstOrNull()?.totalAttempts ?: 0
@@ -132,7 +130,8 @@ fun applyEvent(
     game: Game?,
     event: GameEvent
 ): Game? = when (event) {
-    is GameStarted -> Game(listOf(event), event.secret)
+    is GameStarted -> Game(listOf(event), event.secret, 0)
+    is GuessMade -> game?.copy(attempts = game.attempts + 1)
     else -> game?.copy(events = game.events + event)
 }
 
