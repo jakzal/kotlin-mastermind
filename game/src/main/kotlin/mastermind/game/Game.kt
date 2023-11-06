@@ -119,10 +119,10 @@ private fun Game.isStarted(): Boolean =
     filterIsInstance<GameStarted>().isNotEmpty()
 
 private fun Game.isGuessTooShort(guess: Code): Boolean =
-    guess.length < this.secretLength
+    guess.length < secretLength
 
 private fun Game.isGuessTooLong(guess: Code): Boolean =
-    guess.length > this.secretLength
+    guess.length > secretLength
 
 private fun Game.isGuessValid(guess: Code): Boolean =
     availablePegs.containsAll(guess.pegs)
