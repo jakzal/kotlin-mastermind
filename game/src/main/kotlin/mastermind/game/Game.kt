@@ -96,12 +96,9 @@ data class Game(
     val availablePegs: Set<Code.Peg>,
     val outcome: Feedback.Outcome
 ) {
+    val secretLength: Int = secret.length
 
-    val secretLength: Int
-        get() = secret.length
-
-    val secretPegs: List<Code.Peg>
-        get() = secret.pegs
+    val secretPegs: List<Code.Peg> = secret.pegs
 
     fun isWon(): Boolean = outcome == WON
 
