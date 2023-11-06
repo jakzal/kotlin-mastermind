@@ -128,13 +128,13 @@ private fun Game.isGuessValid(guess: Code): Boolean =
     availablePegs.containsAll(guess.pegs)
 
 fun applyEvent(
-    game: Game,
+    game: Game?,
     event: GameEvent
-): Game = Game(game.events + event)
+): Game = Game((game?.events ?: emptyList()) + event)
 
 fun execute(
     command: GameCommand,
-    game: Game = notStartedGame()
+    game: Game? = notStartedGame()
 ): Either<GameError, NonEmptyList<GameEvent>> =
     when (command) {
         is JoinGame -> joinGame(command)
@@ -145,15 +145,15 @@ private fun joinGame(command: JoinGame) = either<Nothing, NonEmptyList<GameStart
     nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts, command.availablePegs))
 }
 
-private fun makeGuess(command: MakeGuess, game: Game) =
+private fun makeGuess(command: MakeGuess, game: Game?) =
     startedNotFinishedGame(command, game).flatMap { startedGame ->
         validGuess(command, startedGame).map { guess ->
             GuessMade(command.gameId, Guess(command.guess, startedGame.feedbackOn(guess)))
         }
     }
 
-private fun startedNotFinishedGame(command: MakeGuess, game: Game): Either<GameError, Game> {
-    if (!game.isStarted()) {
+private fun startedNotFinishedGame(command: MakeGuess, game: Game?): Either<GameError, Game> {
+    if (game == null || !game.isStarted()) {
         return GameNotStarted(command.gameId).left()
     }
     if (game.isWon()) {
@@ -227,6 +227,6 @@ private fun <T> List<T>.remove(item: T): List<T>? = indexOf(item).let { index ->
     else null
 }
 
-fun notStartedGame(): Game = Game(emptyList())
+fun notStartedGame(): Game? = null
 
 fun setOfPegs(vararg pegs: String): Set<Code.Peg> = pegs.map(Code::Peg).toSet()
