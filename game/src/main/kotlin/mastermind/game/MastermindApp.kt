@@ -2,6 +2,7 @@ package mastermind.game
 
 import arrow.core.Either
 import mastermind.eventsourcing.Dispatch
+import mastermind.eventsourcing.handlerFor
 import mastermind.eventsourcing.journal.JournalCommandDispatcher
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
@@ -28,7 +29,7 @@ data class GameModule(
     },
     val execute: GameCommandDispatcher = with(journalModule) {
         JournalCommandDispatcher(
-            ::execute,
+            handlerFor(::execute, ::applyEvent) { Game(emptyList()) },
             { command -> "Mastermind:${command.gameId.value}" },
             { events -> events.head.gameId }
         )

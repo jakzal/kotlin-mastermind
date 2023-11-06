@@ -89,7 +89,7 @@ sealed interface GameError {
     }
 }
 
-typealias Game = List<GameEvent>
+data class Game(val events: List<GameEvent>): List<GameEvent> by events
 
 private val Game.secret: Code?
     get() = filterIsInstance<GameStarted>().firstOrNull()?.secret
@@ -126,6 +126,11 @@ private fun Game.isGuessTooLong(guess: Code): Boolean =
 
 private fun Game.isGuessValid(guess: Code): Boolean =
     availablePegs.containsAll(guess.pegs)
+
+fun applyEvent(
+    game: Game,
+    event: GameEvent
+): Game = Game(game.events + event)
 
 fun execute(
     command: GameCommand,
@@ -222,6 +227,6 @@ private fun <T> List<T>.remove(item: T): List<T>? = indexOf(item).let { index ->
     else null
 }
 
-fun notStartedGame(): Game = emptyList()
+fun notStartedGame(): Game = Game(emptyList())
 
 fun setOfPegs(vararg pegs: String): Set<Code.Peg> = pegs.map(Code::Peg).toSet()

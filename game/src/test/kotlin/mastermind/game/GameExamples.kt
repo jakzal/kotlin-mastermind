@@ -1,6 +1,7 @@
 package mastermind.game
 
 import arrow.core.Either
+import arrow.core.NonEmptyList
 import arrow.core.getOrElse
 import mastermind.game.Feedback.Outcome.*
 import mastermind.game.Feedback.Peg.BLACK
@@ -178,7 +179,7 @@ class GameExamples {
                 InvalidPegInGuess(gameId, guess, availablePegs)
     }
 
-    private fun gameOf(vararg events: GameEvent): Game = listOf(*events)
+    private fun gameOf(vararg events: GameEvent): Game = Game(listOf(*events))
 
-    private fun Game.updated(update: Either<GameError, Game>): Game = this + update.getOrElse { emptyList() }
+    private fun Game.updated(update: Either<GameError, NonEmptyList<GameEvent>>): Game = Game(this.events + update.getOrElse { emptyList() })
 }
