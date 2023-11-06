@@ -93,7 +93,8 @@ data class Game(
     val events: List<GameEvent>,
     val secret: Code,
     val attempts: Int,
-    val totalAttempts: Int
+    val totalAttempts: Int,
+    val availablePegs: Set<Code.Peg>
 ) : List<GameEvent> by events {
 
     val secretLength: Int
@@ -101,9 +102,6 @@ data class Game(
 
     val secretPegs: List<Code.Peg>
         get() = secret.pegs
-
-    val availablePegs: Set<Code.Peg>
-        get() = filterIsInstance<GameStarted>().firstOrNull()?.availablePegs ?: emptySet()
 
     fun isWon(): Boolean =
         filterIsInstance<GameWon>().isNotEmpty()
@@ -128,7 +126,7 @@ fun applyEvent(
     game: Game?,
     event: GameEvent
 ): Game? = when (event) {
-    is GameStarted -> Game(listOf(event), event.secret, 0, event.totalAttempts)
+    is GameStarted -> Game(listOf(event), event.secret, 0, event.totalAttempts, event.availablePegs)
     is GuessMade -> game?.copy(attempts = game.attempts + 1)
     else -> game?.copy(events = game.events + event)
 }
