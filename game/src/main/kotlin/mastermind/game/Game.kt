@@ -106,8 +106,7 @@ data class Game(
 
     fun isWon(): Boolean = outcome == WON
 
-    fun isLost(): Boolean =
-        filterIsInstance<GameLost>().isNotEmpty()
+    fun isLost(): Boolean = outcome == LOST
 
     fun isStarted(): Boolean =
         filterIsInstance<GameStarted>().isNotEmpty()
@@ -129,6 +128,7 @@ fun applyEvent(
     is GameStarted -> Game(listOf(event), event.secret, 0, event.totalAttempts, event.availablePegs, IN_PROGRESS)
     is GuessMade -> game?.copy(attempts = game.attempts + 1)
     is GameWon -> game?.copy(outcome = WON)
+    is GameLost -> game?.copy(outcome = LOST)
     else -> game?.copy(events = game.events + event)
 }
 
