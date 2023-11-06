@@ -96,7 +96,7 @@ data class Game(
     val totalAttempts: Int,
     val availablePegs: Set<Code.Peg>,
     val outcome: Feedback.Outcome
-) : List<GameEvent> by events {
+) {
 
     val secretLength: Int
         get() = secret.length
