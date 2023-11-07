@@ -89,13 +89,17 @@ sealed interface GameError {
     }
 }
 
-data class Game(
+sealed interface Game
+
+data object NotStartedGame : Game
+
+data class StartedGame(
     val secret: Code,
     val attempts: Int,
     val totalAttempts: Int,
     val availablePegs: Set<Code.Peg>,
     val outcome: Feedback.Outcome
-) {
+) : Game {
     val secretLength: Int = secret.length
 
     val secretPegs: List<Code.Peg> = secret.pegs
@@ -115,18 +119,24 @@ data class Game(
 }
 
 fun applyEvent(
-    game: Game?,
+    game: Game,
     event: GameEvent
-): Game? = when (event) {
-    is GameStarted -> Game(event.secret, 0, event.totalAttempts, event.availablePegs, IN_PROGRESS)
-    is GuessMade -> game?.copy(attempts = game.attempts + 1)
-    is GameWon -> game?.copy(outcome = WON)
-    is GameLost -> game?.copy(outcome = LOST)
+): Game = when (game) {
+    is NotStartedGame -> when (event) {
+        is GameStarted -> StartedGame(event.secret, 0, event.totalAttempts, event.availablePegs, IN_PROGRESS)
+        else -> game
+    }
+    is StartedGame -> when (event) {
+        is GameStarted -> game
+        is GuessMade -> game.copy(attempts = game.attempts + 1)
+        is GameWon -> game.copy(outcome = WON)
+        is GameLost -> game.copy(outcome = LOST)
+    }
 }
 
 fun execute(
     command: GameCommand,
-    game: Game? = notStartedGame()
+    game: Game = notStartedGame()
 ): Either<GameError, NonEmptyList<GameEvent>> =
     when (command) {
         is JoinGame -> joinGame(command)
@@ -137,15 +147,15 @@ private fun joinGame(command: JoinGame) = either<Nothing, NonEmptyList<GameStart
     nonEmptyListOf(GameStarted(command.gameId, command.secret, command.totalAttempts, command.availablePegs))
 }
 
-private fun makeGuess(command: MakeGuess, game: Game?) =
+private fun makeGuess(command: MakeGuess, game: Game) =
     startedNotFinishedGame(command, game).flatMap { startedGame ->
         validGuess(command, startedGame).map { guess ->
             GuessMade(command.gameId, Guess(command.guess, startedGame.feedbackOn(guess)))
         }
     }
 
-private fun startedNotFinishedGame(command: MakeGuess, game: Game?): Either<GameError, Game> {
-    if (game == null) {
+private fun startedNotFinishedGame(command: MakeGuess, game: Game): Either<GameError, StartedGame> {
+    if (game !is StartedGame) {
         return GameNotStarted(command.gameId).left()
     }
     if (game.isWon()) {
@@ -157,7 +167,7 @@ private fun startedNotFinishedGame(command: MakeGuess, game: Game?): Either<Game
     return game.right()
 }
 
-private fun validGuess(command: MakeGuess, game: Game): Either<GameError, Code> {
+private fun validGuess(command: MakeGuess, game: StartedGame): Either<GameError, Code> {
     if (game.isGuessTooShort(command.guess)) {
         return GuessTooShort(command.gameId, command.guess, game.secretLength).left()
     }
@@ -180,28 +190,28 @@ private fun Either<GameError, GuessMade>.withOutcome(): Either<GameError, NonEmp
                 }
     }
 
-private fun Game.feedbackOn(guess: Code): Feedback =
+private fun StartedGame.feedbackOn(guess: Code): Feedback =
     feedbackPegsOn(guess)
         .let { (exactHits, colourHits) ->
             Feedback(outcomeFor(exactHits), exactHits + colourHits)
         }
 
-private fun Game.feedbackPegsOn(guess: Code) =
+private fun StartedGame.feedbackPegsOn(guess: Code) =
     exactHits(guess).map { BLACK } to colourHits(guess).map { WHITE }
 
-private fun Game.outcomeFor(exactHits: List<Feedback.Peg>) = when {
+private fun StartedGame.outcomeFor(exactHits: List<Feedback.Peg>) = when {
     exactHits.size == this.secretLength -> WON
     this.attempts + 1 == this.totalAttempts -> LOST
     else -> IN_PROGRESS
 }
 
-private fun Game.exactHits(guess: Code): List<Code.Peg> = this.secretPegs
+private fun StartedGame.exactHits(guess: Code): List<Code.Peg> = this.secretPegs
     .zip(guess.pegs)
     .filter { (secretColour, guessColour) -> secretColour == guessColour }
     .unzip()
     .second
 
-private fun Game.colourHits(guess: Code): List<Code.Peg> = this.secretPegs
+private fun StartedGame.colourHits(guess: Code): List<Code.Peg> = this.secretPegs
     .zip(guess.pegs)
     .filter { (secretColour, guessColour) -> secretColour != guessColour }
     .unzip()
@@ -219,6 +229,6 @@ private fun <T> List<T>.remove(item: T): List<T>? = indexOf(item).let { index ->
     else null
 }
 
-fun notStartedGame(): Game? = null
+fun notStartedGame(): Game = NotStartedGame
 
 fun setOfPegs(vararg pegs: String): Set<Code.Peg> = pegs.map(Code::Peg).toSet()

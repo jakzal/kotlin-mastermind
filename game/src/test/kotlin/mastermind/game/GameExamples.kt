@@ -179,12 +179,12 @@ class GameExamples {
                 InvalidPegInGuess(gameId, guess, availablePegs)
     }
 
-    private fun gameOf(vararg events: GameEvent): Game? = events.toList().applyTo(null)
+    private fun gameOf(vararg events: GameEvent): Game = events.toList().applyTo(NotStartedGame)
 
-    private fun Game?.updated(update: Either<GameError, NonEmptyList<GameEvent>>): Game? =
+    private fun Game.updated(update: Either<GameError, NonEmptyList<GameEvent>>): Game =
         update
             .map { events -> events.applyTo(this) }
             .getOrElse { e -> throw RuntimeException("Expected a list of events but got `$e`.") }
 
-    private fun Iterable<GameEvent>.applyTo(game: Game?): Game? = fold(game, ::applyEvent)
+    private fun Iterable<GameEvent>.applyTo(game: Game): Game = fold(game, ::applyEvent)
 }
