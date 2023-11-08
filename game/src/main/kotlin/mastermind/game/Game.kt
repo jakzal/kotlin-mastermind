@@ -97,16 +97,11 @@ data class StartedGame(
     val secret: Code,
     val attempts: Int,
     val totalAttempts: Int,
-    val availablePegs: Set<Code.Peg>,
-    val outcome: Feedback.Outcome
+    val availablePegs: Set<Code.Peg>
 ) : Game {
     val secretLength: Int = secret.length
 
     val secretPegs: List<Code.Peg> = secret.pegs
-
-    fun isWon(): Boolean = outcome == WON
-
-    fun isLost(): Boolean = outcome == LOST
 
     fun isGuessTooShort(guess: Code): Boolean =
         guess.length < secretLength
@@ -118,20 +113,35 @@ data class StartedGame(
         availablePegs.containsAll(guess.pegs)
 }
 
+data class WonGame(
+    val secret: Code,
+    val attempts: Int,
+    val totalAttempts: Int,
+) : Game
+
+data class LostGame(
+    val secret: Code,
+    val totalAttempts: Int,
+) : Game
+
 fun applyEvent(
     game: Game,
     event: GameEvent
 ): Game = when (game) {
     is NotStartedGame -> when (event) {
-        is GameStarted -> StartedGame(event.secret, 0, event.totalAttempts, event.availablePegs, IN_PROGRESS)
+        is GameStarted -> StartedGame(event.secret, 0, event.totalAttempts, event.availablePegs)
         else -> game
     }
+
     is StartedGame -> when (event) {
         is GameStarted -> game
         is GuessMade -> game.copy(attempts = game.attempts + 1)
-        is GameWon -> game.copy(outcome = WON)
-        is GameLost -> game.copy(outcome = LOST)
+        is GameWon -> WonGame(secret = game.secret, attempts = game.attempts, totalAttempts = game.totalAttempts)
+        is GameLost -> LostGame(secret = game.secret, totalAttempts = game.totalAttempts)
     }
+
+    is WonGame -> game
+    is LostGame -> game
 }
 
 fun execute(
@@ -154,17 +164,11 @@ private fun makeGuess(command: MakeGuess, game: Game) =
         }
     }
 
-private fun startedNotFinishedGame(command: MakeGuess, game: Game): Either<GameError, StartedGame> {
-    if (game !is StartedGame) {
-        return GameNotStarted(command.gameId).left()
-    }
-    if (game.isWon()) {
-        return GameAlreadyWon(command.gameId).left()
-    }
-    if (game.isLost()) {
-        return GameAlreadyLost(command.gameId).left()
-    }
-    return game.right()
+private fun startedNotFinishedGame(command: MakeGuess, game: Game): Either<GameError, StartedGame> = when (game) {
+    is NotStartedGame -> GameNotStarted(command.gameId).left()
+    is WonGame -> GameAlreadyWon(command.gameId).left()
+    is LostGame -> GameAlreadyLost(command.gameId).left()
+    is StartedGame -> game.right()
 }
 
 private fun validGuess(command: MakeGuess, game: StartedGame): Either<GameError, Code> {
