@@ -113,16 +113,9 @@ data class StartedGame(
         availablePegs.containsAll(guess.pegs)
 }
 
-data class WonGame(
-    val secret: Code,
-    val attempts: Int,
-    val totalAttempts: Int,
-) : Game
+data object WonGame : Game
 
-data class LostGame(
-    val secret: Code,
-    val totalAttempts: Int,
-) : Game
+data object LostGame : Game
 
 fun applyEvent(
     game: Game,
@@ -136,8 +129,8 @@ fun applyEvent(
     is StartedGame -> when (event) {
         is GameStarted -> game
         is GuessMade -> game.copy(attempts = game.attempts + 1)
-        is GameWon -> WonGame(secret = game.secret, attempts = game.attempts, totalAttempts = game.totalAttempts)
-        is GameLost -> LostGame(secret = game.secret, totalAttempts = game.totalAttempts)
+        is GameWon -> WonGame
+        is GameLost -> LostGame
     }
 
     is WonGame -> game
