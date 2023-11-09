@@ -91,7 +91,14 @@ sealed interface GameError {
 }
 
 sealed interface Game {
-    data object NotStartedGame : Game
+    fun applyEvent(event: GameEvent): Game
+
+    data object NotStartedGame : Game {
+        override fun applyEvent(event: GameEvent): Game = when (event) {
+            is GameStarted -> StartedGame(event.secret, 0, event.totalAttempts, event.availablePegs)
+            else -> this
+        }
+    }
 
     data class StartedGame(
         val secret: Code,
@@ -103,6 +110,13 @@ sealed interface Game {
 
         val secretPegs: List<Code.Peg> = secret.pegs
 
+        override fun applyEvent(event: GameEvent): Game = when (event) {
+            is GameStarted -> this
+            is GuessMade -> this.copy(attempts = this.attempts + 1)
+            is GameWon -> WonGame
+            is GameLost -> LostGame
+        }
+
         fun isGuessTooShort(guess: Code): Boolean =
             guess.length < secretLength
 
@@ -113,30 +127,16 @@ sealed interface Game {
             availablePegs.containsAll(guess.pegs)
     }
 
-    data object WonGame : Game
-
-    data object LostGame : Game
-}
-
-fun applyEvent(
-    game: Game,
-    event: GameEvent
-): Game = when (game) {
-    is NotStartedGame -> when (event) {
-        is GameStarted -> StartedGame(event.secret, 0, event.totalAttempts, event.availablePegs)
-        else -> game
+    data object WonGame : Game {
+        override fun applyEvent(event: GameEvent): Game = this
     }
 
-    is StartedGame -> when (event) {
-        is GameStarted -> game
-        is GuessMade -> game.copy(attempts = game.attempts + 1)
-        is GameWon -> WonGame
-        is GameLost -> LostGame
+    data object LostGame : Game {
+        override fun applyEvent(event: GameEvent): Game = this
     }
-
-    is WonGame -> game
-    is LostGame -> game
 }
+
+fun applyEvent(game: Game, event: GameEvent): Game = game.applyEvent(event)
 
 fun execute(
     command: GameCommand,
