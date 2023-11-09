@@ -29,7 +29,7 @@ data class GameModule(
     },
     val execute: GameCommandDispatcher = with(journalModule) {
         JournalCommandDispatcher(
-            handlerFor(::execute, ::applyEvent) { NotStartedGame },
+            handlerFor(::execute, ::applyEvent, ::notStartedGame),
             { command -> "Mastermind:${command.gameId.value}" },
             { events -> events.head.gameId }
         )
