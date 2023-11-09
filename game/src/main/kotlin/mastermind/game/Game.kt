@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import mastermind.game.Feedback.Outcome.*
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
+import mastermind.game.Game.*
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
@@ -89,33 +90,33 @@ sealed interface GameError {
     }
 }
 
-sealed interface Game
+sealed interface Game {
+    data object NotStartedGame : Game
 
-data object NotStartedGame : Game
+    data class StartedGame(
+        val secret: Code,
+        val attempts: Int,
+        val totalAttempts: Int,
+        val availablePegs: Set<Code.Peg>
+    ) : Game {
+        val secretLength: Int = secret.length
 
-data class StartedGame(
-    val secret: Code,
-    val attempts: Int,
-    val totalAttempts: Int,
-    val availablePegs: Set<Code.Peg>
-) : Game {
-    val secretLength: Int = secret.length
+        val secretPegs: List<Code.Peg> = secret.pegs
 
-    val secretPegs: List<Code.Peg> = secret.pegs
+        fun isGuessTooShort(guess: Code): Boolean =
+            guess.length < secretLength
 
-    fun isGuessTooShort(guess: Code): Boolean =
-        guess.length < secretLength
+        fun isGuessTooLong(guess: Code): Boolean =
+            guess.length > secretLength
 
-    fun isGuessTooLong(guess: Code): Boolean =
-        guess.length > secretLength
+        fun isGuessValid(guess: Code): Boolean =
+            availablePegs.containsAll(guess.pegs)
+    }
 
-    fun isGuessValid(guess: Code): Boolean =
-        availablePegs.containsAll(guess.pegs)
+    data object WonGame : Game
+
+    data object LostGame : Game
 }
-
-data object WonGame : Game
-
-data object LostGame : Game
 
 fun applyEvent(
     game: Game,

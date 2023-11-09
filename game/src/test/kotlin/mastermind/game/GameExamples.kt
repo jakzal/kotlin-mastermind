@@ -179,7 +179,7 @@ class GameExamples {
                 InvalidPegInGuess(gameId, guess, availablePegs)
     }
 
-    private fun gameOf(vararg events: GameEvent): Game = events.toList().applyTo(NotStartedGame)
+    private fun gameOf(vararg events: GameEvent): Game = events.toList().applyTo(notStartedGame())
 
     private fun Game.updated(update: Either<GameError, NonEmptyList<GameEvent>>): Game =
         update
