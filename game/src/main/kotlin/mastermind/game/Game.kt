@@ -136,8 +136,6 @@ sealed interface Game {
     }
 }
 
-fun applyEvent(game: Game, event: GameEvent): Game = game.applyEvent(event)
-
 fun execute(
     command: GameCommand,
     game: Game = notStartedGame()

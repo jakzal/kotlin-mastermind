@@ -186,5 +186,5 @@ class GameExamples {
             .map { events -> events.applyTo(this) }
             .getOrElse { e -> throw RuntimeException("Expected a list of events but got `$e`.") }
 
-    private fun Iterable<GameEvent>.applyTo(game: Game): Game = fold(game, ::applyEvent)
+    private fun Iterable<GameEvent>.applyTo(game: Game): Game = fold(game, Game::applyEvent)
 }
