@@ -6,6 +6,7 @@ import arrow.core.getOrElse
 import mastermind.game.Feedback.Outcome.*
 import mastermind.game.Feedback.Peg.BLACK
 import mastermind.game.Feedback.Peg.WHITE
+import mastermind.game.Game.NotStartedGame
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
@@ -27,7 +28,7 @@ class GameExamples {
 
     @Test
     fun `it starts the game`() {
-        execute(JoinGame(gameId, secret, totalAttempts, availablePegs)) shouldSucceedWith listOf(
+        NotStartedGame.execute(JoinGame(gameId, secret, totalAttempts, availablePegs)) shouldSucceedWith listOf(
             GameStarted(
                 gameId,
                 secret,
@@ -41,7 +42,7 @@ class GameExamples {
     fun `it makes a guess`() {
         val game = gameOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
-        execute(MakeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple")), game) shouldSucceedWith listOf(
+        game.execute(MakeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))) shouldSucceedWith listOf(
             GuessMade(
                 gameId,
                 Guess(
@@ -56,7 +57,7 @@ class GameExamples {
     fun `it gives feedback on the guess`() = guessExamples { (secret: Code, guess: Code, feedback: Feedback) ->
         val game = gameOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
-        execute(MakeGuess(gameId, guess), game) shouldSucceedWith listOf(GuessMade(gameId, Guess(guess, feedback)))
+        game.execute(MakeGuess(gameId, guess)) shouldSucceedWith listOf(GuessMade(gameId, Guess(guess, feedback)))
     }
 
     private fun guessExamples(block: (Triple<Code, Code, Feedback>) -> Unit) = mapOf(
@@ -91,7 +92,7 @@ class GameExamples {
     fun `the game is won if the secret is guessed`() {
         val game = gameOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
-        execute(MakeGuess(gameId, secret), game) shouldSucceedWith listOf(
+        game.execute(MakeGuess(gameId, secret)) shouldSucceedWith listOf(
             GuessMade(
                 gameId, Guess(
                     secret, Feedback(
@@ -107,10 +108,10 @@ class GameExamples {
     fun `the game can no longer be played once it's won`() {
         val game = gameOf(GameStarted(gameId, secret, totalAttempts, availablePegs))
 
-        val update = execute(MakeGuess(gameId, secret), game)
+        val update = game.execute(MakeGuess(gameId, secret))
         val updatedGame = game.updated(update)
 
-        execute(MakeGuess(gameId, secret), updatedGame) shouldFailWith
+        updatedGame.execute(MakeGuess(gameId, secret)) shouldFailWith
                 GameAlreadyWon(gameId)
     }
 
@@ -123,7 +124,7 @@ class GameExamples {
             GuessMade(gameId, Guess(wrongCode, Feedback(IN_PROGRESS))),
             GuessMade(gameId, Guess(wrongCode, Feedback(IN_PROGRESS))),
         )
-        execute(MakeGuess(gameId, wrongCode), game) shouldSucceedWith listOf(
+        game.execute(MakeGuess(gameId, wrongCode)) shouldSucceedWith listOf(
             GuessMade(gameId, Guess(wrongCode, Feedback(LOST))),
             GameLost(gameId)
         )
@@ -135,10 +136,10 @@ class GameExamples {
         val wrongCode = Code("Purple", "Purple", "Purple", "Purple")
         val game = gameOf(GameStarted(gameId, secret, 1, availablePegs))
 
-        val update = execute(MakeGuess(gameId, wrongCode), game)
+        val update = game.execute(MakeGuess(gameId, wrongCode))
         val updatedGame = game.updated(update)
 
-        execute(MakeGuess(gameId, secret), updatedGame) shouldFailWith
+        updatedGame.execute(MakeGuess(gameId, secret)) shouldFailWith
                 GameAlreadyLost(gameId)
     }
 
@@ -147,7 +148,7 @@ class GameExamples {
         val code = Code("Red", "Purple", "Red", "Purple")
         val game = notStartedGame()
 
-        execute(MakeGuess(gameId, code), game) shouldFailWith GameNotStarted(gameId)
+        game.execute(MakeGuess(gameId, code)) shouldFailWith GameNotStarted(gameId)
     }
 
     @Test
@@ -156,7 +157,7 @@ class GameExamples {
         val code = Code("Purple", "Purple", "Purple")
         val game = gameOf(GameStarted(gameId, secret, 12, availablePegs))
 
-        execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooShort(gameId, code, secret.length)
+        game.execute(MakeGuess(gameId, code)) shouldFailWith GuessTooShort(gameId, code, secret.length)
     }
 
     @Test
@@ -165,7 +166,7 @@ class GameExamples {
         val code = Code("Purple", "Purple", "Purple", "Purple", "Purple")
         val game = gameOf(GameStarted(gameId, secret, 12, availablePegs))
 
-        execute(MakeGuess(gameId, code), game) shouldFailWith GuessTooLong(gameId, code, secret.length)
+        game.execute(MakeGuess(gameId, code)) shouldFailWith GuessTooLong(gameId, code, secret.length)
     }
 
     @Test
@@ -175,7 +176,7 @@ class GameExamples {
         val game = gameOf(GameStarted(gameId, secret, 12, availablePegs))
         val guess = Code("Red", "Green", "Blue", "Yellow")
 
-        execute(MakeGuess(gameId, guess), game) shouldFailWith
+        game.execute(MakeGuess(gameId, guess)) shouldFailWith
                 InvalidPegInGuess(gameId, guess, availablePegs)
     }
 

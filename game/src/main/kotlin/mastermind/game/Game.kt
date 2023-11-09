@@ -211,12 +211,6 @@ sealed interface Game {
     }
 }
 
-fun execute(
-    command: GameCommand,
-    game: Game = notStartedGame()
-): Either<GameError, NonEmptyList<GameEvent>> =
-    game.execute(command)
-
 /**
  * Removes an element from the list and returns the new list, or null if the element wasn't found.
  */
