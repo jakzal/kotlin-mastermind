@@ -2,8 +2,11 @@ package mastermind.game.acceptance.dsl.direct
 
 import arrow.core.Either
 import arrow.core.getOrElse
-import mastermind.game.*
+import mastermind.game.Code
 import mastermind.game.GameCommand.MakeGuess
+import mastermind.game.GameError
+import mastermind.game.GameId
+import mastermind.game.MastermindApp
 import mastermind.game.acceptance.dsl.PlayGameAbility
 import mastermind.game.view.DecodingBoard
 import mastermind.journal.JournalError

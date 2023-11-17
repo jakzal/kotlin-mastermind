@@ -6,5 +6,5 @@ import org.junit.jupiter.api.extension.ExtendWith
 @TestFactory
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-@ExtendWith(ExecutionPlanResolver::class)
+@ExtendWith(ExecutionContextResolver::class)
 annotation class Scenario

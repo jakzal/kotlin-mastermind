@@ -1,7 +1,7 @@
 package mastermind.game.acceptance
 
 import mastermind.game.Code
-import mastermind.game.acceptance.dsl.ExecutionPlan
+import mastermind.game.acceptance.dsl.junit.ExecutionContext
 import mastermind.game.acceptance.dsl.MastermindScenario
 import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.Scenario
@@ -12,7 +12,7 @@ import mastermind.game.view.Guess
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 
-context(ExecutionPlan)
+context(ExecutionContext)
 class PlayingTheGameExamples {
     @Scenario
     fun `code breaker gets feedback on their guess`() =
