@@ -8,6 +8,8 @@ import mastermind.game.acceptance.dsl.junit.ExecutionContext
 import mastermind.game.acceptance.dsl.junit.dynamicContainer
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
+import mastermind.journal.InMemoryJournal
+import mastermind.journal.eventstoredb.EventStoreDbJournal
 import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
@@ -30,7 +32,8 @@ class MastermindScenario(
                 gameModule = GameModule(
                     makeCode = { secret },
                     totalAttempts = totalAttempts,
-                    availablePegs = availablePegs
+                    availablePegs = availablePegs,
+                    journalModule = journalModule()
                 ),
                 runnerModule = runnerModule()
             )
@@ -79,10 +82,14 @@ fun mastermindScenarios(
             )
         }
 
-data class ScenarioContext(val mode: ExecutionMode) {
+data class ScenarioContext(val mode: ExecutionMode, val journal: Journal) {
     enum class ExecutionMode {
         HTTP,
         DIRECT
+    }
+    enum class Journal {
+        IN_MEMORY,
+        EVENT_STORE_DB
     }
 }
 
@@ -91,14 +98,20 @@ private fun ScenarioContext.runnerModule(): RunnerModule = when (mode) {
     ScenarioContext.ExecutionMode.DIRECT -> DirectRunnerModule()
 }
 
+
+private fun ScenarioContext.journalModule(): JournalModule<GameEvent, GameError> = when(journal) {
+    ScenarioContext.Journal.IN_MEMORY -> JournalModule(InMemoryJournal())
+    ScenarioContext.Journal.EVENT_STORE_DB -> JournalModule(EventStoreDbJournal("esdb://localhost:2113?tls=false"))
+}
+
 private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModule) {
     is ServerRunnerModule -> HttpPlayGameAbility((runnerModule as ServerRunnerModule).port)
     else -> DirectPlayGameAbility(this)
 }
 
 private fun ExecutionContext.scenarioContexts() = listOfNotNull(
-    ScenarioContext(ScenarioContext.ExecutionMode.DIRECT),
-    if (this.isHttpTest()) ScenarioContext(ScenarioContext.ExecutionMode.HTTP) else null,
+    ScenarioContext(ScenarioContext.ExecutionMode.DIRECT, ScenarioContext.Journal.IN_MEMORY),
+    if (this.isHttpTest()) ScenarioContext(ScenarioContext.ExecutionMode.HTTP, ScenarioContext.Journal.IN_MEMORY) else null,
 )
 
 private fun ExecutionContext.isHttpTest(): Boolean =
