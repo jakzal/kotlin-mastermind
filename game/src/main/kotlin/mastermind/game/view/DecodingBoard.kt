@@ -4,7 +4,7 @@ data class DecodingBoard(
     val id: String,
     val secretLength: Int,
     val totalAttempts: Int,
-    val availablePegs: List<String>,
+    val availablePegs: Set<String>,
     val guesses: List<Guess>,
     val outcome: String
 ) {

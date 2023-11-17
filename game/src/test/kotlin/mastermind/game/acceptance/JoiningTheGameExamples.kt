@@ -29,7 +29,7 @@ class JoiningTheGameExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
-                availablePegs.map(Code.Peg::name),
+                availablePegs.map(Code.Peg::name).toSet(),
                 emptyList(),
                 "In progress"
             )

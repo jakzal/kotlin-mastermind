@@ -35,7 +35,7 @@ class WinningTheGameExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
-                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
+                setOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 (1..11).map { Guess(listOf("Purple", "Purple", "Purple", "Purple"), emptyList()) } + Guess(
                     listOf(
                         "Red",

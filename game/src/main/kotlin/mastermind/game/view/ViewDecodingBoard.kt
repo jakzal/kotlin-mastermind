@@ -17,7 +17,7 @@ private fun applyEventToDecodingBoard(decodingBoard: DecodingBoard?, event: Game
         event.gameId.value,
         event.secret.length,
         event.totalAttempts,
-        event.availablePegs.map(Code.Peg::name),
+        event.availablePegs.map(Code.Peg::name).toSet(),
         emptyList(),
         "In progress"
     )

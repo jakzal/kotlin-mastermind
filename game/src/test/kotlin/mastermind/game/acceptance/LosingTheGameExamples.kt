@@ -33,7 +33,7 @@ class LosingTheGameExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
-                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
+                setOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 (1..12).map { Guess(listOf("Purple", "Purple", "Purple", "Purple"), emptyList()) },
                 "Lost"
             )

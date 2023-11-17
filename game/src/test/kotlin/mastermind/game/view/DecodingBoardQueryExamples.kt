@@ -41,7 +41,7 @@ class DecodingBoardQueryExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
-                listOf("Red", "Green", "Blue", "Yellow", "Purple", "Pink"),
+                setOf("Red", "Green", "Blue", "Yellow", "Purple", "Pink"),
                 emptyList(),
                 "In progress"
             )
@@ -71,7 +71,7 @@ class DecodingBoardQueryExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
-                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
+                setOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Yellow"), listOf("Black", "White"))
                 ),
@@ -111,7 +111,7 @@ class DecodingBoardQueryExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
-                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
+                setOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),
                     Guess(listOf("Purple", "Purple", "Purple", "Purple"), listOf())
@@ -152,7 +152,7 @@ class DecodingBoardQueryExamples {
                 gameId.value,
                 secret.length,
                 totalAttempts,
-                listOf("Red", "Green", "Blue", "Yellow", "Purple"),
+                setOf("Red", "Green", "Blue", "Yellow", "Purple"),
                 listOf(
                     Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),
                     Guess(listOf("Purple", "Purple", "Purple", "Purple"), listOf())

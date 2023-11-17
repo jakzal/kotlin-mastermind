@@ -1,9 +1,9 @@
 package mastermind.game.http
 
-import mastermind.game.testkit.DirectRunnerModule
-import mastermind.game.GameModule
 import mastermind.game.GameId
+import mastermind.game.GameModule
 import mastermind.game.MastermindApp
+import mastermind.game.testkit.DirectRunnerModule
 import mastermind.game.view.DecodingBoard
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldReturn
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 class ViewDecodingBoardHandlerExamples {
     @Test
     fun `it returns the decoding board view if found`() {
-        val codePegs = listOf("Red", "Green", "Blue", "Yellow", "Purple")
+        val codePegs = setOf("Red", "Green", "Blue", "Yellow", "Purple")
         val app = MastermindApp(
             gameModule = GameModule(
                 viewDecodingBoard = { gameId: GameId ->
