@@ -8,6 +8,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.+")
     testImplementation(testFixtures(project(":lib:journal")))
     testImplementation(project(":lib:testkit:testcontainers-eventstoredb"))
-    testImplementation("org.testcontainers:testcontainers:1.19.0")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.0")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.19.2"))
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
 }
