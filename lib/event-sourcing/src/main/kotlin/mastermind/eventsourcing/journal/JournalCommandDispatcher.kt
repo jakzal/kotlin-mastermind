@@ -4,16 +4,13 @@ import arrow.core.Either
 import arrow.core.NonEmptyList
 import mastermind.eventsourcing.Dispatch
 import mastermind.eventsourcing.Execute
-import mastermind.journal.Journal
-import mastermind.journal.JournalError
-import mastermind.journal.append
-import mastermind.journal.loadForUpdate
+import mastermind.journal.*
 
 
 context(Journal<EVENT, ERROR>)
 class JournalCommandDispatcher<COMMAND : Any, EVENT : Any, ERROR : Any, OUTCOME>(
     private val execute: Execute<COMMAND, List<EVENT>, ERROR, EVENT>,
-    private val streamNameFor: (COMMAND) -> String,
+    private val streamNameFor: (COMMAND) -> StreamName,
     private val produceOutcome: (NonEmptyList<EVENT>) -> OUTCOME
 ) : Dispatch<COMMAND, JournalError<ERROR>, OUTCOME> {
 
