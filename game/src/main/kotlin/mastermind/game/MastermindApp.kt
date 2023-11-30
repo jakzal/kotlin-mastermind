@@ -7,14 +7,13 @@ import mastermind.eventsourcing.journal.JournalCommandDispatcher
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
-import mastermind.journal.*
+import mastermind.journal.InMemoryJournal
+import mastermind.journal.Journal
+import mastermind.journal.JournalError
 
 data class JournalModule<EVENT : Any, ERROR : Any>(
-    private val journal: Journal<EVENT, ERROR> = InMemoryJournal(),
-    private val updateStream: UpdateStream<EVENT, JournalError<ERROR>> = with(journal) { createUpdateStream() },
-    private val loadStream: LoadStream<EVENT, JournalError<ERROR>> = with(journal) { createLoadStream() }
-) : UpdateStream<EVENT, JournalError<ERROR>> by updateStream,
-    LoadStream<EVENT, JournalError<ERROR>> by loadStream
+    private val journal: Journal<EVENT, ERROR> = InMemoryJournal()
+) : Journal<EVENT, ERROR> by journal
 
 data class GameModule(
     val journalModule: JournalModule<GameEvent, GameError> = JournalModule(),
@@ -23,7 +22,7 @@ data class GameModule(
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code = { availablePegs.makeCode() },
     val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(journalModule) {
+        with(journalModule::load) {
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     },

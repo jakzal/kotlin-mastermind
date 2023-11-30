@@ -1,11 +1,15 @@
 package mastermind.game.view
 
+import arrow.core.Either
 import mastermind.game.*
 import mastermind.game.GameEvent.*
 import mastermind.journal.JournalError
-import mastermind.journal.LoadStream
+import mastermind.journal.Stream.LoadedStream
+import mastermind.journal.StreamName
 
-context(LoadStream<GameEvent, JournalError<GameError>>)
+typealias LoadStream = suspend (StreamName) -> Either<JournalError<GameError>, LoadedStream<GameEvent>>
+
+context(LoadStream)
 suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = this@LoadStream("Mastermind:${gameId.value}")
     .fold(
         { null },
