@@ -10,8 +10,7 @@ import mastermind.journal.InMemoryJournal
 import mastermind.journal.Journal
 import mastermind.journal.JournalError.ExecutionError
 import mastermind.journal.Stream.LoadedStream
-import mastermind.journal.append
-import mastermind.journal.loadForUpdate
+import mastermind.journal.loadToAppend
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
@@ -70,9 +69,7 @@ class JournalCommandDispatcherExamples {
 
     context(Journal<TestEvent, TestError>)
     private suspend fun givenEventsExist(existingEvents: NonEmptyList<TestEvent>) =
-        loadForUpdate("Stream:ABC") {
-            append {
-                existingEvents.right()
-            }
+        loadToAppend("Stream:ABC") {
+            existingEvents.right()
         }.getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
 }
