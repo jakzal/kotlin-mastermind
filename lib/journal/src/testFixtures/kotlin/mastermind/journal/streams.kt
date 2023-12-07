@@ -4,6 +4,9 @@ import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 import mastermind.journal.Entries.*
 
+fun <ENTRY : Any> emptyEntries(journalName: JournalName): EmptyEntries<ENTRY> =
+    EmptyEntries(journalName)
+
 fun <ENTRY : Any> loadedEntries(journalName: JournalName, entries: NonEmptyList<ENTRY>): LoadedEntries<ENTRY> =
     LoadedEntries(journalName, entries.size.toLong(), entries)
 
