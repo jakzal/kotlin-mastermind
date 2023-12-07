@@ -3,81 +3,81 @@ package mastermind.journal.eventstoredb
 import arrow.core.*
 import com.eventstore.dbclient.*
 import kotlinx.coroutines.future.await
-import mastermind.journal.Entries.LoadedEntries
-import mastermind.journal.Entries.UpdatedEntries
 import mastermind.journal.Journal
 import mastermind.journal.JournalError
 import mastermind.journal.JournalError.StreamNotFound
 import mastermind.journal.JournalError.VersionConflict
-import mastermind.journal.JournalName
+import mastermind.journal.Stream.LoadedStream
+import mastermind.journal.Stream.UpdatedStream
+import mastermind.journal.StreamName
 import kotlin.reflect.KClass
 
-class EventStoreDbJournal<ENTRY : Any, ERROR : Any>(
+class EventStoreDbJournal<EVENT : Any, ERROR : Any>(
     private val eventStore: EventStoreDBClient,
-    private val asEvent: ByteArray.(KClass<ENTRY>) -> ENTRY = createReader(),
-    private val asBytes: ENTRY.() -> ByteArray = createWriter()
-) : Journal<ENTRY, ERROR> {
+    private val asEvent: ByteArray.(KClass<EVENT>) -> EVENT = createReader(),
+    private val asBytes: EVENT.() -> ByteArray = createWriter()
+) : Journal<EVENT, ERROR> {
     constructor(connectionString: String) : this(EventStoreDBClient.create(
         EventStoreDBConnectionString.parseOrThrow(connectionString)
     ))
 
-    override suspend fun load(journalName: JournalName): Either<JournalError<ERROR>, LoadedEntries<ENTRY>> =
+    override suspend fun load(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         try {
-            eventStore.readStream(journalName)
-                .mapToEvents(journalName)
+            eventStore.readStream(streamName)
+                .mapToEvents(streamName)
         } catch (e: StreamNotFoundException) {
-            StreamNotFound(journalName).left()
+            StreamNotFound(streamName).left()
         }
 
-    override suspend fun append(stream: UpdatedEntries<ENTRY>): Either<JournalError<ERROR>, LoadedEntries<ENTRY>> =
+    override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         try {
             eventStore.append(stream)
                 .mapToLoadedStream(stream)
         } catch (e: WrongExpectedVersionException) {
             VersionConflict(
-                stream.journalName,
+                stream.streamName,
                 e.nextExpectedRevision.toRawLong() + 1,
                 e.actualVersion.toRawLong() + 1
             ).left()
         }
 
-    private suspend fun EventStoreDBClient.readStream(journalName: JournalName) =
-        readStream(journalName, ReadStreamOptions.get()).await()
+    private suspend fun EventStoreDBClient.readStream(streamName: StreamName) =
+        readStream(streamName, ReadStreamOptions.get()).await()
 
-    private suspend fun EventStoreDBClient.append(stream: UpdatedEntries<ENTRY>): WriteResult =
+    private suspend fun EventStoreDBClient.append(stream: UpdatedStream<EVENT>): WriteResult =
         appendToStream(
-            stream.journalName,
+            stream.streamName,
             AppendToStreamOptions.get().expectedRevision(stream.expectedRevision),
-            stream.entriesToAppend.asBytesList().iterator()
+            stream.eventsToAppend.asBytesList().iterator()
         ).await()
 
-    private fun ReadResult.mapToEvents(journalName: JournalName): Either<JournalError<ERROR>, LoadedEntries<ENTRY>> =
+    private fun ReadResult.mapToEvents(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
         events
             .map { resolvedEvent -> resolvedEvent.mapToEvent() }
             .toNonEmptyListOrNone()
-            .map { events -> LoadedEntries(journalName, lastStreamPosition + 1, events).right() }
-            .getOrElse { StreamNotFound(journalName).left() }
+            .map { events -> LoadedStream(streamName, lastStreamPosition + 1, events).right() }
+            .getOrElse { StreamNotFound(streamName).left() }
 
-    private fun ResolvedEvent.mapToEvent(): ENTRY = event.eventData.asEvent(this.asClass())
+    private fun ResolvedEvent.mapToEvent(): EVENT = event.eventData.asEvent(this.asClass())
 
-    private fun ResolvedEvent.asClass(): KClass<ENTRY> = Class.forName(event.eventType).kotlin as KClass<ENTRY>
+    private fun ResolvedEvent.asClass(): KClass<EVENT> = Class.forName(event.eventType).kotlin as KClass<EVENT>
 
-    private fun WriteResult.mapToLoadedStream(stream: UpdatedEntries<ENTRY>) = with(stream) {
-        LoadedEntries(
-            journalName,
+    private fun WriteResult.mapToLoadedStream(stream: UpdatedStream<EVENT>) = with(stream) {
+        LoadedStream(
+            streamName,
             nextExpectedRevision.toRawLong() + 1,
-            entries.toNonEmptyListOrNone()
-                .map { it + entriesToAppend }
-                .getOrElse { entriesToAppend }
+            events.toNonEmptyListOrNone()
+                .map { it + eventsToAppend }
+                .getOrElse { eventsToAppend }
         ).right()
     }
 
-    private val UpdatedEntries<ENTRY>.expectedRevision: ExpectedRevision
-        get() = if (journalVersion == 0L) ExpectedRevision.noStream() else ExpectedRevision.expectedRevision(
-            journalVersion - 1
+    private val UpdatedStream<EVENT>.expectedRevision: ExpectedRevision
+        get() = if (streamVersion == 0L) ExpectedRevision.noStream() else ExpectedRevision.expectedRevision(
+            streamVersion - 1
         )
 
-    private fun NonEmptyList<ENTRY>.asBytesList(): NonEmptyList<EventData> =
+    private fun NonEmptyList<EVENT>.asBytesList(): NonEmptyList<EventData> =
         map { event ->
             EventData.builderAsBinary(event::class.java.typeName, event.asBytes()).build()
         }

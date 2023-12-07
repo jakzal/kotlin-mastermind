@@ -6,10 +6,10 @@ import mastermind.command.fixtures.TestCommand
 import mastermind.command.fixtures.TestError
 import mastermind.command.fixtures.TestEvent
 import mastermind.eventsourcing.journal.JournalCommandDispatcher
-import mastermind.journal.Entries.LoadedEntries
 import mastermind.journal.InMemoryJournal
 import mastermind.journal.Journal
 import mastermind.journal.JournalError.ExecutionError
+import mastermind.journal.Stream.LoadedStream
 import mastermind.journal.loadToAppend
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
@@ -32,7 +32,7 @@ class JournalCommandDispatcherExamples {
             )
 
             dispatcher(TestCommand("ABC")) shouldSucceedWith "ABC"
-            load("Stream:ABC") shouldSucceedWith LoadedEntries("Stream:ABC", 1L, nonEmptyListOf(expectedEvent))
+            load("Stream:ABC") shouldSucceedWith LoadedStream("Stream:ABC", 1L, nonEmptyListOf(expectedEvent))
         }
     }
 
