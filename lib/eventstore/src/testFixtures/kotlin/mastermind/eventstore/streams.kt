@@ -4,9 +4,6 @@ import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 import mastermind.eventstore.Stream.*
 
-fun <EVENT : Any> emptyStream(streamName: String): EmptyStream<EVENT> =
-    EmptyStream(streamName)
-
 fun <EVENT : Any> loadedStream(streamName: String, events: NonEmptyList<EVENT>): LoadedStream<EVENT> =
     LoadedStream(streamName, events.size.toLong(), events)
 
