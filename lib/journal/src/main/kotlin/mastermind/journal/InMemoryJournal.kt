@@ -1,40 +1,43 @@
 package mastermind.journal
 
 import arrow.atomic.Atomic
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.getOrElse
 import arrow.core.raise.either
+import arrow.core.toNonEmptyListOrNone
+import mastermind.journal.Entries.LoadedEntries
+import mastermind.journal.Entries.UpdatedEntries
 import mastermind.journal.JournalError.StreamNotFound
-import mastermind.journal.Stream.LoadedStream
-import mastermind.journal.Stream.UpdatedStream
 
-class InMemoryJournal<EVENT : Any, ERROR : Any>(
-    private val events: Atomic<Map<StreamName, LoadedStream<EVENT>>> = Atomic(mapOf())
-) : Journal<EVENT, ERROR> {
-    override suspend fun load(streamName: StreamName): Either<JournalError<ERROR>, LoadedStream<EVENT>> = either {
-        events.get()[streamName] ?: raise(StreamNotFound(streamName))
+class InMemoryJournal<ENTRY : Any, ERROR : Any>(
+    private val events: Atomic<Map<JournalName, LoadedEntries<ENTRY>>> = Atomic(mapOf())
+) : Journal<ENTRY, ERROR> {
+    override suspend fun load(journalName: JournalName): Either<JournalError<ERROR>, LoadedEntries<ENTRY>> = either {
+        events.get()[journalName] ?: raise(StreamNotFound(journalName))
     }
 
-    override suspend fun append(stream: UpdatedStream<EVENT>): Either<JournalError<ERROR>, LoadedStream<EVENT>> =
+    override suspend fun append(stream: UpdatedEntries<ENTRY>): Either<JournalError<ERROR>, LoadedEntries<ENTRY>> =
         either {
             events.updateAndGet {
-                it[stream.streamName]?.let { writtenStream ->
-                    if (writtenStream.streamVersion != stream.streamVersion) {
+                it[stream.journalName]?.let { writtenStream ->
+                    if (writtenStream.journalVersion != stream.journalVersion) {
                         raise(
                             JournalError.VersionConflict(
-                                stream.streamName,
-                                stream.streamVersion,
-                                writtenStream.streamVersion
+                                stream.journalName,
+                                stream.journalVersion,
+                                writtenStream.journalVersion
                             )
                         )
                     }
                 }
-                it + mapOf(stream.streamName to stream.toLoadedStream())
-            }[stream.streamName] ?: raise(StreamNotFound(stream.streamName))
+                it + mapOf(stream.journalName to stream.toLoadedStream())
+            }[stream.journalName] ?: raise(StreamNotFound(stream.journalName))
         }
 }
 
-private fun <EVENT : Any> UpdatedStream<EVENT>.toLoadedStream(): LoadedStream<EVENT> =
-    LoadedStream(streamName, streamVersion + eventsToAppend.size, events + eventsToAppend)
+private fun <ENTRY : Any> UpdatedEntries<ENTRY>.toLoadedStream(): LoadedEntries<ENTRY> =
+    LoadedEntries(journalName, journalVersion + entriesToAppend.size, entries + entriesToAppend)
 
 private infix operator fun <T> List<T>.plus(other: NonEmptyList<T>): NonEmptyList<T> =
     toNonEmptyListOrNone()

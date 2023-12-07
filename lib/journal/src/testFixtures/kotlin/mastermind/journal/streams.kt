@@ -2,28 +2,28 @@ package mastermind.journal
 
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
-import mastermind.journal.Stream.*
+import mastermind.journal.Entries.*
 
-fun <EVENT : Any> emptyStream(streamName: String): EmptyStream<EVENT> =
-    EmptyStream(streamName)
+fun <ENTRY : Any> emptyEntries(journalName: JournalName): EmptyEntries<ENTRY> =
+    EmptyEntries(journalName)
 
-fun <EVENT : Any> loadedStream(streamName: String, events: NonEmptyList<EVENT>): LoadedStream<EVENT> =
-    LoadedStream(streamName, events.size.toLong(), events)
+fun <ENTRY : Any> loadedEntries(journalName: JournalName, entries: NonEmptyList<ENTRY>): LoadedEntries<ENTRY> =
+    LoadedEntries(journalName, entries.size.toLong(), entries)
 
-fun <EVENT : Any> loadedStream(streamName: String, event: EVENT, vararg events: EVENT): LoadedStream<EVENT> =
-    loadedStream(streamName, nonEmptyListOf(event, *events))
+fun <ENTRY : Any> loadedEntries(journalName: JournalName, entry: ENTRY, vararg entries: ENTRY): LoadedEntries<ENTRY> =
+    loadedEntries(journalName, nonEmptyListOf(entry, *entries))
 
-fun <EVENT : Any> updatedStream(
-    streamName: StreamName,
-    event: EVENT,
-    vararg events: EVENT
-): UpdatedStream<EVENT> =
-    updatedStream(EmptyStream(streamName), event, *events)
+fun <ENTRY : Any> updatedEntries(
+    journalName: JournalName,
+    entry: ENTRY,
+    vararg entries: ENTRY
+): UpdatedEntries<ENTRY> =
+    updatedEntries(EmptyEntries(journalName), entry, *entries)
 
-fun <EVENT : Any> updatedStream(
-    existingStream: Stream<EVENT>,
-    event: EVENT,
-    vararg events: EVENT
-): UpdatedStream<EVENT> =
-    existingStream.append<EVENT, Nothing>(event, *events).getOrNull()
+fun <ENTRY : Any> updatedEntries(
+    existingEntries: Entries<ENTRY>,
+    entry: ENTRY,
+    vararg entries: ENTRY
+): UpdatedEntries<ENTRY> =
+    existingEntries.append<ENTRY, Nothing>(entry, *entries).getOrNull()
         ?: throw RuntimeException("Failed to create an updated stream.")

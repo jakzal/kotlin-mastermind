@@ -11,9 +11,9 @@ import mastermind.journal.InMemoryJournal
 import mastermind.journal.Journal
 import mastermind.journal.JournalError
 
-data class JournalModule<EVENT : Any, ERROR : Any>(
-    private val journal: Journal<EVENT, ERROR> = InMemoryJournal()
-) : Journal<EVENT, ERROR> by journal
+data class JournalModule<ENTRY : Any, ERROR : Any>(
+    private val journal: Journal<ENTRY, ERROR> = InMemoryJournal()
+) : Journal<ENTRY, ERROR> by journal
 
 data class GameModule(
     val journalModule: JournalModule<GameEvent, GameError> = JournalModule(),

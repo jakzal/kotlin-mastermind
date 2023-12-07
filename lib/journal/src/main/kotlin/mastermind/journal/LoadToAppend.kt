@@ -4,43 +4,43 @@ import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.flatMap
 import arrow.core.recover
+import mastermind.journal.Entries.*
 import mastermind.journal.JournalError.ExecutionError
 import mastermind.journal.JournalError.StreamNotFound
-import mastermind.journal.Stream.*
 
-private typealias LoadedStreamOutcome<ERROR, EVENT> = Either<JournalError<ERROR>, LoadedStream<EVENT>>
-private typealias StreamOutcome<ERROR, EVENT> = Either<JournalError<ERROR>, Stream<EVENT>>
-private typealias UpdatedStreamOutcome<ERROR, EVENT> = Either<JournalError<ERROR>, UpdatedStream<EVENT>>
+private typealias LoadedStreamOutcome<ERROR, ENTRY> = Either<JournalError<ERROR>, LoadedEntries<ENTRY>>
+private typealias StreamOutcome<ERROR, ENTRY> = Either<JournalError<ERROR>, Entries<ENTRY>>
+private typealias UpdatedStreamOutcome<ERROR, ENTRY> = Either<JournalError<ERROR>, UpdatedEntries<ENTRY>>
 
-context(Journal<EVENT, ERROR>)
-suspend fun <EVENT : Any, ERROR : Any> loadToAppend(
-    streamName: StreamName,
-    onEvents: (List<EVENT>) -> Either<ERROR, NonEmptyList<EVENT>>
-): Either<JournalError<ERROR>, NonEmptyList<EVENT>> =
-    load(streamName)
-        .orCreate(streamName)
-        .update(onEvents)
+context(Journal<ENTRY, ERROR>)
+suspend fun <ENTRY : Any, ERROR : Any> loadToAppend(
+    journalName: JournalName,
+    onEntries: (List<ENTRY>) -> Either<ERROR, NonEmptyList<ENTRY>>
+): Either<JournalError<ERROR>, NonEmptyList<ENTRY>> =
+    load(journalName)
+        .orCreate(journalName)
+        .update(onEntries)
         .persist()
-        .map(LoadedStream<EVENT>::events)
+        .map(LoadedEntries<ENTRY>::entries)
 
-private fun <EVENT : Any, ERROR : Any> LoadedStreamOutcome<ERROR, EVENT>.orCreate(
-    streamName: StreamName
-): StreamOutcome<ERROR, EVENT> =
+private fun <ENTRY : Any, ERROR : Any> LoadedStreamOutcome<ERROR, ENTRY>.orCreate(
+    journalName: JournalName
+): StreamOutcome<ERROR, ENTRY> =
     recover { e ->
-        if (e is StreamNotFound) EmptyStream(streamName)
+        if (e is StreamNotFound) EmptyEntries(journalName)
         else raise(e)
     }
 
-private fun <EVENT : Any, ERROR : Any> StreamOutcome<ERROR, EVENT>.update(
-    onEvents: (List<EVENT>) -> Either<ERROR, NonEmptyList<EVENT>>
-): UpdatedStreamOutcome<ERROR, EVENT> =
+private fun <ENTRY : Any, ERROR : Any> StreamOutcome<ERROR, ENTRY>.update(
+    onEvents: (List<ENTRY>) -> Either<ERROR, NonEmptyList<ENTRY>>
+): UpdatedStreamOutcome<ERROR, ENTRY> =
     flatMap { stream ->
         stream
-            .append { onEvents(stream.events) }
+            .append { onEvents(stream.entries) }
             .mapLeft(::ExecutionError)
     }
 
-context(Journal<EVENT, ERROR>)
-private suspend fun <EVENT : Any, ERROR : Any> UpdatedStreamOutcome<ERROR, EVENT>.persist()
-        : LoadedStreamOutcome<ERROR, EVENT> =
+context(Journal<ENTRY, ERROR>)
+private suspend fun <ENTRY : Any, ERROR : Any> UpdatedStreamOutcome<ERROR, ENTRY>.persist()
+        : LoadedStreamOutcome<ERROR, ENTRY> =
     flatMap { streamToWrite -> append(streamToWrite) }

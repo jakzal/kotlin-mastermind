@@ -5,11 +5,11 @@ import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
+import mastermind.journal.Entries.UpdatedEntries
 import mastermind.journal.JournalError.ExecutionError
 import mastermind.journal.JournalError.VersionConflict
 import mastermind.journal.LoadToAppendExamples.TestEvent.Event1
 import mastermind.journal.LoadToAppendExamples.TestEvent.Event2
-import mastermind.journal.Stream.UpdatedStream
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldBeFailureOf
 import mastermind.testkit.assertions.shouldBeSuccessOf
@@ -31,7 +31,7 @@ class LoadToAppendExamples {
             }
 
             result shouldBeSuccessOf expectedEvents
-            load(streamName) shouldSucceedWith loadedStream(streamName, expectedEvents)
+            load(streamName) shouldSucceedWith loadedEntries(streamName, expectedEvents)
         }
     }
 
@@ -39,7 +39,7 @@ class LoadToAppendExamples {
     fun `it appends events to an existing stream`() = runTest {
         with(journal) {
             val existingStream = givenStream(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
-            val expectedStream = loadedStream(
+            val expectedStream = loadedEntries(
                 streamName,
                 Event1("ABC"),
                 Event2("ABC", "Event 2"),
@@ -48,14 +48,14 @@ class LoadToAppendExamples {
             )
 
             val result = loadToAppend(streamName) { events ->
-                events shouldBe existingStream.events
+                events shouldBe existingStream.entries
                 nonEmptyListOf(
                     Event1("DEF"),
                     Event2("DEF", "Event 2 DEF.")
                 ).right()
             }
 
-            result shouldBeSuccessOf expectedStream.events
+            result shouldBeSuccessOf expectedStream.entries
             load(streamName) shouldSucceedWith expectedStream
         }
     }
@@ -80,13 +80,13 @@ class LoadToAppendExamples {
 
     @Test
     fun `it returns the journal error on append failure`() = runTest {
-        val existingStream = loadedStream(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
+        val existingStream = loadedEntries(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
 
         val failingJournal: Journal<TestEvent, String> = object : Journal<TestEvent, String> {
-            override suspend fun load(streamName: StreamName) =
+            override suspend fun load(journalName: JournalName) =
                 existingStream.right()
 
-            override suspend fun append(stream: UpdatedStream<TestEvent>) =
+            override suspend fun append(stream: UpdatedEntries<TestEvent>) =
                 VersionConflict(streamName, 1, 2).left()
 
         }
@@ -104,10 +104,10 @@ class LoadToAppendExamples {
     @Test
     fun `it returns the journal error on load failure`() = runTest {
         val failingJournal: Journal<TestEvent, String> = object : Journal<TestEvent, String> {
-            override suspend fun load(streamName: StreamName) =
-                VersionConflict(streamName, 1, 2).left()
+            override suspend fun load(journalName: JournalName) =
+                VersionConflict(journalName, 1, 2).left()
 
-            override suspend fun append(stream: UpdatedStream<TestEvent>) =
+            override suspend fun append(stream: UpdatedEntries<TestEvent>) =
                 throw RuntimeException("Unexpected call to append.")
 
         }
@@ -122,8 +122,8 @@ class LoadToAppendExamples {
     }
 
     context(Journal<TestEvent, String>)
-    private suspend fun givenStream(streamName: StreamName, event: TestEvent, vararg events: TestEvent) =
-        append(updatedStream(streamName, event, *events))
+    private suspend fun givenStream(journalName: JournalName, event: TestEvent, vararg events: TestEvent) =
+        append(updatedEntries(journalName, event, *events))
             .getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
 
 
