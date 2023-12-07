@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":lib:journal"))
+    implementation(project(":lib:eventstore"))
     testImplementation(project(":lib:testkit:assertions"))
 }

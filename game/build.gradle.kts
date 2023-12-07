@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":lib:journal"))
-    implementation(project(":lib:journal-eventstoredb"))
+    implementation(project(":lib:eventstore"))
+    implementation(project(":lib:eventstore-eventstoredb"))
     implementation(project(":lib:event-sourcing"))
     implementation(platform("org.http4k:http4k-bom:5.7.4.0"))
     implementation("org.http4k:http4k-core")

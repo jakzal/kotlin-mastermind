@@ -5,6 +5,10 @@ import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
+import mastermind.eventstore.EventStoreError
+import mastermind.eventstore.EventStoreError.StreamNotFound
+import mastermind.eventstore.Stream.LoadedStream
+import mastermind.eventstore.StreamName
 import mastermind.game.*
 import mastermind.game.Feedback.Outcome
 import mastermind.game.Feedback.Outcome.IN_PROGRESS
@@ -13,10 +17,6 @@ import mastermind.game.Feedback.Peg.WHITE
 import mastermind.game.GameEvent.*
 import mastermind.game.Guess
 import mastermind.game.testkit.anyGameId
-import mastermind.journal.JournalError
-import mastermind.journal.JournalError.StreamNotFound
-import mastermind.journal.Stream.LoadedStream
-import mastermind.journal.StreamName
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldReturn
 import org.junit.jupiter.api.Test
@@ -194,13 +194,13 @@ class DecodingBoardQueryExamples {
     }
 }
 
-private fun noEvents(): suspend (StreamName) -> Either<JournalError<GameError>, LoadedStream<GameEvent>> =
+private fun noEvents(): suspend (StreamName) -> Either<EventStoreError<GameError>, LoadedStream<GameEvent>> =
     { streamName -> StreamNotFound(streamName).left() }
 
 private fun events(
     event: GameEvent,
     vararg events: GameEvent
-): suspend (StreamName) -> Either<JournalError<GameError>, LoadedStream<GameEvent>> = { streamName ->
+): suspend (StreamName) -> Either<EventStoreError<GameError>, LoadedStream<GameEvent>> = { streamName ->
     streamName shouldBe "Mastermind:${event.gameId.value}"
     LoadedStream(streamName, events.size.toLong(), nonEmptyListOf(event, *events)).right()
 }

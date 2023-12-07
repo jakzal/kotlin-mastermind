@@ -2,32 +2,32 @@ package mastermind.game
 
 import arrow.core.Either
 import mastermind.eventsourcing.Dispatch
+import mastermind.eventsourcing.eventstore.EventStoreCommandDispatcher
 import mastermind.eventsourcing.handlerFor
-import mastermind.eventsourcing.journal.JournalCommandDispatcher
+import mastermind.eventstore.EventStore
+import mastermind.eventstore.EventStoreError
+import mastermind.eventstore.InMemoryEventStore
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
-import mastermind.journal.InMemoryJournal
-import mastermind.journal.Journal
-import mastermind.journal.JournalError
 
-data class JournalModule<EVENT : Any, ERROR : Any>(
-    private val journal: Journal<EVENT, ERROR> = InMemoryJournal()
-) : Journal<EVENT, ERROR> by journal
+data class EventStoreModule<EVENT : Any, ERROR : Any>(
+    private val eventStore: EventStore<EVENT, ERROR> = InMemoryEventStore()
+) : EventStore<EVENT, ERROR> by eventStore
 
 data class GameModule(
-    val journalModule: JournalModule<GameEvent, GameError> = JournalModule(),
+    val eventStoreModule: EventStoreModule<GameEvent, GameError> = EventStoreModule(),
     val availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     val totalAttempts: Int = 12,
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code = { availablePegs.makeCode() },
     val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(journalModule::load) {
+        with(eventStoreModule::load) {
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     },
-    val execute: GameCommandDispatcher = with(journalModule) {
-        JournalCommandDispatcher(
+    val execute: GameCommandDispatcher = with(eventStoreModule) {
+        EventStoreCommandDispatcher(
             handlerFor(::execute, ::applyEvent, ::notStartedGame),
             { command -> "Mastermind:${command.gameId.value}" },
             { events -> events.head.gameId }
@@ -48,9 +48,9 @@ data class MastermindApp(
     val runnerModule: RunnerModule
 ) : AutoCloseable {
     constructor(
-        journalModule: JournalModule<GameEvent, GameError>,
+        eventStoreModule: EventStoreModule<GameEvent, GameError>,
         runnerModule: RunnerModule
-    ) : this(GameModule(journalModule), runnerModule)
+    ) : this(GameModule(eventStoreModule), runnerModule)
 
     fun start() {
         runnerModule.start()
@@ -60,11 +60,11 @@ data class MastermindApp(
         runnerModule.shutdown()
     }
 
-    suspend fun joinGame(): Either<JournalError<GameError>, GameId> = with(gameModule) {
+    suspend fun joinGame(): Either<EventStoreError<GameError>, GameId> = with(gameModule) {
         execute(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
     }
 
-    suspend fun makeGuess(command: MakeGuess): Either<JournalError<GameError>, GameId> = with(gameModule) {
+    suspend fun makeGuess(command: MakeGuess): Either<EventStoreError<GameError>, GameId> = with(gameModule) {
         execute(command)
     }
 
@@ -73,4 +73,4 @@ data class MastermindApp(
     }
 }
 
-typealias GameCommandDispatcher = Dispatch<GameCommand, JournalError<GameError>, GameId>
+typealias GameCommandDispatcher = Dispatch<GameCommand, EventStoreError<GameError>, GameId>

@@ -3,12 +3,12 @@ package mastermind.game.http
 import arrow.core.Either
 import arrow.core.getOrElse
 import kotlinx.coroutines.runBlocking
+import mastermind.eventstore.EventStoreError
 import mastermind.game.*
 import mastermind.game.Code.Peg
 import mastermind.game.GameCommand.MakeGuess
-import mastermind.game.config.asJournalModule
+import mastermind.game.config.asEventStoreModule
 import mastermind.game.view.DecodingBoard
-import mastermind.journal.JournalError
 import org.http4k.cloudnative.env.Environment
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
@@ -26,7 +26,7 @@ fun main() {
             Environment.from()
 
     val app = MastermindApp(
-        journalModule = environment.asJournalModule(),
+        eventStoreModule = environment.asEventStoreModule(),
         runnerModule = ServerRunnerModule(8080)
     )
     app.start()
@@ -102,5 +102,5 @@ private fun <ERROR> Either<ERROR, GameId>.asResponse() = map { gameId ->
     Response(Status.CREATED).with(gameId.asLocationHeader())
 }
 
-private fun Either<JournalError<GameError>, Response>.orHandleError() =
-    getOrElse(JournalError<GameError>::response)
+private fun Either<EventStoreError<GameError>, Response>.orHandleError() =
+    getOrElse(EventStoreError<GameError>::response)

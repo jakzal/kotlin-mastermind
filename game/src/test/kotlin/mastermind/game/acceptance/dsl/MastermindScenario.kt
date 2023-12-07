@@ -1,6 +1,8 @@
 package mastermind.game.acceptance.dsl
 
 import kotlinx.coroutines.test.runTest
+import mastermind.eventstore.InMemoryEventStore
+import mastermind.eventstore.eventstoredb.EventStoreDbEventStore
 import mastermind.game.*
 import mastermind.game.acceptance.dsl.direct.DirectPlayGameAbility
 import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
@@ -8,8 +10,6 @@ import mastermind.game.acceptance.dsl.junit.ExecutionContext
 import mastermind.game.acceptance.dsl.junit.dynamicContainer
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
-import mastermind.journal.InMemoryJournal
-import mastermind.journal.eventstoredb.EventStoreDbJournal
 import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
@@ -33,7 +33,7 @@ class MastermindScenario(
                     makeCode = { secret },
                     totalAttempts = totalAttempts,
                     availablePegs = availablePegs,
-                    journalModule = journalModule()
+                    eventStoreModule = eventStoreModule()
                 ),
                 runnerModule = runnerModule()
             )
@@ -82,12 +82,12 @@ fun mastermindScenarios(
             )
         }
 
-data class ScenarioContext(val mode: ExecutionMode, val journal: Journal) {
+data class ScenarioContext(val mode: ExecutionMode, val eventStore: EventStore) {
     enum class ExecutionMode {
         HTTP,
         DIRECT
     }
-    enum class Journal {
+    enum class EventStore {
         IN_MEMORY,
         EVENT_STORE_DB
     }
@@ -99,9 +99,9 @@ private fun ScenarioContext.runnerModule(): RunnerModule = when (mode) {
 }
 
 
-private fun ScenarioContext.journalModule(): JournalModule<GameEvent, GameError> = when(journal) {
-    ScenarioContext.Journal.IN_MEMORY -> JournalModule(InMemoryJournal())
-    ScenarioContext.Journal.EVENT_STORE_DB -> JournalModule(EventStoreDbJournal("esdb://localhost:2113?tls=false"))
+private fun ScenarioContext.eventStoreModule(): EventStoreModule<GameEvent, GameError> = when(eventStore) {
+    ScenarioContext.EventStore.IN_MEMORY -> EventStoreModule(InMemoryEventStore())
+    ScenarioContext.EventStore.EVENT_STORE_DB -> EventStoreModule(EventStoreDbEventStore("esdb://localhost:2113?tls=false"))
 }
 
 private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModule) {
@@ -110,8 +110,8 @@ private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModul
 }
 
 private fun ExecutionContext.scenarioContexts() = listOfNotNull(
-    ScenarioContext(ScenarioContext.ExecutionMode.DIRECT, ScenarioContext.Journal.IN_MEMORY),
-    if (this.isHttpTest()) ScenarioContext(ScenarioContext.ExecutionMode.HTTP, ScenarioContext.Journal.IN_MEMORY) else null,
+    ScenarioContext(ScenarioContext.ExecutionMode.DIRECT, ScenarioContext.EventStore.IN_MEMORY),
+    if (this.isHttpTest()) ScenarioContext(ScenarioContext.ExecutionMode.HTTP, ScenarioContext.EventStore.IN_MEMORY) else null,
 )
 
 private fun ExecutionContext.isHttpTest(): Boolean =

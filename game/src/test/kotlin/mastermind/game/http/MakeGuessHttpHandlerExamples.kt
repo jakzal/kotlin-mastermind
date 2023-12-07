@@ -2,13 +2,13 @@ package mastermind.game.http
 
 import arrow.core.left
 import arrow.core.right
+import mastermind.eventstore.EventStoreError.StreamNotFound
 import mastermind.game.Code
-import mastermind.game.testkit.DirectRunnerModule
-import mastermind.game.GameModule
 import mastermind.game.GameCommand.MakeGuess
+import mastermind.game.GameModule
 import mastermind.game.MastermindApp
+import mastermind.game.testkit.DirectRunnerModule
 import mastermind.game.testkit.anyGameId
-import mastermind.journal.JournalError.StreamNotFound
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldReturn
 import org.http4k.core.Body

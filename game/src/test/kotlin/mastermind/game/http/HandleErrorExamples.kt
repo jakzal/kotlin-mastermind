@@ -1,5 +1,6 @@
 package mastermind.game.http
 
+import mastermind.eventstore.EventStoreError.*
 import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
@@ -7,9 +8,6 @@ import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.GameError.GuessError.*
 import mastermind.game.setOfPegs
 import mastermind.game.testkit.anyGameId
-import mastermind.journal.JournalError.StreamNotFound
-import mastermind.journal.JournalError.VersionConflict
-import mastermind.journal.JournalError.ExecutionError
 import mastermind.testkit.assertions.shouldReturn
 import org.http4k.core.Response
 import org.http4k.core.Status
