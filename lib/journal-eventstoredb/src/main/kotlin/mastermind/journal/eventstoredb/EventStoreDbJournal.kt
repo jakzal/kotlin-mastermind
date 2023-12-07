@@ -5,18 +5,18 @@ import com.eventstore.dbclient.*
 import kotlinx.coroutines.future.await
 import mastermind.journal.Entries.LoadedEntries
 import mastermind.journal.Entries.UpdatedEntries
-import mastermind.journal.JournalCatalogue
+import mastermind.journal.Journal
 import mastermind.journal.JournalError
 import mastermind.journal.JournalError.StreamNotFound
 import mastermind.journal.JournalError.VersionConflict
 import mastermind.journal.JournalName
 import kotlin.reflect.KClass
 
-class EventStoreDbJournalCatalogue<ENTRY : Any, ERROR : Any>(
+class EventStoreDbJournal<ENTRY : Any, ERROR : Any>(
     private val eventStore: EventStoreDBClient,
     private val asEvent: ByteArray.(KClass<ENTRY>) -> ENTRY = createReader(),
     private val asBytes: ENTRY.() -> ByteArray = createWriter()
-) : JournalCatalogue<ENTRY, ERROR> {
+) : Journal<ENTRY, ERROR> {
     constructor(connectionString: String) : this(EventStoreDBClient.create(
         EventStoreDBConnectionString.parseOrThrow(connectionString)
     ))

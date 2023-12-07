@@ -4,13 +4,13 @@ import arrow.core.Either
 import arrow.core.NonEmptyList
 import mastermind.eventsourcing.Dispatch
 import mastermind.eventsourcing.Execute
-import mastermind.journal.JournalCatalogue
+import mastermind.journal.Journal
 import mastermind.journal.JournalError
 import mastermind.journal.JournalName
 import mastermind.journal.loadToAppend
 
 
-context(JournalCatalogue<EVENT, ERROR>)
+context(Journal<EVENT, ERROR>)
 class JournalCommandDispatcher<COMMAND : Any, EVENT : Any, ERROR : Any, OUTCOME>(
     private val execute: Execute<COMMAND, List<EVENT>, ERROR, EVENT>,
     private val journalNameFor: (COMMAND) -> JournalName,

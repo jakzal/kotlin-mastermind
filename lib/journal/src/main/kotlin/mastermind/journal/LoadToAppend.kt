@@ -12,7 +12,7 @@ private typealias LoadedStreamOutcome<ERROR, ENTRY> = Either<JournalError<ERROR>
 private typealias StreamOutcome<ERROR, ENTRY> = Either<JournalError<ERROR>, Entries<ENTRY>>
 private typealias UpdatedStreamOutcome<ERROR, ENTRY> = Either<JournalError<ERROR>, UpdatedEntries<ENTRY>>
 
-context(JournalCatalogue<ENTRY, ERROR>)
+context(Journal<ENTRY, ERROR>)
 suspend fun <ENTRY : Any, ERROR : Any> loadToAppend(
     journalName: JournalName,
     onEntries: (List<ENTRY>) -> Either<ERROR, NonEmptyList<ENTRY>>
@@ -40,7 +40,7 @@ private fun <ENTRY : Any, ERROR : Any> StreamOutcome<ERROR, ENTRY>.update(
             .mapLeft(::ExecutionError)
     }
 
-context(JournalCatalogue<ENTRY, ERROR>)
+context(Journal<ENTRY, ERROR>)
 private suspend fun <ENTRY : Any, ERROR : Any> UpdatedStreamOutcome<ERROR, ENTRY>.persist()
         : LoadedStreamOutcome<ERROR, ENTRY> =
     flatMap { streamToWrite -> append(streamToWrite) }

@@ -7,13 +7,13 @@ import mastermind.eventsourcing.journal.JournalCommandDispatcher
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
-import mastermind.journal.InMemoryJournalCatalogue
-import mastermind.journal.JournalCatalogue
+import mastermind.journal.InMemoryJournal
+import mastermind.journal.Journal
 import mastermind.journal.JournalError
 
 data class JournalModule<ENTRY : Any, ERROR : Any>(
-    private val journalCatalogue: JournalCatalogue<ENTRY, ERROR> = InMemoryJournalCatalogue()
-) : JournalCatalogue<ENTRY, ERROR> by journalCatalogue
+    private val journal: Journal<ENTRY, ERROR> = InMemoryJournal()
+) : Journal<ENTRY, ERROR> by journal
 
 data class GameModule(
     val journalModule: JournalModule<GameEvent, GameError> = JournalModule(),
