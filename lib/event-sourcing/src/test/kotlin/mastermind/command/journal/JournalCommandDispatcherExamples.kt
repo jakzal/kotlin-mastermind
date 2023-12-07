@@ -7,8 +7,8 @@ import mastermind.command.fixtures.TestError
 import mastermind.command.fixtures.TestEvent
 import mastermind.eventsourcing.journal.JournalCommandDispatcher
 import mastermind.journal.Entries.LoadedEntries
-import mastermind.journal.InMemoryJournal
-import mastermind.journal.Journal
+import mastermind.journal.InMemoryJournalCatalogue
+import mastermind.journal.JournalCatalogue
 import mastermind.journal.JournalError.ExecutionError
 import mastermind.journal.loadToAppend
 import mastermind.testkit.assertions.shouldFailWith
@@ -17,14 +17,14 @@ import org.junit.jupiter.api.Test
 
 
 class JournalCommandDispatcherExamples {
-    private val journal: Journal<TestEvent, TestError> = InMemoryJournal()
+    private val journalCatalogue: JournalCatalogue<TestEvent, TestError> = InMemoryJournalCatalogue()
     private val expectedEvent = TestEvent("ABC")
     private val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
     private val outcomeProducer: (NonEmptyList<TestEvent>) -> String = { events -> events.head.id }
 
     @Test
     fun `it appends to the journal events created in reaction to the command`() = runTest {
-        with(journal) {
+        with(journalCatalogue) {
             val dispatcher = JournalCommandDispatcher(
                 { _, _ -> nonEmptyListOf(expectedEvent).right() },
                 streamNameResolver,
@@ -38,7 +38,7 @@ class JournalCommandDispatcherExamples {
 
     @Test
     fun `it produces an outcome`() = runTest {
-        with(journal) {
+        with(journalCatalogue) {
             givenEventsExist(nonEmptyListOf(TestEvent("123"), TestEvent("456")))
 
             val outcomeProducer: (NonEmptyList<TestEvent>) -> String = { events ->
@@ -56,7 +56,7 @@ class JournalCommandDispatcherExamples {
 
     @Test
     fun `it returns journal error in case of execution failure`() = runTest {
-        val dispatcher = with(journal) {
+        val dispatcher = with(journalCatalogue) {
             JournalCommandDispatcher(
                 { _, _ -> TestError("Execution failed.").left() },
                 streamNameResolver,
@@ -67,7 +67,7 @@ class JournalCommandDispatcherExamples {
         dispatcher(TestCommand("ABC")) shouldFailWith ExecutionError(TestError("Execution failed."))
     }
 
-    context(Journal<TestEvent, TestError>)
+    context(JournalCatalogue<TestEvent, TestError>)
     private suspend fun givenEventsExist(existingEvents: NonEmptyList<TestEvent>) =
         loadToAppend("Stream:ABC") {
             existingEvents.right()

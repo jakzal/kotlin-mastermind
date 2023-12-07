@@ -10,9 +10,9 @@ import mastermind.journal.Entries.LoadedEntries
 import mastermind.journal.Entries.UpdatedEntries
 import mastermind.journal.JournalError.StreamNotFound
 
-class InMemoryJournal<ENTRY : Any, ERROR : Any>(
+class InMemoryJournalCatalogue<ENTRY : Any, ERROR : Any>(
     private val events: Atomic<Map<JournalName, LoadedEntries<ENTRY>>> = Atomic(mapOf())
-) : Journal<ENTRY, ERROR> {
+) : JournalCatalogue<ENTRY, ERROR> {
     override suspend fun load(journalName: JournalName): Either<JournalError<ERROR>, LoadedEntries<ENTRY>> = either {
         events.get()[journalName] ?: raise(StreamNotFound(journalName))
     }

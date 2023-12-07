@@ -17,12 +17,12 @@ import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 class LoadToAppendExamples {
-    private val journal: Journal<TestEvent, String> = InMemoryJournal()
+    private val journalCatalogue: JournalCatalogue<TestEvent, String> = InMemoryJournalCatalogue()
     private val streamName = UniqueSequence { index -> "stream:$index" }()
 
     @Test
     fun `it persists events to a new stream`() = runTest {
-        with(journal) {
+        with(journalCatalogue) {
             val expectedEvents = nonEmptyListOf(Event1("A1"), Event2("A2", "Second event."))
 
             val result = loadToAppend(streamName) { events ->
@@ -37,7 +37,7 @@ class LoadToAppendExamples {
 
     @Test
     fun `it appends events to an existing stream`() = runTest {
-        with(journal) {
+        with(journalCatalogue) {
             val existingStream = givenStream(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
             val expectedStream = loadedEntries(
                 streamName,
@@ -62,7 +62,7 @@ class LoadToAppendExamples {
 
     @Test
     fun `it returns the journal error on execution failure`() = runTest {
-        with(journal) {
+        with(journalCatalogue) {
             val existingStream = givenStream(
                 streamName,
                 Event1("ABC"),
@@ -82,7 +82,7 @@ class LoadToAppendExamples {
     fun `it returns the journal error on append failure`() = runTest {
         val existingStream = loadedEntries(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
 
-        val failingJournal: Journal<TestEvent, String> = object : Journal<TestEvent, String> {
+        val failingJournalCatalogue: JournalCatalogue<TestEvent, String> = object : JournalCatalogue<TestEvent, String> {
             override suspend fun load(journalName: JournalName) =
                 existingStream.right()
 
@@ -91,7 +91,7 @@ class LoadToAppendExamples {
 
         }
 
-        with(failingJournal) {
+        with(failingJournalCatalogue) {
             val result = loadToAppend(streamName) {
                 nonEmptyListOf(Event1("XYZ"), Event2("XYZ", "Event 2 XYZ.")).right()
             }
@@ -103,7 +103,7 @@ class LoadToAppendExamples {
 
     @Test
     fun `it returns the journal error on load failure`() = runTest {
-        val failingJournal: Journal<TestEvent, String> = object : Journal<TestEvent, String> {
+        val failingJournalCatalogue: JournalCatalogue<TestEvent, String> = object : JournalCatalogue<TestEvent, String> {
             override suspend fun load(journalName: JournalName) =
                 VersionConflict(journalName, 1, 2).left()
 
@@ -112,7 +112,7 @@ class LoadToAppendExamples {
 
         }
 
-        with(failingJournal) {
+        with(failingJournalCatalogue) {
             val result = loadToAppend(streamName) {
                 nonEmptyListOf(Event1("XYZ"), Event2("XYZ", "Event 2 XYZ.")).right()
             }
@@ -121,7 +121,7 @@ class LoadToAppendExamples {
         }
     }
 
-    context(Journal<TestEvent, String>)
+    context(JournalCatalogue<TestEvent, String>)
     private suspend fun givenStream(journalName: JournalName, event: TestEvent, vararg events: TestEvent) =
         append(updatedEntries(journalName, event, *events))
             .getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }

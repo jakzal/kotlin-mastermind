@@ -8,8 +8,8 @@ import mastermind.game.acceptance.dsl.junit.ExecutionContext
 import mastermind.game.acceptance.dsl.junit.dynamicContainer
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
-import mastermind.journal.InMemoryJournal
-import mastermind.journal.eventstoredb.EventStoreDbJournal
+import mastermind.journal.InMemoryJournalCatalogue
+import mastermind.journal.eventstoredb.EventStoreDbJournalCatalogue
 import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
@@ -100,8 +100,8 @@ private fun ScenarioContext.runnerModule(): RunnerModule = when (mode) {
 
 
 private fun ScenarioContext.journalModule(): JournalModule<GameEvent, GameError> = when(journal) {
-    ScenarioContext.Journal.IN_MEMORY -> JournalModule(InMemoryJournal())
-    ScenarioContext.Journal.EVENT_STORE_DB -> JournalModule(EventStoreDbJournal("esdb://localhost:2113?tls=false"))
+    ScenarioContext.Journal.IN_MEMORY -> JournalModule(InMemoryJournalCatalogue())
+    ScenarioContext.Journal.EVENT_STORE_DB -> JournalModule(EventStoreDbJournalCatalogue("esdb://localhost:2113?tls=false"))
 }
 
 private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModule) {

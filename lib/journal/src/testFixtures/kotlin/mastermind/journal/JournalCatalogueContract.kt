@@ -4,8 +4,8 @@ import arrow.core.getOrElse
 import arrow.core.nonEmptyListOf
 import kotlinx.coroutines.test.runTest
 import mastermind.journal.Entries.LoadedEntries
-import mastermind.journal.JournalContract.TestEvent.Event1
-import mastermind.journal.JournalContract.TestEvent.Event2
+import mastermind.journal.JournalCatalogueContract.TestEvent.Event1
+import mastermind.journal.JournalCatalogueContract.TestEvent.Event2
 import mastermind.journal.JournalError.StreamNotFound
 import mastermind.journal.JournalError.VersionConflict
 import mastermind.testkit.assertions.shouldBeFailureOf
@@ -14,14 +14,14 @@ import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
-abstract class JournalContract(
-    private val journal: Journal<TestEvent, Nothing>
+abstract class JournalCatalogueContract(
+    private val journalCatalogue: JournalCatalogue<TestEvent, Nothing>
 ) {
     private val streamName = UniqueSequence { index -> "stream:$index" }()
 
     @Test
     fun `it returns StreamNotFound error if stream does not exist`() = runTest {
-        journal.load(streamName) shouldFailWith StreamNotFound(streamName)
+        journalCatalogue.load(streamName) shouldFailWith StreamNotFound(streamName)
     }
 
     @Test
@@ -32,7 +32,7 @@ abstract class JournalContract(
             Event2("ABC", "Event 2")
         )
 
-        journal.load(streamName) shouldSucceedWith LoadedEntries(
+        journalCatalogue.load(streamName) shouldSucceedWith LoadedEntries(
             streamName, 2, nonEmptyListOf(
                 Event1("ABC"),
                 Event2("ABC", "Event 2")
@@ -42,7 +42,7 @@ abstract class JournalContract(
 
     @Test
     fun `it persists events to a new stream`() = runTest {
-        val result = journal.append(
+        val result = journalCatalogue.append(
             updatedEntries(streamName, Event1("A1"), Event2("A2", "Second event."))
         )
 
@@ -64,7 +64,7 @@ abstract class JournalContract(
             Event2("ABC", "Event 2")
         )
 
-        val result = journal.append(
+        val result = journalCatalogue.append(
             updatedEntries(existingStream, Event1("DEF"), Event2("DEF", "Event 2 DEF."))
         )
 
@@ -93,10 +93,10 @@ abstract class JournalContract(
 
         // We're cheating a bit here as instead of using the provided stream
         // we're using the previously loaded one to simulate concurrent reads.
-        val result1 = journal.append(
+        val result1 = journalCatalogue.append(
             updatedEntries(existingStream, Event1("DEF"), Event2("DEF", "Event 2 DEF."))
         )
-        val result2 = journal.append(
+        val result2 = journalCatalogue.append(
             updatedEntries(existingStream, Event1("XYZ"), Event2("XYZ", "Event 2 XYZ."))
         )
 
@@ -116,10 +116,10 @@ abstract class JournalContract(
         loadEvents(streamName) shouldSucceedWith expectedStream
     }
 
-    private suspend fun loadEvents(journalName: JournalName) = journal.load(journalName)
+    private suspend fun loadEvents(journalName: JournalName) = journalCatalogue.load(journalName)
 
     private suspend fun givenEventsExist(journalName: JournalName, event: TestEvent, vararg events: TestEvent) =
-        journal.append(updatedEntries(journalName, event, *events))
+        journalCatalogue.append(updatedEntries(journalName, event, *events))
             .getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
 
     sealed interface TestEvent {
