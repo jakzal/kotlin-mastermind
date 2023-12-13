@@ -1,6 +1,6 @@
 package mastermind.game.http
 
-import mastermind.eventstore.EventSourcingError
+import mastermind.eventsourcing.eventstore.EventSourcingError
 import mastermind.eventstore.EventStoreError
 import mastermind.eventstore.EventStoreError.StreamNotFound
 import mastermind.eventstore.EventStoreError.VersionConflict

@@ -3,8 +3,8 @@ package mastermind.game.acceptance.dsl.http
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.right
-import mastermind.eventstore.EventSourcingError
-import mastermind.eventstore.EventSourcingError.ExecutionError
+import mastermind.eventsourcing.eventstore.EventSourcingError
+import mastermind.eventsourcing.eventstore.EventSourcingError.ExecutionError
 import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost

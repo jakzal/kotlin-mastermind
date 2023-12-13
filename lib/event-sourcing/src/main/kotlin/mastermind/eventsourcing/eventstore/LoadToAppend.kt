@@ -1,6 +1,7 @@
-package mastermind.eventstore
+package mastermind.eventsourcing.eventstore
 
 import arrow.core.*
+import mastermind.eventstore.*
 import mastermind.eventstore.EventStoreError.StreamNotFound
 import mastermind.eventstore.Stream.*
 

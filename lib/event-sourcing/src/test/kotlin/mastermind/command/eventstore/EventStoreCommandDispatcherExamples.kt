@@ -5,12 +5,12 @@ import kotlinx.coroutines.test.runTest
 import mastermind.command.fixtures.TestCommand
 import mastermind.command.fixtures.TestError
 import mastermind.command.fixtures.TestEvent
+import mastermind.eventsourcing.eventstore.EventSourcingError.ExecutionError
 import mastermind.eventsourcing.eventstore.EventStoreCommandDispatcher
-import mastermind.eventstore.EventSourcingError.ExecutionError
+import mastermind.eventsourcing.eventstore.loadToAppend
 import mastermind.eventstore.EventStore
 import mastermind.eventstore.InMemoryEventStore
 import mastermind.eventstore.Stream.LoadedStream
-import mastermind.eventstore.loadToAppend
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test

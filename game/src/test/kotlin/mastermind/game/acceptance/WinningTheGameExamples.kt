@@ -1,6 +1,6 @@
 package mastermind.game.acceptance
 
-import mastermind.eventstore.EventSourcingError.ExecutionError
+import mastermind.eventsourcing.eventstore.EventSourcingError.ExecutionError
 import mastermind.game.Code
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.acceptance.dsl.junit.ExecutionContext

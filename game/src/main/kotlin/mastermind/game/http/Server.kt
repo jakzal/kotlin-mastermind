@@ -3,7 +3,7 @@ package mastermind.game.http
 import arrow.core.Either
 import arrow.core.getOrElse
 import kotlinx.coroutines.runBlocking
-import mastermind.eventstore.EventSourcingError
+import mastermind.eventsourcing.eventstore.EventSourcingError
 import mastermind.game.*
 import mastermind.game.Code.Peg
 import mastermind.game.GameCommand.MakeGuess

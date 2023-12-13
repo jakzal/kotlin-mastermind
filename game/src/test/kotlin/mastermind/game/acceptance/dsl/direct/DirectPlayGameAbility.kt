@@ -2,7 +2,7 @@ package mastermind.game.acceptance.dsl.direct
 
 import arrow.core.Either
 import arrow.core.getOrElse
-import mastermind.eventstore.EventSourcingError
+import mastermind.eventsourcing.eventstore.EventSourcingError
 import mastermind.game.Code
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError

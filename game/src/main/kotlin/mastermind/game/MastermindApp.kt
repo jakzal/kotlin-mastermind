@@ -2,9 +2,9 @@ package mastermind.game
 
 import arrow.core.Either
 import mastermind.eventsourcing.Dispatch
+import mastermind.eventsourcing.eventstore.EventSourcingError
 import mastermind.eventsourcing.eventstore.EventStoreCommandDispatcher
 import mastermind.eventsourcing.handlerFor
-import mastermind.eventstore.EventSourcingError
 import mastermind.eventstore.EventStore
 import mastermind.eventstore.InMemoryEventStore
 import mastermind.game.GameCommand.JoinGame

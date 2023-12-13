@@ -4,10 +4,8 @@ import arrow.core.Either
 import arrow.core.NonEmptyList
 import mastermind.eventsourcing.Dispatch
 import mastermind.eventsourcing.Execute
-import mastermind.eventstore.EventSourcingError
 import mastermind.eventstore.EventStore
 import mastermind.eventstore.StreamName
-import mastermind.eventstore.loadToAppend
 
 
 context(EventStore<EVENT>)

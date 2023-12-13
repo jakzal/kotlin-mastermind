@@ -1,7 +1,7 @@
 package mastermind.game.acceptance.dsl
 
 import arrow.core.Either
-import mastermind.eventstore.EventSourcingError
+import mastermind.eventsourcing.eventstore.EventSourcingError
 import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameId

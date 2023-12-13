@@ -2,7 +2,7 @@ package mastermind.game.http
 
 import arrow.core.left
 import arrow.core.right
-import mastermind.eventstore.EventSourcingError.EventStoreError
+import mastermind.eventsourcing.eventstore.EventSourcingError.EventStoreError
 import mastermind.eventstore.EventStoreError.StreamNotFound
 import mastermind.game.Code
 import mastermind.game.GameCommand.MakeGuess
