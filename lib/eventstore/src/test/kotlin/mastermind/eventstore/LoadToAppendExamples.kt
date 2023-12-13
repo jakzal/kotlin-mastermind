@@ -5,6 +5,8 @@ import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
+import mastermind.eventstore.EventSourcingError.EventStoreError
+import mastermind.eventstore.EventSourcingError.ExecutionError
 import mastermind.eventstore.EventStoreError.VersionConflict
 import mastermind.eventstore.LoadToAppendExamples.TestEvent.Event1
 import mastermind.eventstore.LoadToAppendExamples.TestEvent.Event2
@@ -72,7 +74,7 @@ class LoadToAppendExamples {
                 "Failed to execute.".left()
             }
 
-            result shouldBeFailureOf "Failed to execute.".left()
+            result shouldBeFailureOf ExecutionError("Failed to execute.")
             load(streamName) shouldSucceedWith existingStream
         }
     }
@@ -95,7 +97,7 @@ class LoadToAppendExamples {
                 nonEmptyListOf(Event1("XYZ"), Event2("XYZ", "Event 2 XYZ.")).right()
             }
 
-            result shouldBeFailureOf VersionConflict(streamName, 1, 2).right()
+            result shouldBeFailureOf EventStoreError(VersionConflict(streamName, 1, 2))
             load(streamName) shouldSucceedWith existingStream
         }
     }
@@ -116,7 +118,7 @@ class LoadToAppendExamples {
                 nonEmptyListOf(Event1("XYZ"), Event2("XYZ", "Event 2 XYZ.")).right()
             }
 
-            result shouldBeFailureOf VersionConflict(streamName, 1, 2).left()
+            result shouldBeFailureOf EventStoreError(VersionConflict(streamName, 1, 2))
         }
     }
 

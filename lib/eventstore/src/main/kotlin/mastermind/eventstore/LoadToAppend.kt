@@ -4,7 +4,10 @@ import arrow.core.*
 import mastermind.eventstore.EventStoreError.StreamNotFound
 import mastermind.eventstore.Stream.*
 
-typealias EventSourcingError<ERROR> = Either<ERROR, EventStoreError>
+sealed interface EventSourcingError<out ERROR : Any> {
+    data class ExecutionError<ERROR : Any>(val cause: ERROR) : EventSourcingError<ERROR>
+    data class EventStoreError(val cause: mastermind.eventstore.EventStoreError) : EventSourcingError<Nothing>
+}
 
 context(EventStore<EVENT>)
 suspend fun <EVENT : Any, ERROR : Any> loadToAppend(
@@ -28,12 +31,20 @@ private fun <EVENT : Any> Either<EventStoreError, LoadedStream<EVENT>>.orCreate(
 private fun <EVENT : Any, ERROR : Any> Either<EventStoreError, Stream<EVENT>>.update(
     onEvents: (List<EVENT>) -> Either<ERROR, NonEmptyList<EVENT>>
 ): Either<EventSourcingError<ERROR>, UpdatedStream<EVENT>> =
-    flatMap { stream -> stream.append { onEvents(stream.events) } }.mapLeft { (it as ERROR).left() }
-
+    mapLeft { EventSourcingError.EventStoreError(it) }
+        .flatMap { stream ->
+            stream.append {
+                onEvents(stream.events)
+                    .mapLeft { EventSourcingError.ExecutionError(it) }
+            }
+        }
 
 
 context(EventStore<EVENT>)
 private suspend fun <EVENT : Any, ERROR : Any> Either<EventSourcingError<ERROR>, UpdatedStream<EVENT>>.persist()
         : Either<EventSourcingError<ERROR>, LoadedStream<EVENT>> =
-    flatMap { streamToWrite -> append(streamToWrite).mapLeft { it.right() } }
+    flatMap { streamToWrite ->
+        append(streamToWrite)
+            .mapLeft { EventSourcingError.EventStoreError(it) }
+    }
 

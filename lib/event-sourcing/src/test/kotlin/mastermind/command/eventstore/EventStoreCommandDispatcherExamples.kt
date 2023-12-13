@@ -6,6 +6,7 @@ import mastermind.command.fixtures.TestCommand
 import mastermind.command.fixtures.TestError
 import mastermind.command.fixtures.TestEvent
 import mastermind.eventsourcing.eventstore.EventStoreCommandDispatcher
+import mastermind.eventstore.EventSourcingError.ExecutionError
 import mastermind.eventstore.EventStore
 import mastermind.eventstore.InMemoryEventStore
 import mastermind.eventstore.Stream.LoadedStream
@@ -63,7 +64,7 @@ class EventStoreCommandDispatcherExamples {
             )
         }
 
-        dispatcher(TestCommand("ABC")) shouldFailWith TestError("Execution failed.").left()
+        dispatcher(TestCommand("ABC")) shouldFailWith ExecutionError(TestError("Execution failed."))
     }
 
     context(EventStore<TestEvent>)

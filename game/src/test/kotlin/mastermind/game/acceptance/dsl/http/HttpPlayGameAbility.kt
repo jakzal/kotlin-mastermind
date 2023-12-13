@@ -1,10 +1,10 @@
 package mastermind.game.acceptance.dsl.http
 
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
 import mastermind.eventstore.EventSourcingError
+import mastermind.eventstore.EventSourcingError.ExecutionError
 import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
@@ -56,9 +56,9 @@ class HttpPlayGameAbility(
 
 private fun Response.executionError(gameId: GameId): Either<EventSourcingError<GameError>, GameId> = either {
     if (body().message.matches(".*won.*".toRegex())) {
-        raise(GameAlreadyWon(gameId).left())
+        raise(ExecutionError(GameAlreadyWon(gameId)))
     } else {
-        raise(GameAlreadyLost(gameId).left())
+        raise(ExecutionError(GameAlreadyLost(gameId)))
     }
 }
 

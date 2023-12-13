@@ -2,6 +2,7 @@ package mastermind.game.http
 
 import arrow.core.left
 import arrow.core.right
+import mastermind.eventstore.EventSourcingError.EventStoreError
 import mastermind.eventstore.EventStoreError.StreamNotFound
 import mastermind.game.Code
 import mastermind.game.GameCommand.MakeGuess
@@ -45,7 +46,7 @@ class MakeGuessHttpHandlerExamples {
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = MastermindApp(
             gameModule = GameModule(
-                execute = { _ -> StreamNotFound("my-stream").right().left() }
+                execute = { _ -> EventStoreError(StreamNotFound("my-stream")).left() }
             ),
             runnerModule = DirectRunnerModule()
         ).routes

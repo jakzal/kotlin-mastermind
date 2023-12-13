@@ -1,6 +1,6 @@
 package mastermind.game.acceptance
 
-import arrow.core.left
+import mastermind.eventstore.EventSourcingError.ExecutionError
 import mastermind.game.Code
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.acceptance.dsl.junit.ExecutionContext
@@ -9,6 +9,7 @@ import mastermind.game.acceptance.dsl.mastermindScenario
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
+import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldReturn
 
 context(ExecutionContext)
@@ -37,7 +38,7 @@ class LosingTheGameExamples {
                 "Lost"
             )
             // And I should no longer be able to make guesses
-            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn GameAlreadyLost(gameId).left().left()
+            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldFailWith ExecutionError(GameAlreadyLost(gameId))
         }
     }
 }
