@@ -12,16 +12,16 @@ import mastermind.eventstore.Stream.UpdatedStream
 import mastermind.eventstore.StreamName
 import kotlin.reflect.KClass
 
-class EventStoreDbEventStore<EVENT : Any, ERROR : Any>(
+class EventStoreDbEventStore<EVENT : Any>(
     private val eventStore: EventStoreDBClient,
     private val asEvent: ByteArray.(KClass<EVENT>) -> EVENT = createReader(),
     private val asBytes: EVENT.() -> ByteArray = createWriter()
-) : EventStore<EVENT, ERROR> {
+) : EventStore<EVENT> {
     constructor(connectionString: String) : this(EventStoreDBClient.create(
         EventStoreDBConnectionString.parseOrThrow(connectionString)
     ))
 
-    override suspend fun load(streamName: StreamName): Either<EventStoreError<ERROR>, LoadedStream<EVENT>> =
+    override suspend fun load(streamName: StreamName): Either<EventStoreError, LoadedStream<EVENT>> =
         try {
             eventStore.readStream(streamName)
                 .mapToEvents(streamName)
@@ -29,7 +29,7 @@ class EventStoreDbEventStore<EVENT : Any, ERROR : Any>(
             StreamNotFound(streamName).left()
         }
 
-    override suspend fun append(stream: UpdatedStream<EVENT>): Either<EventStoreError<ERROR>, LoadedStream<EVENT>> =
+    override suspend fun append(stream: UpdatedStream<EVENT>): Either<EventStoreError, LoadedStream<EVENT>> =
         try {
             eventStore.append(stream)
                 .mapToLoadedStream(stream)
@@ -51,7 +51,7 @@ class EventStoreDbEventStore<EVENT : Any, ERROR : Any>(
             stream.eventsToAppend.asBytesList().iterator()
         ).await()
 
-    private fun ReadResult.mapToEvents(streamName: StreamName): Either<EventStoreError<ERROR>, LoadedStream<EVENT>> =
+    private fun ReadResult.mapToEvents(streamName: StreamName): Either<EventStoreError, LoadedStream<EVENT>> =
         events
             .map { resolvedEvent -> resolvedEvent.mapToEvent() }
             .toNonEmptyListOrNone()

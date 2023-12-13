@@ -194,13 +194,13 @@ class DecodingBoardQueryExamples {
     }
 }
 
-private fun noEvents(): suspend (StreamName) -> Either<EventStoreError<GameError>, LoadedStream<GameEvent>> =
+private fun noEvents(): suspend (StreamName) -> Either<EventStoreError, LoadedStream<GameEvent>> =
     { streamName -> StreamNotFound(streamName).left() }
 
 private fun events(
     event: GameEvent,
     vararg events: GameEvent
-): suspend (StreamName) -> Either<EventStoreError<GameError>, LoadedStream<GameEvent>> = { streamName ->
+): suspend (StreamName) -> Either<EventStoreError, LoadedStream<GameEvent>> = { streamName ->
     streamName shouldBe "Mastermind:${event.gameId.value}"
     LoadedStream(streamName, events.size.toLong(), nonEmptyListOf(event, *events)).right()
 }

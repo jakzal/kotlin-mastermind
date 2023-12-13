@@ -3,7 +3,7 @@ package mastermind.game.http
 import arrow.core.Either
 import arrow.core.getOrElse
 import kotlinx.coroutines.runBlocking
-import mastermind.eventstore.EventStoreError
+import mastermind.eventstore.EventSourcingError
 import mastermind.game.*
 import mastermind.game.Code.Peg
 import mastermind.game.GameCommand.MakeGuess
@@ -102,5 +102,5 @@ private fun <ERROR> Either<ERROR, GameId>.asResponse() = map { gameId ->
     Response(Status.CREATED).with(gameId.asLocationHeader())
 }
 
-private fun Either<EventStoreError<GameError>, Response>.orHandleError() =
-    getOrElse(EventStoreError<GameError>::response)
+private fun Either<EventSourcingError<GameError>, Response>.orHandleError() =
+    getOrElse(EventSourcingError<GameError>::response)

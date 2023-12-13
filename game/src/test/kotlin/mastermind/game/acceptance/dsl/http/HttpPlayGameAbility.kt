@@ -1,10 +1,10 @@
 package mastermind.game.acceptance.dsl.http
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
-import mastermind.eventstore.EventStoreError
-import mastermind.eventstore.EventStoreError.ExecutionError
+import mastermind.eventstore.EventSourcingError
 import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
@@ -41,7 +41,7 @@ class HttpPlayGameAbility(
         }
     }
 
-    override suspend fun makeGuess(gameId: GameId, code: Code): Either<EventStoreError<GameError>, GameId> {
+    override suspend fun makeGuess(gameId: GameId, code: Code): Either<EventSourcingError<GameError>, GameId> {
         val response = client(
             Request(Method.POST, "http://localhost:$serverPort/games/${gameId.value}/guesses")
                 .body(code.pegs)
@@ -54,11 +54,11 @@ class HttpPlayGameAbility(
     }
 }
 
-private fun Response.executionError(gameId: GameId): Either<EventStoreError<GameError>, GameId> = either {
+private fun Response.executionError(gameId: GameId): Either<EventSourcingError<GameError>, GameId> = either {
     if (body().message.matches(".*won.*".toRegex())) {
-        raise(ExecutionError(GameAlreadyWon(gameId)))
+        raise(GameAlreadyWon(gameId).left())
     } else {
-        raise(ExecutionError(GameAlreadyLost(gameId)))
+        raise(GameAlreadyLost(gameId).left())
     }
 }
 

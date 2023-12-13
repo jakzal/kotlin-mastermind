@@ -10,14 +10,14 @@ import mastermind.eventstore.EventStoreError.StreamNotFound
 import mastermind.eventstore.Stream.LoadedStream
 import mastermind.eventstore.Stream.UpdatedStream
 
-class InMemoryEventStore<EVENT : Any, ERROR : Any>(
+class InMemoryEventStore<EVENT : Any>(
     private val events: Atomic<Map<StreamName, LoadedStream<EVENT>>> = Atomic(mapOf())
-) : EventStore<EVENT, ERROR> {
-    override suspend fun load(streamName: StreamName): Either<EventStoreError<ERROR>, LoadedStream<EVENT>> = either {
+) : EventStore<EVENT> {
+    override suspend fun load(streamName: StreamName): Either<EventStoreError, LoadedStream<EVENT>> = either {
         events.get()[streamName] ?: raise(StreamNotFound(streamName))
     }
 
-    override suspend fun append(stream: UpdatedStream<EVENT>): Either<EventStoreError<ERROR>, LoadedStream<EVENT>> =
+    override suspend fun append(stream: UpdatedStream<EVENT>): Either<EventStoreError, LoadedStream<EVENT>> =
         either {
             events.updateAndGet {
                 it[stream.streamName]?.let { writtenStream ->

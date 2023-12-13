@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.eventstore.EventStoreError.ExecutionError
 import mastermind.eventstore.EventStoreError.VersionConflict
 import mastermind.eventstore.LoadToAppendExamples.TestEvent.Event1
 import mastermind.eventstore.LoadToAppendExamples.TestEvent.Event2
@@ -17,7 +16,7 @@ import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 class LoadToAppendExamples {
-    private val eventStore: EventStore<TestEvent, String> = InMemoryEventStore()
+    private val eventStore: EventStore<TestEvent> = InMemoryEventStore()
     private val streamName = UniqueSequence { index -> "stream:$index" }()
 
     @Test
@@ -73,7 +72,7 @@ class LoadToAppendExamples {
                 "Failed to execute.".left()
             }
 
-            result shouldBeFailureOf ExecutionError("Failed to execute.")
+            result shouldBeFailureOf "Failed to execute.".left()
             load(streamName) shouldSucceedWith existingStream
         }
     }
@@ -82,7 +81,7 @@ class LoadToAppendExamples {
     fun `it returns the event store error on append failure`() = runTest {
         val existingStream = loadedStream(streamName, Event1("ABC"), Event2("ABC", "Event 2"))
 
-        val failingEventStore: EventStore<TestEvent, String> = object : EventStore<TestEvent, String> {
+        val failingEventStore: EventStore<TestEvent> = object : EventStore<TestEvent> {
             override suspend fun load(streamName: StreamName) =
                 existingStream.right()
 
@@ -96,14 +95,14 @@ class LoadToAppendExamples {
                 nonEmptyListOf(Event1("XYZ"), Event2("XYZ", "Event 2 XYZ.")).right()
             }
 
-            result shouldBeFailureOf VersionConflict(streamName, 1, 2)
+            result shouldBeFailureOf VersionConflict(streamName, 1, 2).right()
             load(streamName) shouldSucceedWith existingStream
         }
     }
 
     @Test
     fun `it returns the event store error on load failure`() = runTest {
-        val failingEventStore: EventStore<TestEvent, String> = object : EventStore<TestEvent, String> {
+        val failingEventStore: EventStore<TestEvent> = object : EventStore<TestEvent> {
             override suspend fun load(streamName: StreamName) =
                 VersionConflict(streamName, 1, 2).left()
 
@@ -117,11 +116,11 @@ class LoadToAppendExamples {
                 nonEmptyListOf(Event1("XYZ"), Event2("XYZ", "Event 2 XYZ.")).right()
             }
 
-            result shouldBeFailureOf VersionConflict(streamName, 1, 2)
+            result shouldBeFailureOf VersionConflict(streamName, 1, 2).left()
         }
     }
 
-    context(EventStore<TestEvent, String>)
+    context(EventStore<TestEvent>)
     private suspend fun givenStream(streamName: StreamName, event: TestEvent, vararg events: TestEvent) =
         append(updatedStream(streamName, event, *events))
             .getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }

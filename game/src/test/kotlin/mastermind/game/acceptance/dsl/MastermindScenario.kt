@@ -99,7 +99,7 @@ private fun ScenarioContext.runnerModule(): RunnerModule = when (mode) {
 }
 
 
-private fun ScenarioContext.eventStoreModule(): EventStoreModule<GameEvent, GameError> = when(eventStore) {
+private fun ScenarioContext.eventStoreModule(): EventStoreModule<GameEvent> = when(eventStore) {
     ScenarioContext.EventStore.IN_MEMORY -> EventStoreModule(InMemoryEventStore())
     ScenarioContext.EventStore.EVENT_STORE_DB -> EventStoreModule(EventStoreDbEventStore("esdb://localhost:2113?tls=false"))
 }

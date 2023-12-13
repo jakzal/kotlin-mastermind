@@ -4,19 +4,19 @@ import arrow.core.Either
 import mastermind.eventsourcing.Dispatch
 import mastermind.eventsourcing.eventstore.EventStoreCommandDispatcher
 import mastermind.eventsourcing.handlerFor
+import mastermind.eventstore.EventSourcingError
 import mastermind.eventstore.EventStore
-import mastermind.eventstore.EventStoreError
 import mastermind.eventstore.InMemoryEventStore
 import mastermind.game.GameCommand.JoinGame
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.view.DecodingBoard
 
-data class EventStoreModule<EVENT : Any, ERROR : Any>(
-    private val eventStore: EventStore<EVENT, ERROR> = InMemoryEventStore()
-) : EventStore<EVENT, ERROR> by eventStore
+data class EventStoreModule<EVENT : Any>(
+    private val eventStore: EventStore<EVENT> = InMemoryEventStore()
+) : EventStore<EVENT> by eventStore
 
 data class GameModule(
-    val eventStoreModule: EventStoreModule<GameEvent, GameError> = EventStoreModule(),
+    val eventStoreModule: EventStoreModule<GameEvent> = EventStoreModule(),
     val availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     val totalAttempts: Int = 12,
     val generateGameId: () -> GameId = ::generateGameId,
@@ -48,7 +48,7 @@ data class MastermindApp(
     val runnerModule: RunnerModule
 ) : AutoCloseable {
     constructor(
-        eventStoreModule: EventStoreModule<GameEvent, GameError>,
+        eventStoreModule: EventStoreModule<GameEvent>,
         runnerModule: RunnerModule
     ) : this(GameModule(eventStoreModule), runnerModule)
 
@@ -60,11 +60,11 @@ data class MastermindApp(
         runnerModule.shutdown()
     }
 
-    suspend fun joinGame(): Either<EventStoreError<GameError>, GameId> = with(gameModule) {
+    suspend fun joinGame(): Either<EventSourcingError<GameError>, GameId> = with(gameModule) {
         execute(JoinGame(generateGameId(), makeCode(), totalAttempts, availablePegs))
     }
 
-    suspend fun makeGuess(command: MakeGuess): Either<EventStoreError<GameError>, GameId> = with(gameModule) {
+    suspend fun makeGuess(command: MakeGuess): Either<EventSourcingError<GameError>, GameId> = with(gameModule) {
         execute(command)
     }
 
@@ -73,4 +73,4 @@ data class MastermindApp(
     }
 }
 
-typealias GameCommandDispatcher = Dispatch<GameCommand, EventStoreError<GameError>, GameId>
+typealias GameCommandDispatcher = Dispatch<GameCommand, EventSourcingError<GameError>, GameId>

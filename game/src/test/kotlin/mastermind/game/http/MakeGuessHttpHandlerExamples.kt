@@ -45,7 +45,7 @@ class MakeGuessHttpHandlerExamples {
         val guess = Code("Red", "Green", "Green", "Yellow")
         val app = MastermindApp(
             gameModule = GameModule(
-                execute = { _ -> StreamNotFound("my-stream").left() }
+                execute = { _ -> StreamNotFound("my-stream").right().left() }
             ),
             runnerModule = DirectRunnerModule()
         ).routes

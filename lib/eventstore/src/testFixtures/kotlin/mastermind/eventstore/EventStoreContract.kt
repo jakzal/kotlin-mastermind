@@ -15,7 +15,7 @@ import mastermind.testkit.assertions.shouldSucceedWith
 import org.junit.jupiter.api.Test
 
 abstract class EventStoreContract(
-    private val eventStore: EventStore<TestEvent, Nothing>
+    private val eventStore: EventStore<TestEvent>
 ) {
     private val streamName = UniqueSequence { index -> "stream:$index" }()
 

@@ -1,7 +1,10 @@
 package mastermind.game.http
 
+import arrow.core.getOrElse
+import mastermind.eventstore.EventSourcingError
 import mastermind.eventstore.EventStoreError
-import mastermind.eventstore.EventStoreError.*
+import mastermind.eventstore.EventStoreError.StreamNotFound
+import mastermind.eventstore.EventStoreError.VersionConflict
 import mastermind.game.Code
 import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
@@ -15,10 +18,11 @@ import org.http4k.format.Jackson.auto
 
 data class Error(val message: String)
 
-fun EventStoreError<GameError>.response(): Response = when (this) {
+fun EventSourcingError<GameError>.response(): Response = this.map { it.response() }.getOrElse { it.response() }
+
+fun EventStoreError.response(): Response = when (this) {
     is StreamNotFound -> Response(Status.NOT_FOUND).with(Error("Game not found."))
     is VersionConflict -> Response(Status.INTERNAL_SERVER_ERROR).with(Error("Internal server error."))
-    is ExecutionError<GameError> -> this.cause.response()
 }
 
 private fun GameError.response() =

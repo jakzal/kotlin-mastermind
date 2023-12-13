@@ -7,7 +7,6 @@ import mastermind.command.fixtures.TestError
 import mastermind.command.fixtures.TestEvent
 import mastermind.eventsourcing.eventstore.EventStoreCommandDispatcher
 import mastermind.eventstore.EventStore
-import mastermind.eventstore.EventStoreError.ExecutionError
 import mastermind.eventstore.InMemoryEventStore
 import mastermind.eventstore.Stream.LoadedStream
 import mastermind.eventstore.loadToAppend
@@ -17,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 
 class EventStoreCommandDispatcherExamples {
-    private val eventStore: EventStore<TestEvent, TestError> = InMemoryEventStore()
+    private val eventStore: EventStore<TestEvent> = InMemoryEventStore()
     private val expectedEvent = TestEvent("ABC")
     private val streamNameResolver = { _: TestCommand -> "Stream:ABC" }
     private val outcomeProducer: (NonEmptyList<TestEvent>) -> String = { events -> events.head.id }
@@ -64,10 +63,10 @@ class EventStoreCommandDispatcherExamples {
             )
         }
 
-        dispatcher(TestCommand("ABC")) shouldFailWith ExecutionError(TestError("Execution failed."))
+        dispatcher(TestCommand("ABC")) shouldFailWith TestError("Execution failed.").left()
     }
 
-    context(EventStore<TestEvent, TestError>)
+    context(EventStore<TestEvent>)
     private suspend fun givenEventsExist(existingEvents: NonEmptyList<TestEvent>) =
         loadToAppend("Stream:ABC") {
             existingEvents.right()

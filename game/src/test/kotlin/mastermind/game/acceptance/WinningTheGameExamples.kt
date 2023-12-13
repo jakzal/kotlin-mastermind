@@ -1,7 +1,6 @@
 package mastermind.game.acceptance
 
 import arrow.core.left
-import mastermind.eventstore.EventStoreError.ExecutionError
 import mastermind.game.Code
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.acceptance.dsl.junit.ExecutionContext
@@ -47,9 +46,7 @@ class WinningTheGameExamples {
                 "Won"
             )
             // And I should no longer be able to make guesses
-            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn ExecutionError(
-                GameAlreadyWon(gameId)
-            ).left()
+            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldReturn GameAlreadyWon(gameId).left().left()
         }
     }
 }
