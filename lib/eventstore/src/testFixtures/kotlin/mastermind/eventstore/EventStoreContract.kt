@@ -43,7 +43,8 @@ abstract class EventStoreContract(
     @Test
     fun `it persists events to a new stream`() = runTest {
         val result = eventStore.append(
-            updatedStream(streamName, Event1("A1"), Event2("A2", "Second event."))
+            emptyStream<TestEvent>(streamName)
+                .append(Event1("A1"), Event2("A2", "Second event."))
         )
 
         val expectedStream = LoadedStream(

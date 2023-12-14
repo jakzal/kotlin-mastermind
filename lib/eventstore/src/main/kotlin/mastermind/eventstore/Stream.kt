@@ -1,6 +1,8 @@
 package mastermind.eventstore
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.nonEmptyListOf
 import mastermind.eventstore.Stream.UpdatedStream
 
 typealias StreamName = String
@@ -33,13 +35,13 @@ sealed interface Stream<EVENT : Any> {
 fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
     generateEvents: () -> Either<ERROR, NonEmptyList<EVENT>>
 ): Either<ERROR, UpdatedStream<EVENT>> =
-    generateEvents().flatMap(::append)
+    generateEvents().map(::append)
 
-fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(
+fun <EVENT : Any> Stream<EVENT>.append(
     event: EVENT,
     vararg events: EVENT
-): Either<ERROR, UpdatedStream<EVENT>> =
+): UpdatedStream<EVENT> =
     append(nonEmptyListOf(event, *events))
 
-private fun <EVENT : Any, ERROR : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): Either<ERROR, UpdatedStream<EVENT>> =
-    UpdatedStream(streamName, streamVersion, events, eventsToAppend).right()
+private fun <EVENT : Any> Stream<EVENT>.append(eventsToAppend: NonEmptyList<EVENT>): UpdatedStream<EVENT> =
+    UpdatedStream(streamName, streamVersion, events, eventsToAppend)
