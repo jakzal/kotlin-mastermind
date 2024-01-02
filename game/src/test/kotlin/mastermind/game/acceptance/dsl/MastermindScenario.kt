@@ -7,7 +7,6 @@ import mastermind.game.*
 import mastermind.game.acceptance.dsl.direct.DirectPlayGameAbility
 import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
 import mastermind.game.acceptance.dsl.junit.ExecutionContext
-import mastermind.game.acceptance.dsl.junit.dynamicContainer
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
 import org.junit.jupiter.api.DynamicContainer
@@ -19,34 +18,7 @@ class MastermindScenario(
     val secret: Code,
     val totalAttempts: Int,
     val availablePegs: Set<Code.Peg>
-) : PlayGameAbility by ability {
-    companion object {
-        context(ScenarioContext)
-        operator fun invoke(
-            secret: Code,
-            totalAttempts: Int = 12,
-            availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
-            scenario: suspend MastermindScenario.() -> Unit
-        ) {
-            val app = MastermindApp(
-                gameModule = GameModule(
-                    makeCode = { secret },
-                    totalAttempts = totalAttempts,
-                    availablePegs = availablePegs,
-                    eventStoreModule = eventStoreModule()
-                ),
-                runnerModule = runnerModule()
-            )
-            app.start()
-            app.use {
-                runTest {
-                    MastermindScenario(app.playGameAbility(), secret, totalAttempts, availablePegs)
-                        .scenario()
-                }
-            }
-        }
-    }
-}
+) : PlayGameAbility by ability
 
 context(ExecutionContext)
 fun mastermindScenario(
@@ -57,51 +29,66 @@ fun mastermindScenario(
 ): List<DynamicTest> =
     scenarioContexts()
         .map { context ->
-            dynamicTest(context.mode.name) {
-                with(context) {
-                    MastermindScenario(secret, totalAttempts, availablePegs, scenario)
-                }
+            with(context) {
+                dynamicTest(mode.name, mastermindScenarioRunner(secret, totalAttempts, availablePegs, scenario))
             }
         }
 
 context(ExecutionContext)
 fun mastermindScenarios(
-    scenarios: List<Pair<String, context(ScenarioContext) () -> Unit>>
+    scenarios: List<Pair<String, List<DynamicTest>>>
 ): List<DynamicContainer> =
     scenarios
         .map { (displayName, scenario) ->
-            dynamicContainer(
-                displayName,
-                scenarioContexts().map { context ->
-                    "${context.mode}" to {
-                        with(context) {
-                            scenario(this)
-                        }
-                    }
-                }
-            )
+            DynamicContainer.dynamicContainer(displayName, scenario)
         }
 
-data class ScenarioContext(val mode: ExecutionMode, val eventStore: EventStore) {
+context(ExecutionContext, ScenarioExecutionContext)
+private fun mastermindScenarioRunner(
+    secret: Code,
+    totalAttempts: Int,
+    availablePegs: Set<Code.Peg>,
+    scenario: suspend MastermindScenario.() -> Unit
+): () -> Unit = {
+    val app = MastermindApp(
+        gameModule = GameModule(
+            makeCode = { secret },
+            totalAttempts = totalAttempts,
+            availablePegs = availablePegs,
+            eventStoreModule = eventStoreModule()
+        ),
+        runnerModule = runnerModule()
+    )
+    app.start()
+    app.use {
+        runTest {
+            MastermindScenario(app.playGameAbility(), secret, totalAttempts, availablePegs)
+                .scenario()
+        }
+    }
+}
+
+data class ScenarioExecutionContext(val mode: ExecutionMode, val eventStore: EventStore) {
     enum class ExecutionMode {
         HTTP,
         DIRECT
     }
+
     enum class EventStore {
         IN_MEMORY,
         EVENT_STORE_DB
     }
 }
 
-private fun ScenarioContext.runnerModule(): RunnerModule = when (mode) {
-    ScenarioContext.ExecutionMode.HTTP -> ServerRunnerModule(0)
-    ScenarioContext.ExecutionMode.DIRECT -> DirectRunnerModule()
+private fun ScenarioExecutionContext.runnerModule(): RunnerModule = when (mode) {
+    ScenarioExecutionContext.ExecutionMode.HTTP -> ServerRunnerModule(0)
+    ScenarioExecutionContext.ExecutionMode.DIRECT -> DirectRunnerModule()
 }
 
 
-private fun ScenarioContext.eventStoreModule(): EventStoreModule<GameEvent> = when(eventStore) {
-    ScenarioContext.EventStore.IN_MEMORY -> EventStoreModule(InMemoryEventStore())
-    ScenarioContext.EventStore.EVENT_STORE_DB -> EventStoreModule(EventStoreDbEventStore("esdb://localhost:2113?tls=false"))
+private fun ScenarioExecutionContext.eventStoreModule(): EventStoreModule<GameEvent> = when (eventStore) {
+    ScenarioExecutionContext.EventStore.IN_MEMORY -> EventStoreModule(InMemoryEventStore())
+    ScenarioExecutionContext.EventStore.EVENT_STORE_DB -> EventStoreModule(EventStoreDbEventStore("esdb://localhost:2113?tls=false"))
 }
 
 private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModule) {
@@ -110,8 +97,11 @@ private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModul
 }
 
 private fun ExecutionContext.scenarioContexts() = listOfNotNull(
-    ScenarioContext(ScenarioContext.ExecutionMode.DIRECT, ScenarioContext.EventStore.IN_MEMORY),
-    if (this.isHttpTest()) ScenarioContext(ScenarioContext.ExecutionMode.HTTP, ScenarioContext.EventStore.IN_MEMORY) else null,
+    ScenarioExecutionContext(ScenarioExecutionContext.ExecutionMode.DIRECT, ScenarioExecutionContext.EventStore.IN_MEMORY),
+    if (this.isHttpTest()) ScenarioExecutionContext(
+        ScenarioExecutionContext.ExecutionMode.HTTP,
+        ScenarioExecutionContext.EventStore.IN_MEMORY
+    ) else null,
 )
 
 private fun ExecutionContext.isHttpTest(): Boolean =

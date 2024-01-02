@@ -2,24 +2,25 @@ package mastermind.game.acceptance
 
 import mastermind.game.Code
 import mastermind.game.acceptance.dsl.junit.ExecutionContext
-import mastermind.game.acceptance.dsl.MastermindScenario
-import mastermind.game.acceptance.dsl.ScenarioContext
 import mastermind.game.acceptance.dsl.junit.Scenario
+import mastermind.game.acceptance.dsl.mastermindScenario
 import mastermind.game.acceptance.dsl.mastermindScenarios
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Tag
 
 context(ExecutionContext)
+@Tag("http")
 class PlayingTheGameExamples {
     @Scenario
     fun `code breaker gets feedback on their guess`() =
         mastermindScenarios(
             guessExamples { (secret, guess, feedback) ->
-                "secret=${secret.pegNames()} guess=${guess.pegNames()} feedback=$feedback" to {
-                    MastermindScenario(
+                "secret=${secret.pegNames()} guess=${guess.pegNames()} feedback=$feedback" to
+                    mastermindScenario(
                         // Given a decoding board of 12 attempts
                         totalAttempts = 12,
                         // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"
@@ -34,11 +35,10 @@ class PlayingTheGameExamples {
                             viewDecodingBoard(gameId) shouldReturnGuess Guess(guess.pegNames(), feedback)
                         }
                     }
-                }
             }
         )
 
-    private fun guessExamples(block: (Triple<Code, Code, List<String>>) -> Pair<String, context(ScenarioContext) () -> Unit>): List<Pair<String, context(ScenarioContext) () -> Unit>> = listOf(
+    private fun <R> guessExamples(block: (Triple<Code, Code, List<String>>) -> R): List<R> = listOf(
         Triple(
             Code("Red", "Green", "Blue", "Yellow"),
             Code("Red", "Purple", "Purple", "Purple"),
