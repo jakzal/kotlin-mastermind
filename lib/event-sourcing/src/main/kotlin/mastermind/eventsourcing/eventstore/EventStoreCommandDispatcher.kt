@@ -16,9 +16,7 @@ class EventStoreCommandDispatcher<COMMAND : Any, EVENT : Any, ERROR : Any, OUTCO
 ) : Dispatch<COMMAND, EventSourcingError<ERROR>, OUTCOME> {
 
     override suspend operator fun invoke(command: COMMAND): Either<EventSourcingError<ERROR>, OUTCOME> =
-        with(eventStore) {
-            loadToAppend(streamNameFor(command)) { events ->
-                execute(command, events)
-            }.map(produceOutcome)
-        }
+        eventStore.loadToAppend(streamNameFor(command)) { events ->
+            execute(command, events)
+        }.map(produceOutcome)
 }

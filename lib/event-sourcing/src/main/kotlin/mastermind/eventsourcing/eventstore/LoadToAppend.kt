@@ -10,8 +10,7 @@ sealed interface EventSourcingError<out ERROR : Any> {
     data class EventStoreError(val cause: mastermind.eventstore.EventStoreError) : EventSourcingError<Nothing>
 }
 
-context(EventStore<EVENT>)
-suspend fun <EVENT : Any, ERROR : Any> loadToAppend(
+suspend fun <EVENT : Any, ERROR : Any> EventStore<EVENT>.loadToAppend(
     streamName: StreamName,
     onEvents: (List<EVENT>) -> Either<ERROR, NonEmptyList<EVENT>>
 ): Either<EventSourcingError<ERROR>, NonEmptyList<EVENT>> =

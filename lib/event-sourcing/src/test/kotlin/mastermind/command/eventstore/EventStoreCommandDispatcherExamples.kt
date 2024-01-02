@@ -64,10 +64,8 @@ class EventStoreCommandDispatcherExamples {
     }
 
     private suspend fun givenEventsExist(existingEvents: NonEmptyList<TestEvent>) =
-        with(eventStore) {
-            loadToAppend("Stream:ABC") {
-                existingEvents.right()
-            }.getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
-        }
+        eventStore.loadToAppend("Stream:ABC") {
+            existingEvents.right()
+        }.getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
 }
 
