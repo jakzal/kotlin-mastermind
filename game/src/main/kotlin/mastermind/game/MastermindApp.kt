@@ -26,13 +26,12 @@ data class GameModule(
             mastermind.game.view.viewDecodingBoard(gameId)
         }
     },
-    val execute: GameCommandDispatcher = with(eventStoreModule) {
-        EventStoreCommandDispatcher(
-            handlerFor(::execute, ::applyEvent, ::notStartedGame),
-            { command -> "Mastermind:${command.gameId.value}" },
-            { events -> events.head.gameId }
-        )
-    }
+    val execute: GameCommandDispatcher = EventStoreCommandDispatcher(
+        eventStoreModule,
+        handlerFor(::execute, ::applyEvent, ::notStartedGame),
+        { command -> "Mastermind:${command.gameId.value}" },
+        { events -> events.head.gameId }
+    )
 )
 
 interface RunnerModule {
