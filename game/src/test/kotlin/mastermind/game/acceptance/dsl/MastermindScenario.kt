@@ -6,9 +6,10 @@ import mastermind.eventstore.eventstoredb.EventStoreDbEventStore
 import mastermind.game.*
 import mastermind.game.acceptance.dsl.direct.DirectPlayGameAbility
 import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
-import mastermind.game.acceptance.dsl.junit.ExecutionContext
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
+import mastermind.testkit.acceptance.ExecutionContext
+import mastermind.testkit.acceptance.isTagged
 import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
