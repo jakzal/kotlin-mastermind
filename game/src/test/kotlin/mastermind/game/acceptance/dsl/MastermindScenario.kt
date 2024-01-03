@@ -8,8 +8,7 @@ import mastermind.game.acceptance.dsl.direct.DirectPlayGameAbility
 import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
-import mastermind.testkit.acceptance.ExecutionContext
-import mastermind.testkit.acceptance.isTagged
+import mastermind.testkit.acceptance.junit.ExecutionContext
 import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
@@ -27,7 +26,7 @@ fun mastermindScenario(
     totalAttempts: Int = 12,
     availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     scenario: suspend MastermindScenario.() -> Unit
-): List<DynamicTest> =
+) =
     scenarioContexts()
         .map { context ->
             with(context) {

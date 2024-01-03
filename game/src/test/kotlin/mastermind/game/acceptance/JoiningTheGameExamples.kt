@@ -4,7 +4,7 @@ import mastermind.game.Code
 import mastermind.game.acceptance.dsl.mastermindScenario
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
-import mastermind.testkit.acceptance.ExecutionContext
+import mastermind.testkit.acceptance.junit.ExecutionContext
 import mastermind.testkit.acceptance.junit.Scenario
 import mastermind.testkit.assertions.shouldReturn
 import org.junit.jupiter.api.Tag

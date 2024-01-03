@@ -1,14 +1,13 @@
 package mastermind.testkit.acceptance.junit
 
-import mastermind.testkit.acceptance.ExecutionContext
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 
-class JUnitExecutionContextResolver : ParameterResolver {
+class ExecutionContextResolver : ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext) =
         parameterContext.parameter.type.isAssignableFrom(ExecutionContext::class.java)
 
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext) =
-        JUnitExecutionContext(extensionContext)
+        ExecutionContext(extensionContext)
 }

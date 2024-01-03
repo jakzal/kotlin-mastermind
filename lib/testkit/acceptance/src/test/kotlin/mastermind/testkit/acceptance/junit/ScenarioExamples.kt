@@ -1,7 +1,5 @@
 package mastermind.testkit.acceptance.junit
 
-import mastermind.testkit.acceptance.ExecutionContext
-import mastermind.testkit.acceptance.isTagged
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DynamicTest.dynamicTest
