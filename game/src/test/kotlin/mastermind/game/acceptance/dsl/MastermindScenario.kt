@@ -25,11 +25,11 @@ fun mastermindScenario(
     secret: Code,
     totalAttempts: Int = 12,
     availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
-    scenario: suspend MastermindScenario.() -> Unit
+    steps: suspend MastermindScenario.() -> Unit
 ) =
     scenarioContexts()
         .map { context ->
-            context.mode.name to mastermindScenarioRunner(context, secret, totalAttempts, availablePegs, scenario)
+            context.mode.name to mastermindScenarioRunner(context, secret, totalAttempts, availablePegs, steps)
         }.map { (name, executable) ->
             dynamicTest(name, executable)
         }
@@ -47,7 +47,7 @@ private fun mastermindScenarioRunner(
     secret: Code,
     totalAttempts: Int,
     availablePegs: Set<Code.Peg>,
-    scenario: suspend MastermindScenario.() -> Unit
+    steps: suspend MastermindScenario.() -> Unit
 ): () -> Unit = {
     val app = MastermindApp(
         gameModule = GameModule(
@@ -62,7 +62,7 @@ private fun mastermindScenarioRunner(
     app.use {
         runTest {
             MastermindScenario(app.playGameAbility(), secret, totalAttempts, availablePegs)
-                .scenario()
+                .steps()
         }
     }
 }
