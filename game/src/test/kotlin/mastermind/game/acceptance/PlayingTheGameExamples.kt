@@ -1,13 +1,13 @@
 package mastermind.game.acceptance
 
 import mastermind.game.Code
-import mastermind.game.acceptance.dsl.junit.Scenario
 import mastermind.game.acceptance.dsl.mastermindScenario
 import mastermind.game.acceptance.dsl.mastermindScenarios
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
 import mastermind.testkit.acceptance.ExecutionContext
+import mastermind.testkit.acceptance.junit.Scenario
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 

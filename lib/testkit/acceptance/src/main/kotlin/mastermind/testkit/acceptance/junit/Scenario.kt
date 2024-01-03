@@ -1,6 +1,5 @@
-package mastermind.game.acceptance.dsl.junit
+package mastermind.testkit.acceptance.junit
 
-import mastermind.testkit.acceptance.junit.JUnitExecutionContextResolver
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.extension.ExtendWith
 
