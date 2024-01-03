@@ -34,7 +34,6 @@ fun mastermindScenario(
             }
         }
 
-context(ExecutionContext)
 fun mastermindScenarios(
     scenarios: List<Pair<String, List<DynamicTest>>>
 ): List<DynamicContainer> =
