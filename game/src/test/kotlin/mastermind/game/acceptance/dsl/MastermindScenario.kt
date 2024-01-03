@@ -43,7 +43,7 @@ fun mastermindScenarios(
             DynamicContainer.dynamicContainer(displayName, scenario)
         }
 
-context(ExecutionContext, ScenarioExecutionContext)
+context(ScenarioExecutionContext)
 private fun mastermindScenarioRunner(
     secret: Code,
     totalAttempts: Int,
