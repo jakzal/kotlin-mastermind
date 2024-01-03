@@ -30,8 +30,10 @@ fun mastermindScenario(
     scenarioContexts()
         .map { context ->
             with(context) {
-                dynamicTest(mode.name, mastermindScenarioRunner(secret, totalAttempts, availablePegs, scenario))
+                context.mode.name to mastermindScenarioRunner(secret, totalAttempts, availablePegs, scenario)
             }
+        }.map { (name, executable) ->
+            dynamicTest(name, executable)
         }
 
 fun scenarios(
