@@ -2,7 +2,7 @@ package mastermind.game.acceptance
 
 import mastermind.game.Code
 import mastermind.game.acceptance.dsl.mastermindScenario
-import mastermind.game.acceptance.dsl.mastermindScenarios
+import mastermind.game.acceptance.dsl.scenarios
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
@@ -15,7 +15,7 @@ context(ExecutionContext)
 class PlayingTheGameExamples {
     @Scenario
     fun `code breaker gets feedback on their guess`() =
-        mastermindScenarios(
+        scenarios(
             guessExamples { (secret, guess, feedback) ->
                 "secret=${secret.pegNames()} guess=${guess.pegNames()} feedback=$feedback" to
                     mastermindScenario(
