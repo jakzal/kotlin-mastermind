@@ -29,9 +29,7 @@ fun mastermindScenario(
 ) =
     scenarioContexts()
         .map { context ->
-            with(context) {
-                context.mode.name to mastermindScenarioRunner(secret, totalAttempts, availablePegs, scenario)
-            }
+            context.mode.name to mastermindScenarioRunner(context, secret, totalAttempts, availablePegs, scenario)
         }.map { (name, executable) ->
             dynamicTest(name, executable)
         }
@@ -44,8 +42,8 @@ fun scenarios(
             DynamicContainer.dynamicContainer(displayName, scenario)
         }
 
-context(ScenarioExecutionContext)
 private fun mastermindScenarioRunner(
+    context: ScenarioExecutionContext,
     secret: Code,
     totalAttempts: Int,
     availablePegs: Set<Code.Peg>,
@@ -56,9 +54,9 @@ private fun mastermindScenarioRunner(
             makeCode = { secret },
             totalAttempts = totalAttempts,
             availablePegs = availablePegs,
-            eventStoreModule = eventStoreModule()
+            eventStoreModule = context.eventStoreModule()
         ),
-        runnerModule = runnerModule()
+        runnerModule = context.runnerModule()
     )
     app.start()
     app.use {
@@ -98,7 +96,10 @@ private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModul
 }
 
 private fun ExecutionContext.scenarioContexts() = listOfNotNull(
-    ScenarioExecutionContext(ScenarioExecutionContext.ExecutionMode.DIRECT, ScenarioExecutionContext.EventStore.IN_MEMORY),
+    ScenarioExecutionContext(
+        ScenarioExecutionContext.ExecutionMode.DIRECT,
+        ScenarioExecutionContext.EventStore.IN_MEMORY
+    ),
     if (this.isHttpTest()) ScenarioExecutionContext(
         ScenarioExecutionContext.ExecutionMode.HTTP,
         ScenarioExecutionContext.EventStore.IN_MEMORY
