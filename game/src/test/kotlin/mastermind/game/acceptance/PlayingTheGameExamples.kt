@@ -26,11 +26,12 @@ class PlayingTheGameExamples {
                         // And the code maker placed the "Red Green Blue Yellow" code pattern on the board
                         secret = secret
                     ) {
-                        joinGame { gameId ->
+                        val alice = player("Alice")
+                        alice.joinGame { gameId ->
                             // When I try to break the code with "Red Purple Purple Purple"
-                            makeGuess(gameId, guess)
+                            alice.makeGuess(gameId, guess)
                             // Then the code maker should give me "Black" feedback on my guess
-                            viewDecodingBoard(gameId) shouldReturnGuess Guess(guess.pegNames(), feedback)
+                            alice.viewDecodingBoard(gameId) shouldReturnGuess Guess(guess.pegNames(), feedback)
                         }
                     }
             }

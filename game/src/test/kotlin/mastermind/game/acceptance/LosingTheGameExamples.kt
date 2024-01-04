@@ -23,13 +23,14 @@ class LosingTheGameExamples {
         // And the code maker placed the "Red Green Yellow Blue" secret on the board
         secret = Code("Red", "Green", "Yellow", "Blue")
     ) {
-        joinGame { gameId ->
+        val alice = player("Alice")
+        alice.joinGame { gameId ->
             // When I try to break the code with an invalid pattern 12 times
             repeat(12) {
-                makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
+                alice.makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
             }
             // Then I should lose the game
-            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
+            alice.viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
                 totalAttempts,
@@ -38,7 +39,7 @@ class LosingTheGameExamples {
                 "Lost"
             )
             // And I should no longer be able to make guesses
-            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldFailWith ExecutionError(GameAlreadyLost(gameId))
+            alice.makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldFailWith ExecutionError(GameAlreadyLost(gameId))
         }
     }
 }

@@ -13,12 +13,16 @@ import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 
+class Player(val name: String, private val ability: PlayGameAbility) : PlayGameAbility by ability
+
 class MastermindScenario(
-    private val ability: PlayGameAbility,
+    private val playGameAbility: PlayGameAbility,
     val secret: Code,
     val totalAttempts: Int,
     val availablePegs: Set<Code.Peg>
-) : PlayGameAbility by ability
+) {
+    fun player(name: String) = Player(name, playGameAbility)
+}
 
 context(ExecutionContext)
 fun mastermindScenario(

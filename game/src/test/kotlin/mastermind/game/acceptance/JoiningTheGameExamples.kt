@@ -21,11 +21,12 @@ class JoiningTheGameExamples {
         // And the code maker has placed a secret on the board
         secret = Code("Red", "Red", "Red", "Red")
     ) {
+        val bob = player("Bob")
         // When I join the game
-        joinGame { gameId ->
+        bob.joinGame { gameId ->
             // Then the game should be started with an empty board
             // And I should have 12 attempts available
-            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
+            bob.viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
                 totalAttempts,
