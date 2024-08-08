@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 val useTestFixtures = project.projectDir.resolve("src/testFixtures").isDirectory
 
 plugins {
@@ -38,10 +36,4 @@ tasks.test {
         events("passed", "skipped", "failed")
     }
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
-    }
 }

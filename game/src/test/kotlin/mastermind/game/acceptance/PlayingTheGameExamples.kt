@@ -11,14 +11,13 @@ import mastermind.testkit.acceptance.junit.Scenario
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 
-context(ExecutionContext)
 class PlayingTheGameExamples {
     @Scenario
-    fun `code breaker gets feedback on their guess`() =
+    fun `code breaker gets feedback on their guess`(context: ExecutionContext) =
         scenarios(
             guessExamples { (secret, guess, feedback) ->
                 "secret=${secret.pegNames()} guess=${guess.pegNames()} feedback=$feedback" to
-                    mastermindScenario(
+                    context.mastermindScenario(
                         // Given a decoding board of 12 attempts
                         totalAttempts = 12,
                         // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"

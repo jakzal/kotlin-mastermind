@@ -24,8 +24,7 @@ class MastermindScenario(
     fun player(name: String) = Player(name, playGameAbility)
 }
 
-context(ExecutionContext)
-fun mastermindScenario(
+fun ExecutionContext.mastermindScenario(
     secret: Code,
     totalAttempts: Int = 12,
     availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
