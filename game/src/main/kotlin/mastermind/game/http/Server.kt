@@ -9,7 +9,7 @@ import mastermind.game.Code.Peg
 import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.config.asEventStoreModule
 import mastermind.game.view.DecodingBoard
-import org.http4k.cloudnative.env.Environment
+import org.http4k.config.Environment
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Header

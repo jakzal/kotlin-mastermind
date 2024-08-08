@@ -4,8 +4,8 @@ import mastermind.eventstore.InMemoryEventStore
 import mastermind.eventstore.eventstoredb.EventStoreDbEventStore
 import mastermind.game.EventStoreModule
 import mastermind.game.GameEvent
-import org.http4k.cloudnative.env.Environment
-import org.http4k.cloudnative.env.EnvironmentKey
+import org.http4k.config.Environment
+import org.http4k.config.EnvironmentKey
 import org.http4k.lens.nonBlankString
 
 fun Environment.asEventStoreModule(): EventStoreModule<GameEvent> =
