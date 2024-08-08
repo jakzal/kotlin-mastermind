@@ -8,7 +8,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.+")
     testImplementation(testFixtures(project(":lib:eventstore")))
     testImplementation(project(":lib:testkit:testcontainers-eventstoredb"))
-    testImplementation(platform("org.testcontainers:testcontainers-bom:1.19.2"))
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.1"))
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
 }
