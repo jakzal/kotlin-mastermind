@@ -12,8 +12,7 @@ import mastermind.game.GameId
 
 typealias LoadStream = suspend (StreamName) -> Either<EventStoreError, LoadedStream<GameEvent>>
 
-context(LoadStream)
-suspend fun viewDecodingBoard(gameId: GameId): DecodingBoard? = this@LoadStream("Mastermind:${gameId.value}")
+suspend fun viewDecodingBoard(loadStream: LoadStream, gameId: GameId): DecodingBoard? = loadStream("Mastermind:${gameId.value}")
     .fold(
         { null },
         { stream -> stream.events.fold(null, ::applyEventToDecodingBoard) }

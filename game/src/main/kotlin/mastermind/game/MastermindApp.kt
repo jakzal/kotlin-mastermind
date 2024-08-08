@@ -22,9 +22,7 @@ data class GameModule(
     val generateGameId: () -> GameId = ::generateGameId,
     val makeCode: () -> Code = { availablePegs.makeCode() },
     val viewDecodingBoard: suspend (GameId) -> DecodingBoard? = { gameId ->
-        with(eventStoreModule::load) {
-            mastermind.game.view.viewDecodingBoard(gameId)
-        }
+        mastermind.game.view.viewDecodingBoard(eventStoreModule::load, gameId)
     },
     val execute: GameCommandDispatcher = EventStoreCommandDispatcher(
         eventStoreModule,

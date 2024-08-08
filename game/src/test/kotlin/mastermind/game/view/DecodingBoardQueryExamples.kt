@@ -24,9 +24,7 @@ import org.junit.jupiter.api.Test
 class DecodingBoardQueryExamples {
     @Test
     fun `it returns null if the game is not found`() = runTest {
-        with(noEvents()) {
-            viewDecodingBoard(anyGameId()) shouldReturn null
-        }
+        viewDecodingBoard(noEvents(), anyGameId()) shouldReturn null
     }
 
     @Test
@@ -36,16 +34,17 @@ class DecodingBoardQueryExamples {
         val secret = availablePegs.makeCode()
         val totalAttempts = 12
 
-        with(events(GameStarted(gameId, secret, totalAttempts, availablePegs))) {
-            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
-                gameId.value,
-                secret.length,
-                totalAttempts,
-                setOf("Red", "Green", "Blue", "Yellow", "Purple", "Pink"),
-                emptyList(),
-                "In progress"
-            )
-        }
+        viewDecodingBoard(
+            events(GameStarted(gameId, secret, totalAttempts, availablePegs)),
+            gameId
+        ) shouldReturn DecodingBoard(
+            gameId.value,
+            secret.length,
+            totalAttempts,
+            setOf("Red", "Green", "Blue", "Yellow", "Purple", "Pink"),
+            emptyList(),
+            "In progress"
+        )
     }
 
     @Test
@@ -55,7 +54,7 @@ class DecodingBoardQueryExamples {
         val secret = availablePegs.makeCode()
         val totalAttempts = 12
 
-        with(
+        viewDecodingBoard(
             events(
                 GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
@@ -65,19 +64,17 @@ class DecodingBoardQueryExamples {
                         Feedback(IN_PROGRESS, BLACK, WHITE)
                     )
                 )
-            )
-        ) {
-            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
-                gameId.value,
-                secret.length,
-                totalAttempts,
-                setOf("Red", "Green", "Blue", "Yellow", "Purple"),
-                listOf(
-                    Guess(listOf("Red", "Green", "Blue", "Yellow"), listOf("Black", "White"))
-                ),
-                "In progress"
-            )
-        }
+            ), gameId
+        ) shouldReturn DecodingBoard(
+            gameId.value,
+            secret.length,
+            totalAttempts,
+            setOf("Red", "Green", "Blue", "Yellow", "Purple"),
+            listOf(
+                Guess(listOf("Red", "Green", "Blue", "Yellow"), listOf("Black", "White"))
+            ),
+            "In progress"
+        )
     }
 
     @Test
@@ -87,7 +84,7 @@ class DecodingBoardQueryExamples {
         val totalAttempts = 2
         val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
-        with(
+        viewDecodingBoard(
             events(
                 GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
@@ -105,20 +102,18 @@ class DecodingBoardQueryExamples {
                     )
                 ),
                 GameLost(gameId)
-            )
-        ) {
-            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
-                gameId.value,
-                secret.length,
-                totalAttempts,
-                setOf("Red", "Green", "Blue", "Yellow", "Purple"),
-                listOf(
-                    Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),
-                    Guess(listOf("Purple", "Purple", "Purple", "Purple"), listOf())
-                ),
-                "Lost"
-            )
-        }
+            ), gameId
+        ) shouldReturn DecodingBoard(
+            gameId.value,
+            secret.length,
+            totalAttempts,
+            setOf("Red", "Green", "Blue", "Yellow", "Purple"),
+            listOf(
+                Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),
+                Guess(listOf("Purple", "Purple", "Purple", "Purple"), listOf())
+            ),
+            "Lost"
+        )
     }
 
     @Test
@@ -128,7 +123,7 @@ class DecodingBoardQueryExamples {
         val totalAttempts = 3
         val availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple")
 
-        with(
+        viewDecodingBoard(
             events(
                 GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
@@ -146,20 +141,18 @@ class DecodingBoardQueryExamples {
                     )
                 ),
                 GameLost(gameId)
-            )
-        ) {
-            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
-                gameId.value,
-                secret.length,
-                totalAttempts,
-                setOf("Red", "Green", "Blue", "Yellow", "Purple"),
-                listOf(
-                    Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),
-                    Guess(listOf("Purple", "Purple", "Purple", "Purple"), listOf())
-                ),
-                "Lost"
-            )
-        }
+            ), gameId
+        ) shouldReturn DecodingBoard(
+            gameId.value,
+            secret.length,
+            totalAttempts,
+            setOf("Red", "Green", "Blue", "Yellow", "Purple"),
+            listOf(
+                Guess(listOf("Red", "Green", "Blue", "Blue"), listOf("Black", "White")),
+                Guess(listOf("Purple", "Purple", "Purple", "Purple"), listOf())
+            ),
+            "Lost"
+        )
     }
 
 
@@ -170,7 +163,7 @@ class DecodingBoardQueryExamples {
         val secret = availablePegs.makeCode()
         val totalAttempts = 12
 
-        with(
+        viewDecodingBoard(
             events(
                 GameStarted(gameId, secret, totalAttempts, availablePegs),
                 GuessMade(
@@ -187,10 +180,8 @@ class DecodingBoardQueryExamples {
                         Feedback(IN_PROGRESS, BLACK, WHITE)
                     )
                 )
-            )
-        ) {
-            viewDecodingBoard(gameId)?.leftAttempts shouldReturn 10
-        }
+            ), gameId
+        )?.leftAttempts shouldReturn 10
     }
 }
 
