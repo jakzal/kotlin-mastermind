@@ -35,11 +35,9 @@ data class GameModule(
 )
 
 interface RunnerModule {
-    context(MastermindApp)
-    fun start()
+    fun start(app: MastermindApp)
 
-    context(MastermindApp)
-    fun shutdown()
+    fun shutdown(app: MastermindApp)
 }
 
 data class MastermindApp(
@@ -52,11 +50,11 @@ data class MastermindApp(
     ) : this(GameModule(eventStoreModule), runnerModule)
 
     fun start() {
-        runnerModule.start()
+        runnerModule.start(this)
     }
 
     override fun close() {
-        runnerModule.shutdown()
+        runnerModule.shutdown(this)
     }
 
     suspend fun joinGame(): Either<EventSourcingError<GameError>, GameId> = with(gameModule) {

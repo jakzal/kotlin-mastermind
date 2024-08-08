@@ -37,11 +37,11 @@ data class ServerRunnerModule(private val initPort: Int) : RunnerModule {
 
     val port get() = server?.port() ?: initPort
 
-    context(MastermindApp) override fun start() {
-        server = serverFor(initPort, routes).start()
+    override fun start(app: MastermindApp) {
+        server = serverFor(initPort, app.routes).start()
     }
 
-    context(MastermindApp) override fun shutdown() {
+    override fun shutdown(app: MastermindApp) {
         server?.stop()
         server = null
     }

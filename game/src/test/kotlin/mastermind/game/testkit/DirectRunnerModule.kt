@@ -4,11 +4,9 @@ import mastermind.game.MastermindApp
 import mastermind.game.RunnerModule
 
 class DirectRunnerModule : RunnerModule {
-    context(MastermindApp)
-    override fun start() {
+    override fun start(app: MastermindApp) {
     }
 
-    context(MastermindApp)
-    override fun shutdown() {
+    override fun shutdown(app: MastermindApp) {
     }
 }
