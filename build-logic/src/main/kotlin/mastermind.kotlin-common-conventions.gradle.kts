@@ -23,6 +23,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     if (useTestFixtures) {
         testFixturesImplementation("io.arrow-kt:arrow-core:1.2.1")
         testFixturesImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
