@@ -25,7 +25,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     if (useTestFixtures) {
-        testFixturesImplementation("io.arrow-kt:arrow-core:1.2.1")
+        testFixturesImplementation("io.arrow-kt:arrow-core:1.2.4")
         testFixturesImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
         testFixturesImplementation(platform("org.junit:junit-bom:5.10.0"))
         testFixturesImplementation("org.junit.jupiter:junit-jupiter")
