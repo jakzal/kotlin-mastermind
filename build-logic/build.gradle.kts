@@ -7,6 +7,6 @@ repositories {
 }
 
 dependencies {
-    val kotlinVersion = "1.9.20"
+    val kotlinVersion = "2.0.0"
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
 }

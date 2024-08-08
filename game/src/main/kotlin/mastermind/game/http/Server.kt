@@ -41,7 +41,7 @@ data class ServerRunnerModule(private val initPort: Int) : RunnerModule {
         server = serverFor(initPort, routes).start()
     }
 
-    override fun shutdown() {
+    context(MastermindApp) override fun shutdown() {
         server?.stop()
         server = null
     }
