@@ -17,7 +17,7 @@ suspend fun <EVENT : Any, ERROR : Any> EventStore<EVENT>.loadToAppend(
     load(streamName)
         .orCreate(streamName)
         .update(onEvents)
-        .persist()
+        .persist(this)
         .map(LoadedStream<EVENT>::events)
 
 private fun <EVENT : Any> Either<EventStoreError, LoadedStream<EVENT>>.orCreate(
@@ -40,11 +40,10 @@ private fun <EVENT : Any, ERROR : Any> Either<EventStoreError, Stream<EVENT>>.up
         }
 
 
-context(EventStore<EVENT>)
-private suspend fun <EVENT : Any, ERROR : Any> Either<EventSourcingError<ERROR>, UpdatedStream<EVENT>>.persist()
-        : Either<EventSourcingError<ERROR>, LoadedStream<EVENT>> =
+private suspend fun <EVENT : Any, ERROR : Any> Either<EventSourcingError<ERROR>, UpdatedStream<EVENT>>.persist(
+    eventStore: EventStore<EVENT>
+): Either<EventSourcingError<ERROR>, LoadedStream<EVENT>> =
     flatMap { streamToWrite ->
-        append(streamToWrite)
+        eventStore.append(streamToWrite)
             .mapLeft { EventSourcingError.EventStoreError(it) }
     }
-

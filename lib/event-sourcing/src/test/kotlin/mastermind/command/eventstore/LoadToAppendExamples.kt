@@ -1,6 +1,9 @@
 package mastermind.command.eventstore
 
-import arrow.core.*
+import arrow.core.getOrElse
+import arrow.core.left
+import arrow.core.nonEmptyListOf
+import arrow.core.right
 import kotlinx.coroutines.test.runTest
 import mastermind.command.eventstore.LoadToAppendExamples.TestEvent.Event1
 import mastermind.command.eventstore.LoadToAppendExamples.TestEvent.Event2
@@ -121,8 +124,7 @@ class LoadToAppendExamples {
         }
     }
 
-    context(EventStore<TestEvent>)
-    private suspend fun givenStream(streamName: StreamName, event: TestEvent, vararg events: TestEvent) =
+    private suspend fun EventStore<TestEvent>.givenStream(streamName: StreamName, event: TestEvent, vararg events: TestEvent) =
         append(updatedStream(streamName, event, *events))
             .getOrElse { e -> throw RuntimeException("Failed to persist events $e.") }
 
