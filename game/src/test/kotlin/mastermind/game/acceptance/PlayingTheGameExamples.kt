@@ -11,9 +11,9 @@ import mastermind.testkit.acceptance.junit.Scenario
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 
-class PlayingTheGameExamples {
+class PlayingTheGameExamples(private val context: ExecutionContext) {
     @Scenario
-    fun `code breaker gets feedback on their guess`(context: ExecutionContext) =
+    fun `code breaker gets feedback on their guess`() =
         scenarios(
             guessExamples { (secret, guess, feedback) ->
                 "secret=${secret.pegNames()} guess=${guess.pegNames()} feedback=$feedback" to

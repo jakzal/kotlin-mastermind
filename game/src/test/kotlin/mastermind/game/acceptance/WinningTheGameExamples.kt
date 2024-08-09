@@ -12,9 +12,9 @@ import mastermind.testkit.acceptance.junit.Scenario
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldReturn
 
-class WinningTheGameExamples {
+class WinningTheGameExamples(private val context: ExecutionContext) {
     @Scenario
-    fun `code breaker wins the game`(context: ExecutionContext) = context.mastermindScenario(
+    fun `code breaker wins the game`() = context.mastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
         // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"

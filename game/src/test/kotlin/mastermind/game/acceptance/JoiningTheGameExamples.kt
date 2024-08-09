@@ -10,9 +10,9 @@ import mastermind.testkit.assertions.shouldReturn
 import org.junit.jupiter.api.Tag
 
 @Tag("http")
-class JoiningTheGameExamples {
+class JoiningTheGameExamples(private val context: ExecutionContext) {
     @Scenario
-    fun `code breaker joins the game`(context: ExecutionContext) = context.mastermindScenario(
+    fun `code breaker joins the game`() = context.mastermindScenario(
         // Given a decoding board of 12 attempts
         totalAttempts = 12,
         // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"
