@@ -30,20 +30,23 @@ fun ExecutionContext.mastermindScenario(
     availablePegs: Set<Code.Peg> = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
     steps: suspend MastermindScenario.() -> Unit
 ) =
-    scenarioContexts()
-        .map { context ->
-            context.mode.name to mastermindScenarioRunner(context, secret, totalAttempts, availablePegs, steps)
-        }.map { (name, executable) ->
-            dynamicTest(name, executable)
-        }
+    mastermindScenarioRunners(secret, totalAttempts, availablePegs, steps)
+        .map { (name, executable) -> dynamicTest(name, executable) }
+        .asIterable()
 
 fun scenarios(
-    scenarios: List<Pair<String, List<DynamicTest>>>
-): List<DynamicContainer> =
-    scenarios
-        .map { (displayName, scenario) ->
-            DynamicContainer.dynamicContainer(displayName, scenario)
-        }
+    scenarios: Iterable<Pair<String, Iterable<DynamicTest>>>
+) = scenarios.map { (displayName, scenario) -> DynamicContainer.dynamicContainer(displayName, scenario) }
+
+private fun ExecutionContext.mastermindScenarioRunners(
+    secret: Code,
+    totalAttempts: Int,
+    availablePegs: Set<Code.Peg>,
+    steps: suspend MastermindScenario.() -> Unit
+) = scenarioContexts()
+    .map { context ->
+        context.mode.name to mastermindScenarioRunner(context, secret, totalAttempts, availablePegs, steps)
+    }
 
 private fun mastermindScenarioRunner(
     context: ScenarioExecutionContext,
@@ -98,16 +101,22 @@ private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModul
     else -> DirectPlayGameAbility(this)
 }
 
-private fun ExecutionContext.scenarioContexts() = listOfNotNull(
-    ScenarioExecutionContext(
-        ScenarioExecutionContext.ExecutionMode.DIRECT,
-        ScenarioExecutionContext.EventStore.IN_MEMORY
-    ),
-    if (this.isHttpTest()) ScenarioExecutionContext(
-        ScenarioExecutionContext.ExecutionMode.HTTP,
-        ScenarioExecutionContext.EventStore.IN_MEMORY
-    ) else null,
-)
+private fun ExecutionContext.scenarioContexts() = sequence {
+    yield(
+        ScenarioExecutionContext(
+            ScenarioExecutionContext.ExecutionMode.DIRECT,
+            ScenarioExecutionContext.EventStore.IN_MEMORY
+        )
+    )
+    if (this@scenarioContexts.isHttpTest()) {
+        yield(
+            ScenarioExecutionContext(
+                ScenarioExecutionContext.ExecutionMode.HTTP,
+                ScenarioExecutionContext.EventStore.IN_MEMORY
+            )
+        )
+    }
+}
 
 private fun ExecutionContext.isHttpTest(): Boolean =
     (isHttpTestForced() || isTagged("http")) && !isDirectTestForced()
