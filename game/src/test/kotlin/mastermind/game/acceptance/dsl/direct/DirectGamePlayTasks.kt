@@ -8,11 +8,11 @@ import mastermind.game.GameCommand.MakeGuess
 import mastermind.game.GameError
 import mastermind.game.GameId
 import mastermind.game.MastermindApp
-import mastermind.game.acceptance.dsl.PlayGameAbility
+import mastermind.game.acceptance.dsl.GamePlayTasks
 import mastermind.game.view.DecodingBoard
 
-class DirectPlayGameAbility(private val app: MastermindApp) : PlayGameAbility {
-    override suspend fun joinGame(onceJoined: suspend PlayGameAbility.(GameId) -> Unit) {
+class DirectGamePlayTasks(private val app: MastermindApp) : GamePlayTasks {
+    override suspend fun joinGame(onceJoined: suspend GamePlayTasks.(GameId) -> Unit) {
         app.joinGame()
             .getOrElse {
                 throw RuntimeException("JoinGame command completed with no error.")

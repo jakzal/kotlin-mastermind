@@ -10,7 +10,7 @@ import mastermind.game.GameError
 import mastermind.game.GameError.GameFinishedError.GameAlreadyLost
 import mastermind.game.GameError.GameFinishedError.GameAlreadyWon
 import mastermind.game.GameId
-import mastermind.game.acceptance.dsl.PlayGameAbility
+import mastermind.game.acceptance.dsl.GamePlayTasks
 import mastermind.game.http.Error
 import mastermind.game.view.DecodingBoard
 import org.http4k.client.ApacheClient
@@ -18,12 +18,12 @@ import org.http4k.core.*
 import org.http4k.format.Jackson.auto
 import org.junit.jupiter.api.Assertions
 
-class HttpPlayGameAbility(
+class HttpGamePlayTasks(
     private val serverPort: Int,
     private val client: HttpHandler = ApacheClient()
-) : PlayGameAbility {
+) : GamePlayTasks {
 
-    override suspend fun joinGame(onceJoined: suspend PlayGameAbility.(GameId) -> Unit) {
+    override suspend fun joinGame(onceJoined: suspend GamePlayTasks.(GameId) -> Unit) {
         val response = client(Request(Method.POST, "http://localhost:$serverPort/games"))
         Assertions.assertEquals(Status.CREATED, response.status)
         response.header("Location")

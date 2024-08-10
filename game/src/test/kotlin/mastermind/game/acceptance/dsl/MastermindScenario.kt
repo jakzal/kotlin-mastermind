@@ -4,8 +4,8 @@ import kotlinx.coroutines.test.runTest
 import mastermind.eventstore.InMemoryEventStore
 import mastermind.eventstore.eventstoredb.EventStoreDbEventStore
 import mastermind.game.*
-import mastermind.game.acceptance.dsl.direct.DirectPlayGameAbility
-import mastermind.game.acceptance.dsl.http.HttpPlayGameAbility
+import mastermind.game.acceptance.dsl.direct.DirectGamePlayTasks
+import mastermind.game.acceptance.dsl.http.HttpGamePlayTasks
 import mastermind.game.http.ServerRunnerModule
 import mastermind.game.testkit.DirectRunnerModule
 import mastermind.testkit.acceptance.junit.ExecutionContext
@@ -13,15 +13,15 @@ import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 
-class Player(val name: String, private val ability: PlayGameAbility) : PlayGameAbility by ability
+class Player(val name: String, private val tasks: GamePlayTasks) : GamePlayTasks by tasks
 
 class MastermindScenario(
-    private val playGameAbility: PlayGameAbility,
+    private val gamePlayTasks: GamePlayTasks,
     val secret: Code,
     val totalAttempts: Int,
     val availablePegs: Set<Code.Peg>
 ) {
-    fun player(name: String) = Player(name, playGameAbility)
+    fun player(name: String) = Player(name, gamePlayTasks)
 }
 
 fun ExecutionContext.mastermindScenario(
@@ -67,7 +67,7 @@ private fun mastermindScenarioRunner(
     app.start()
     app.use {
         runTest {
-            MastermindScenario(app.playGameAbility(), secret, totalAttempts, availablePegs)
+            MastermindScenario(app.gamePlayTasks(), secret, totalAttempts, availablePegs)
                 .steps()
         }
     }
@@ -96,9 +96,9 @@ private fun ScenarioExecutionContext.eventStoreModule(): EventStoreModule<GameEv
     ScenarioExecutionContext.EventStore.EVENT_STORE_DB -> EventStoreModule(EventStoreDbEventStore("esdb://localhost:2113?tls=false"))
 }
 
-private fun MastermindApp.playGameAbility(): PlayGameAbility = when (runnerModule) {
-    is ServerRunnerModule -> HttpPlayGameAbility((runnerModule as ServerRunnerModule).port)
-    else -> DirectPlayGameAbility(this)
+private fun MastermindApp.gamePlayTasks(): GamePlayTasks = when (runnerModule) {
+    is ServerRunnerModule -> HttpGamePlayTasks((runnerModule as ServerRunnerModule).port)
+    else -> DirectGamePlayTasks(this)
 }
 
 private fun ExecutionContext.scenarioContexts() = sequence {
