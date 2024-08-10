@@ -1,8 +1,8 @@
 package mastermind.game.acceptance
 
 import mastermind.game.Code
+import mastermind.game.acceptance.dsl.examplesFor
 import mastermind.game.acceptance.dsl.mastermindScenario
-import mastermind.game.acceptance.dsl.scenarios
 import mastermind.game.setOfPegs
 import mastermind.game.view.DecodingBoard
 import mastermind.game.view.Guess
@@ -10,32 +10,30 @@ import mastermind.testkit.acceptance.junit.ExecutionContext
 import mastermind.testkit.acceptance.junit.Scenario
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.DynamicTest
 
 class PlayingTheGameExamples(private val context: ExecutionContext) {
     @Scenario
     fun `code breaker gets feedback on their guess`() =
-        scenarios(
-            guessExamples { (secret, guess, feedback) ->
-                "secret=${secret.pegNames()} guess=${guess.pegNames()} feedback=$feedback" to
-                    context.mastermindScenario(
-                        // Given a decoding board of 12 attempts
-                        totalAttempts = 12,
-                        // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"
-                        availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
-                        // And the code maker placed the "Red Green Blue Yellow" code pattern on the board
-                        secret = secret
-                    ) {
-                        joinGame { gameId ->
-                            // When I try to break the code with "Red Purple Purple Purple"
-                            makeGuess(gameId, guess)
-                            // Then the code maker should give me "Black" feedback on my guess
-                            viewDecodingBoard(gameId) shouldReturnGuess Guess(guess.pegNames(), feedback)
-                        }
-                    }
+        guessExamples { (secret, guess, feedback) ->
+            context.mastermindScenario(
+                // Given a decoding board of 12 attempts
+                totalAttempts = 12,
+                // And the following code pegs available: "Red, Green, Blue, Yellow, Purple"
+                availablePegs = setOfPegs("Red", "Green", "Blue", "Yellow", "Purple"),
+                // And the code maker placed the "Red Green Blue Yellow" code pattern on the board
+                secret = secret
+            ) {
+                joinGame { gameId ->
+                    // When I try to break the code with "Red Purple Purple Purple"
+                    makeGuess(gameId, guess)
+                    // Then the code maker should give me "Black" feedback on my guess
+                    viewDecodingBoard(gameId) shouldReturnGuess Guess(guess.pegNames(), feedback)
+                }
             }
-        )
+        }
 
-    private fun <R> guessExamples(block: (Triple<Code, Code, List<String>>) -> R): List<R> = listOf(
+    private fun guessExamples(block: (Triple<Code, Code, List<String>>) -> Iterable<DynamicTest>) = listOf(
         Triple(
             Code("Red", "Green", "Blue", "Yellow"),
             Code("Red", "Purple", "Purple", "Purple"),
@@ -116,7 +114,9 @@ class PlayingTheGameExamples(private val context: ExecutionContext) {
             Code("Purple", "Purple", "Red", "Red"),
             listOf("White")
         ),
-    ).map(block)
+    ).examplesFor(block) { (secret, guess, feedback) ->
+        "secret=${secret.pegNames()} guess=${guess.pegNames()} feedback=$feedback"
+    }
 }
 
 private infix fun DecodingBoard?.shouldReturnGuess(guess: Guess) {
