@@ -31,8 +31,10 @@ fun ExecutionContext.mastermindScenario(
         .map { (name, executable) -> dynamicTest(name, executable) }
         .asIterable()
 
-fun <T> Iterable<T>.examplesFor(exampleBlock: (T) -> Iterable<DynamicTest>, displayName: (T) -> String) =
-    map { argument -> DynamicContainer.dynamicContainer(displayName(argument), exampleBlock(argument)) }
+fun <T> Iterable<T>.examplesFor(
+    exampleBlock: (T) -> Iterable<DynamicTest>,
+    displayName: (T) -> String = { argument -> "$argument" }
+) = map { argument -> DynamicContainer.dynamicContainer(displayName(argument), exampleBlock(argument)) }
 
 private fun ExecutionContext.mastermindScenarioRunners(
     secret: Code,
