@@ -22,14 +22,13 @@ class LosingTheGameExamples(private val context: ExecutionContext) {
         // And the code maker placed the "Red Green Yellow Blue" secret on the board
         secret = Code("Red", "Green", "Yellow", "Blue")
     ) {
-        val alice = player("Alice")
-        alice.joinGame { gameId ->
+        joinGame { gameId ->
             // When I try to break the code with an invalid pattern 12 times
             repeat(12) {
-                alice.makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
+                makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
             }
             // Then I should lose the game
-            alice.viewDecodingBoard(gameId) shouldReturn DecodingBoard(
+            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
                 totalAttempts,
@@ -38,7 +37,7 @@ class LosingTheGameExamples(private val context: ExecutionContext) {
                 "Lost"
             )
             // And I should no longer be able to make guesses
-            alice.makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldFailWith ExecutionError(GameAlreadyLost(gameId))
+            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldFailWith ExecutionError(GameAlreadyLost(gameId))
         }
     }
 }

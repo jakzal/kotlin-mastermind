@@ -22,16 +22,15 @@ class WinningTheGameExamples(private val context: ExecutionContext) {
         // And the code maker placed the "Red Green Yellow Blue" secret on the board
         secret = Code("Red", "Green", "Yellow", "Blue")
     ) {
-        val bob = player("Bob")
-        bob.joinGame { gameId ->
+        joinGame { gameId ->
             // When I try to break the code with an invalid pattern 11 times
             repeat(11) {
-                bob.makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
+                makeGuess(gameId, Code("Purple", "Purple", "Purple", "Purple"))
             }
             // But I break the code in the final guess
-            bob.makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue"))
+            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue"))
             // Then I should win the game
-            bob.viewDecodingBoard(gameId) shouldReturn DecodingBoard(
+            viewDecodingBoard(gameId) shouldReturn DecodingBoard(
                 gameId.value,
                 secret.length,
                 totalAttempts,
@@ -47,7 +46,7 @@ class WinningTheGameExamples(private val context: ExecutionContext) {
                 "Won"
             )
             // And I should no longer be able to make guesses
-            bob.makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldFailWith ExecutionError(GameAlreadyWon(gameId))
+            makeGuess(gameId, Code("Red", "Green", "Yellow", "Blue")) shouldFailWith ExecutionError(GameAlreadyWon(gameId))
         }
     }
 }
