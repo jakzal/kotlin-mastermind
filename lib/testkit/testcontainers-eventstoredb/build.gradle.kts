@@ -7,5 +7,5 @@ dependencies {
     implementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("com.eventstore:db-client-java:5.4.4")
-    testImplementation("org.slf4j:slf4j-api:2.0.14")
+    testImplementation("org.slf4j:slf4j-api:2.0.17")
 }
