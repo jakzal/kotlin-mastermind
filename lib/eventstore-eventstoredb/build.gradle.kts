@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     implementation(project(":lib:eventstore"))
-    implementation("com.eventstore:db-client-java:5.4.1")
+    implementation("com.eventstore:db-client-java:5.4.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.+")
     testImplementation(testFixtures(project(":lib:eventstore")))
     testImplementation(project(":lib:testkit:testcontainers-eventstoredb"))
