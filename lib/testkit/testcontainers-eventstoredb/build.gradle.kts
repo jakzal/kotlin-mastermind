@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(platform("org.testcontainers:testcontainers-bom:1.20.1"))
+    implementation(platform("org.testcontainers:testcontainers-bom:1.20.6"))
     implementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("com.eventstore:db-client-java:5.4.4")
