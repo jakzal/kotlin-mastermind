@@ -3,7 +3,7 @@ package mastermind.testkit.testcontainers.eventstoredb
 import org.testcontainers.utility.DockerImageName
 import org.testcontainers.utility.ImageNameSubstitutor
 
-private const val ARM_IMAGE = "ghcr.io/eventstore/eventstore:23.10.0-alpha-arm64v8"
+private const val ARM_IMAGE = "ghcr.io/kurrent-io/eventstore:23.10.0-alpha-arm64v8"
 
 private val isRunOnAppleSilicon: Boolean
     get() = "aarch64" == System.getProperty("os.arch", "unknown")
@@ -20,4 +20,4 @@ class EventStoreDbImageNameSubstitutor : ImageNameSubstitutor() {
     override fun getDescription(): String = "Substitutes EventStoreDB image name if run on Apple silicon."
 }
 
-private fun DockerImageName.isEventStoreImage(): Boolean = "ghcr.io/eventstore/eventstore" == unversionedPart
+private fun DockerImageName.isEventStoreImage(): Boolean = "ghcr.io/kurrent-io/eventstore" == unversionedPart
