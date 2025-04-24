@@ -1,15 +1,12 @@
-package mastermind.command
+package mastermind.eventsourcing
 
 import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
-import mastermind.command.fixtures.TestCommand
-import mastermind.command.fixtures.TestError
-import mastermind.command.fixtures.TestEvent
-import mastermind.command.fixtures.TestState
-import mastermind.eventsourcing.Apply
-import mastermind.eventsourcing.Execute
-import mastermind.eventsourcing.handlerFor
+import mastermind.eventsourcing.fixtures.TestCommand
+import mastermind.eventsourcing.fixtures.TestError
+import mastermind.eventsourcing.fixtures.TestEvent
+import mastermind.eventsourcing.fixtures.TestState
 import mastermind.testkit.assertions.shouldBe
 import mastermind.testkit.assertions.shouldFailWith
 import mastermind.testkit.assertions.shouldSucceedWith

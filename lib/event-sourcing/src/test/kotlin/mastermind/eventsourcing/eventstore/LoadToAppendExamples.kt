@@ -1,15 +1,14 @@
-package mastermind.command.eventstore
+package mastermind.eventsourcing.eventstore
 
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.coroutines.test.runTest
-import mastermind.command.eventstore.LoadToAppendExamples.TestEvent.Event1
-import mastermind.command.eventstore.LoadToAppendExamples.TestEvent.Event2
 import mastermind.eventsourcing.eventstore.EventSourcingError.EventStoreError
 import mastermind.eventsourcing.eventstore.EventSourcingError.ExecutionError
-import mastermind.eventsourcing.eventstore.loadToAppend
+import mastermind.eventsourcing.eventstore.LoadToAppendExamples.TestEvent.Event1
+import mastermind.eventsourcing.eventstore.LoadToAppendExamples.TestEvent.Event2
 import mastermind.eventstore.*
 import mastermind.eventstore.EventStoreError.VersionConflict
 import mastermind.eventstore.Stream.UpdatedStream

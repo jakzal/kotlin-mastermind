@@ -1,13 +1,11 @@
-package mastermind.command.eventstore
+package mastermind.eventsourcing.eventstore
 
 import arrow.core.*
 import kotlinx.coroutines.test.runTest
-import mastermind.command.fixtures.TestCommand
-import mastermind.command.fixtures.TestError
-import mastermind.command.fixtures.TestEvent
 import mastermind.eventsourcing.eventstore.EventSourcingError.ExecutionError
-import mastermind.eventsourcing.eventstore.EventStoreCommandDispatcher
-import mastermind.eventsourcing.eventstore.loadToAppend
+import mastermind.eventsourcing.fixtures.TestCommand
+import mastermind.eventsourcing.fixtures.TestError
+import mastermind.eventsourcing.fixtures.TestEvent
 import mastermind.eventstore.EventStore
 import mastermind.eventstore.InMemoryEventStore
 import mastermind.eventstore.Stream.LoadedStream

@@ -1,4 +1,4 @@
-package mastermind.command.fixtures
+package mastermind.eventsourcing.fixtures
 
 data class TestCommand(val id: String)
 
