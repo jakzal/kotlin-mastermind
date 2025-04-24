@@ -3,7 +3,7 @@ package mastermind.testkit.testcontainers.eventstoredb
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
 
-private const val defaultImageName = "ghcr.io/kurrent-io/eventstore:23.10.0-alpine"
+private const val defaultImageName = "ghcr.io/kurrent-io/eventstore:24.2.0-alpine"
 
 class EventStoreDbContainer<SELF : EventStoreDbContainer<SELF>> :
     GenericContainer<SELF>(DockerImageName.parse(defaultImageName)) {
